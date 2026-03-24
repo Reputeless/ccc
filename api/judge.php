@@ -48,6 +48,11 @@ try {
     [$statusCode, $result] = ccc_judge_submission($config, $problem, $code);
     ccc_send_json($result, $statusCode, ['Cache-Control' => 'no-store']);
 } catch (Throwable $throwable) {
+    error_log(sprintf(
+        '[CCC judge] Wandbox request failed for problem "%s": %s',
+        $problemId,
+        $throwable->getMessage()
+    ));
     ccc_send_json([
         'status' => 'service_unavailable',
         'message' => 'Wandbox への接続に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。',
