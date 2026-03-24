@@ -139,7 +139,7 @@ function renderProblemCard(problem) {
   const article = document.createElement("article");
   article.className = "problem-card";
 
-  const lectureLabel = problem.lecture ?? "未設定";
+  const lectureLabel = problem.lecture == null ? "講義回 未設定" : `第 ${problem.lecture} 回`;
   const difficultyKey = problem.difficulty == null ? "unset" : String(problem.difficulty);
   const difficultyLabel = problem.difficulty == null
     ? "未設定"
@@ -147,23 +147,21 @@ function renderProblemCard(problem) {
   const understandingValue = getUnderstanding(problem.id);
 
   article.innerHTML = `
-    <div class="problem-card-header">
-      <div>
-        <p class="eyebrow">講義回 ${escapeHtml(String(lectureLabel))}</p>
-        <h3 class="problem-card-title">
-          <a href="problem.html?id=${encodeURIComponent(problem.id)}">${escapeHtml(problem.title)}</a>
-        </h3>
-      </div>
-      <span class="difficulty-badge difficulty-${escapeHtml(difficultyKey)}">${escapeHtml(difficultyLabel)}</span>
+    <div class="problem-main">
+      <h3 class="problem-card-title">
+        <a href="problem.html?id=${encodeURIComponent(problem.id)}">${escapeHtml(problem.title)}</a>
+      </h3>
     </div>
     <div class="problem-card-actions">
-      <label class="checkbox-field">
+      <span class="lecture-badge ${problem.lecture == null ? "lecture-unset" : ""}">${escapeHtml(String(lectureLabel))}</span>
+      <span class="difficulty-badge difficulty-${escapeHtml(difficultyKey)}">${escapeHtml(difficultyLabel)}</span>
+      <label class="checkbox-field compact-checkbox">
         <input class="solved-checkbox" type="checkbox" ${isProblemSolved(problem.id) ? "checked" : ""}>
         <span>解いた</span>
       </label>
-      <label class="field select-inline">
-        <span>理解度</span>
-        <select class="understanding-select"></select>
+      <label class="field select-inline compact-select">
+        <span class="sr-only">理解度</span>
+        <select class="understanding-select" aria-label="理解度"></select>
       </label>
     </div>
   `;
@@ -249,7 +247,7 @@ function renderActiveFilters(filters) {
   const labels = [];
 
   if (filters.lectureMin !== "") {
-    labels.push(`講義回 >= ${filters.lectureMin}`);
+    labels.push(`${filters.lectureMin} <= 講義回`);
   }
   if (filters.lectureMax !== "") {
     labels.push(`講義回 <= ${filters.lectureMax}`);
