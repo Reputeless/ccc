@@ -145,12 +145,10 @@ function renderProblemCard(problem) {
 
   article.innerHTML = `
     <div class="problem-main">
-      <h3 class="problem-card-title">
-        <a href="problem.html?id=${encodeURIComponent(problem.id)}">
-          <span class="problem-number-slot">${numberSlot}</span>
-          <span class="problem-title-text">${escapeHtml(problem.title)}</span>
-        </a>
-      </h3>
+      <a class="problem-main-link" href="problem.html?id=${encodeURIComponent(problem.id)}">
+        <span class="problem-number-slot">${numberSlot}</span>
+        <span class="problem-title-text">${escapeHtml(problem.title)}</span>
+      </a>
     </div>
     <div class="problem-card-actions">
       <span class="meta-slot meta-slot-lecture">${renderLectureBadge(problem.lecture)}</span>
