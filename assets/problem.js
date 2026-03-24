@@ -74,7 +74,7 @@ function renderProblem() {
   document.title = `${currentProblem.title} | ${appConfig.appName}`;
   document.getElementById("problem-view").hidden = false;
   document.getElementById("problem-title").textContent = currentProblem.title;
-  document.getElementById("problem-meta").textContent = buildProblemMeta(currentProblem);
+  renderProblemMeta(currentProblem);
   document.getElementById("problem-body").innerHTML = currentProblem.bodyHtml;
   renderExamples();
 }
@@ -308,12 +308,26 @@ function showProblemError(message) {
   document.getElementById("problem-error-message").textContent = message;
 }
 
-function buildProblemMeta(problem) {
-  const lecture = problem.lecture == null ? "講義回 未設定" : `講義回 ${problem.lecture}`;
-  const difficulty = problem.difficulty == null
-    ? "難易度 未設定"
-    : `難易度 ${appConfig.difficultyLabels[problem.difficulty - 1] ?? problem.difficulty}`;
-  return `${lecture} / ${difficulty}`;
+function renderProblemMeta(problem) {
+  const container = document.getElementById("problem-meta");
+  container.innerHTML = "";
+
+  if (problem.lecture != null) {
+    container.appendChild(createMetaBadge("lecture-badge", `第 ${problem.lecture} 回講義`));
+  }
+
+  if (problem.difficulty != null) {
+    const difficultyKey = String(problem.difficulty);
+    const difficultyLabel = appConfig.difficultyLabels[problem.difficulty - 1] ?? `難易度 ${problem.difficulty}`;
+    container.appendChild(createMetaBadge(`difficulty-badge difficulty-${difficultyKey}`, difficultyLabel));
+  }
+}
+
+function createMetaBadge(className, text) {
+  const badge = document.createElement("span");
+  badge.className = className;
+  badge.textContent = text;
+  return badge;
 }
 
 function lineCount(value) {

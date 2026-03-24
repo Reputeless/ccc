@@ -1,0 +1,7 @@
+{
+  "id": "loop-001",
+  "title": "1 から N まで表示する",
+  "lecture": 4,
+  "difficulty": 3,
+  "examples": ["01", "02"]
+}

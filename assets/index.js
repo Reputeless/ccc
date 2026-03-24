@@ -153,8 +153,8 @@ function renderProblemCard(problem) {
       </h3>
     </div>
     <div class="problem-card-actions">
-      <span class="lecture-badge ${problem.lecture == null ? "lecture-unset" : ""}">${escapeHtml(String(lectureLabel))}</span>
-      <span class="difficulty-badge difficulty-${escapeHtml(difficultyKey)}">${escapeHtml(difficultyLabel)}</span>
+      <span class="meta-slot meta-slot-lecture">${problem.lecture == null ? "" : `<span class="lecture-badge">${escapeHtml(String(lectureLabel))}</span>`}</span>
+      <span class="meta-slot meta-slot-difficulty">${problem.difficulty == null ? "" : `<span class="difficulty-badge difficulty-${escapeHtml(difficultyKey)}">${escapeHtml(difficultyLabel)}</span>`}</span>
       <label class="checkbox-field compact-checkbox">
         <input class="solved-checkbox" type="checkbox" ${isProblemSolved(problem.id) ? "checked" : ""}>
         <span>解いた</span>

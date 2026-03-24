@@ -1,0 +1,7 @@
+{
+  "id": "max-001",
+  "title": "大きい方の整数を出力する",
+  "lecture": 2,
+  "difficulty": 1,
+  "examples": ["01", "02"]
+}

@@ -151,9 +151,19 @@ button, input, select, textarea { font: inherit; }
 .problem-card-title a:hover { color: var(--accent); }
 .problem-card-actions {
   display: grid;
-  grid-template-columns: auto auto auto minmax(110px, 130px);
+  grid-template-columns: 96px 72px 92px minmax(110px, 130px);
   gap: 10px;
   align-items: center;
+  justify-self: end;
+}
+.meta-slot {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.meta-slot:empty::after {
+  content: "";
 }
 .select-inline { min-width: 0; }
 .lecture-badge {
@@ -177,6 +187,12 @@ button, input, select, textarea { font: inherit; }
 .content-panel {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 245, 235, 0.95));
+}
+.problem-meta-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 .problem-body { line-height: 1.78; font-size: 1.02rem; }
 .problem-body h1, .problem-body h2, .problem-body h3 { line-height: 1.18; margin-top: 1.45em; letter-spacing: -0.02em; }
@@ -293,8 +309,9 @@ details.long-example summary { cursor: pointer; font-weight: 600; margin-bottom:
   }
   .problem-card-actions {
     grid-template-columns: 1fr;
-    justify-items: start;
+    justify-self: stretch;
   }
+  .meta-slot { justify-content: flex-start; min-height: 0; }
   .panel-heading, .problem-header { flex-direction: column; }
   .hero-card { padding: 24px 22px; }
 }
