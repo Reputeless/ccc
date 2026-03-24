@@ -117,7 +117,7 @@ function renderProblemList() {
     .filter((problem) => matchesFilters(problem, filterState))
     .sort((left, right) => compareProblems(left, right, filterState.sortOrder));
 
-  document.getElementById("problem-count").textContent = `${filtered.length} 件表示 / 全 ${allProblems.length} 件`;
+  document.getElementById("problem-count").textContent = `${filtered.length} 問表示 / 全 ${allProblems.length} 問`;
   renderActiveFilters(filterState);
 
   if (filtered.length === 0) {
@@ -145,6 +145,9 @@ function renderProblemCard(problem) {
     ? "未設定"
     : appConfig.difficultyLabels[problem.difficulty - 1] ?? `難易度 ${problem.difficulty}`;
   const understandingValue = getUnderstanding(problem.id);
+  const understandingMarkerClass = understandingValue === ""
+    ? "understanding-marker-understanding-unset"
+    : `understanding-marker-understanding-${understandingValue}`;
 
   article.innerHTML = `
     <div class="problem-main">
@@ -161,7 +164,10 @@ function renderProblemCard(problem) {
       </label>
       <label class="field select-inline compact-select">
         <span class="sr-only">理解度</span>
-        <select class="understanding-select" aria-label="理解度"></select>
+        <span class="understanding-select-wrap">
+          <span class="understanding-marker ${understandingMarkerClass}" aria-hidden="true"></span>
+          <select class="understanding-select" aria-label="理解度"></select>
+        </span>
       </label>
     </div>
   `;
@@ -173,8 +179,10 @@ function renderProblemCard(problem) {
   });
 
   const select = article.querySelector(".understanding-select");
+  const marker = article.querySelector(".understanding-marker");
   populateUnderstandingSelect(select, understandingValue);
   select.addEventListener("change", () => {
+    updateUnderstandingMarker(marker, select.value);
     setUnderstanding(problem.id, select.value);
     renderProblemList();
   });
@@ -184,11 +192,15 @@ function renderProblemCard(problem) {
 
 function populateUnderstandingSelect(select, value) {
   select.innerHTML = "";
-  select.appendChild(new Option("未設定", ""));
+  select.appendChild(new Option("", ""));
   appConfig.understandingLabels.forEach((label, index) => {
     select.appendChild(new Option(label, String(index + 1)));
   });
   select.value = value;
+}
+
+function updateUnderstandingMarker(marker, value) {
+  marker.className = `understanding-marker ${value === "" ? "understanding-marker-understanding-unset" : `understanding-marker-understanding-${value}`}`;
 }
 
 function matchesFilters(problem, filters) {

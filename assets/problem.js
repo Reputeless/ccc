@@ -77,6 +77,7 @@ function renderProblem() {
   renderProblemMeta(currentProblem);
   document.getElementById("problem-body").innerHTML = currentProblem.bodyHtml;
   renderExamples();
+  enhanceCopyableCodeBlocks();
 }
 
 function renderExamples() {
@@ -121,6 +122,81 @@ function renderExampleBlock(title, content) {
   return block;
 }
 
+function enhanceCopyableCodeBlocks() {
+  const blocks = document.querySelectorAll("#problem-body pre, #examples-list pre");
+
+  blocks.forEach((pre) => {
+    if (pre.querySelector(".copy-code-button")) {
+      return;
+    }
+
+    const code = pre.querySelector("code");
+    if (!code) {
+      return;
+    }
+
+    pre.classList.add("copyable-code-block");
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "copy-code-button";
+    button.setAttribute("aria-label", "コードをコピー");
+    button.title = "コードをコピー";
+
+    button.addEventListener("click", async () => {
+      const text = code.textContent ?? "";
+      const copied = await copyText(text);
+
+      if (!copied) {
+        return;
+      }
+
+      button.classList.add("is-copied");
+      button.setAttribute("aria-label", "コピーしました");
+      button.title = "コピーしました";
+
+      window.setTimeout(() => {
+        button.classList.remove("is-copied");
+        button.setAttribute("aria-label", "コードをコピー");
+        button.title = "コードをコピー";
+      }, 1200);
+    });
+
+    pre.appendChild(button);
+  });
+}
+
+async function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      // Fall through to the legacy path.
+    }
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  document.body.appendChild(textarea);
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+
+  let copied = false;
+  try {
+    copied = document.execCommand("copy");
+  } catch {
+    copied = false;
+  } finally {
+    textarea.remove();
+  }
+
+  return copied;
+}
+
 function setupEditor() {
   const editor = document.getElementById("code-editor");
   editor.rows = appConfig.editorRows;
@@ -156,7 +232,7 @@ function setupMetaControls() {
 
   const understandingSelect = document.getElementById("understanding-select");
   understandingSelect.innerHTML = "";
-  understandingSelect.appendChild(new Option("未設定", ""));
+  understandingSelect.appendChild(new Option("", ""));
   appConfig.understandingLabels.forEach((label, index) => {
     understandingSelect.appendChild(new Option(label, String(index + 1)));
   });
