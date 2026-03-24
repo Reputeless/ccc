@@ -9,6 +9,7 @@ const DEFAULT_CONFIG = {
 let appConfig = { ...DEFAULT_CONFIG };
 let allProblems = [];
 let shouldRestoreInitialScroll = true;
+let animatedSolvedProblemId = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("pagehide", saveScrollPosition);
@@ -149,6 +150,7 @@ function renderProblemCard(problem) {
     ? "understanding-marker-understanding-unset"
     : `understanding-marker-understanding-${understandingValue}`;
   const numberSlot = problem.number ? `<span class="problem-number">${escapeHtml(problem.number)}</span>` : "";
+  const solvedAnimationClass = animatedSolvedProblemId === problem.id ? " solved-toggle-animate" : "";
 
   article.innerHTML = `
     <div class="problem-main">
@@ -162,9 +164,14 @@ function renderProblemCard(problem) {
     <div class="problem-card-actions">
       <span class="meta-slot meta-slot-lecture">${problem.lecture == null ? "" : `<span class="lecture-badge">${escapeHtml(String(lectureLabel))}</span>`}</span>
       <span class="meta-slot meta-slot-difficulty">${problem.difficulty == null ? "" : `<span class="difficulty-badge difficulty-${escapeHtml(difficultyKey)}">${escapeHtml(difficultyLabel)}</span>`}</span>
-      <label class="checkbox-field compact-checkbox">
-        <input class="solved-checkbox" type="checkbox" ${isProblemSolved(problem.id) ? "checked" : ""}>
-        <span>解いた</span>
+      <label class="solved-toggle solved-toggle-small${solvedAnimationClass}" title="解いた">
+        <input class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="解いた" ${isProblemSolved(problem.id) ? "checked" : ""}>
+        <span class="solved-toggle-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20" focusable="false">
+            <circle class="solved-toggle-circle" cx="10" cy="10" r="7.75"></circle>
+            <path class="solved-toggle-check" d="M6 10.5 8.8 13.3 14 8"></path>
+          </svg>
+        </span>
       </label>
       <label class="field select-inline compact-select">
         <span class="sr-only">理解度</span>
@@ -178,8 +185,14 @@ function renderProblemCard(problem) {
 
   const solvedCheckbox = article.querySelector(".solved-checkbox");
   solvedCheckbox.addEventListener("change", () => {
+    animatedSolvedProblemId = problem.id;
     setManualSolved(problem.id, solvedCheckbox.checked);
     renderProblemList();
+    window.setTimeout(() => {
+      if (animatedSolvedProblemId === problem.id) {
+        animatedSolvedProblemId = null;
+      }
+    }, 400);
   });
 
   const select = article.querySelector(".understanding-select");

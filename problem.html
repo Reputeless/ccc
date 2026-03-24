@@ -33,9 +33,14 @@
               <div class="problem-meta-row">
                 <div id="problem-meta" class="problem-meta-badges"></div>
                 <div class="meta-actions">
-                  <label class="checkbox-field compact-checkbox">
-                    <input id="solved-toggle" type="checkbox">
-                    <span>解いた</span>
+                  <label class="solved-toggle solved-toggle-large" title="解いた">
+                    <input id="solved-toggle" class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="解いた">
+                    <span class="solved-toggle-icon" aria-hidden="true">
+                      <svg viewBox="0 0 20 20" focusable="false">
+                        <circle class="solved-toggle-circle" cx="10" cy="10" r="7.75"></circle>
+                        <path class="solved-toggle-check" d="M6 10.5 8.8 13.3 14 8"></path>
+                      </svg>
+                    </span>
                   </label>
                   <label class="field select-inline compact-select problem-understanding-field">
                     <span class="sr-only">理解度</span>

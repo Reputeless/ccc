@@ -181,7 +181,7 @@ button, input, select, textarea { font: inherit; }
 }
 .problem-card-actions {
   display: grid;
-  grid-template-columns: 96px 72px 92px minmax(110px, 130px);
+  grid-template-columns: 96px 72px 40px minmax(110px, 130px);
   gap: 10px;
   align-items: center;
   justify-self: end;
@@ -286,6 +286,63 @@ button, input, select, textarea { font: inherit; }
 .meta-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
 .problem-understanding-field { margin: 0; }
 .checkbox-field { align-items: center; flex-direction: row; gap: 10px; font-weight: 600; }
+.solved-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+}
+.solved-toggle-small {
+  width: 34px;
+  height: 34px;
+}
+.solved-toggle-large {
+  width: 40px;
+  height: 40px;
+}
+.solved-toggle-icon {
+  display: inline-flex;
+  width: 100%;
+  height: 100%;
+}
+.solved-toggle-icon svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.solved-toggle-circle {
+  fill: rgba(255, 255, 255, 0.68);
+  stroke: rgba(131, 103, 75, 0.42);
+  stroke-width: 1.6;
+  transform-origin: center;
+  transition: fill 0.18s ease, stroke 0.18s ease;
+}
+.solved-toggle-check {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 12;
+  stroke-dashoffset: 12;
+  transition: stroke-dashoffset 0.22s ease;
+}
+.solved-toggle:hover .solved-toggle-circle,
+.solved-toggle-input:focus-visible + .solved-toggle-icon .solved-toggle-circle {
+  fill: rgba(13, 95, 88, 0.08);
+  stroke: rgba(13, 95, 88, 0.55);
+}
+.solved-toggle-input:checked + .solved-toggle-icon .solved-toggle-circle {
+  fill: #1ea672;
+  stroke: #1ea672;
+}
+.solved-toggle-input:checked + .solved-toggle-icon .solved-toggle-check {
+  stroke-dashoffset: 0;
+}
+.solved-toggle-animate .solved-toggle-input:checked + .solved-toggle-icon svg {
+  animation: solved-pop 0.32s ease-out;
+}
 .compact-checkbox {
   white-space: nowrap;
   gap: 8px;
@@ -424,6 +481,11 @@ button, input, select, textarea { font: inherit; }
 .error-panel { text-align: center; }
 details.long-example summary { cursor: pointer; font-weight: 600; margin-bottom: 10px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes solved-pop {
+  0% { transform: scale(0.92); }
+  55% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
 @media (max-width: 1080px) {
   .dashboard-layout { grid-template-columns: 1fr; }
   .filter-panel { position: static; }
