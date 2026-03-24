@@ -309,6 +309,13 @@ function setupEditor() {
       return;
     }
 
+    if (event.key === "Enter" && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
+      event.preventDefault();
+      handleEditorEnterKey(editor);
+      setStoredCode(currentProblem.id, editor.value);
+      return;
+    }
+
     if (event.key !== "Tab") {
       return;
     }
@@ -407,6 +414,24 @@ function handleEditorCommentToggle(editor) {
     selectionStart,
     selectionEnd,
     "commentToggle"
+  );
+}
+
+function handleEditorEnterKey(editor) {
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+  const currentLineStart = findLineStart(editor.value, start);
+  const currentLine = editor.value.slice(currentLineStart, start);
+  const indent = currentLine.match(/^[\t ]*/)?.[0] ?? "";
+
+  applyEditorEdit(
+    editor,
+    start,
+    end,
+    `\n${indent}`,
+    start + 1 + indent.length,
+    start + 1 + indent.length,
+    "insertLineBreak"
   );
 }
 
