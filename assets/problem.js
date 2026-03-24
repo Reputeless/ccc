@@ -750,7 +750,7 @@ function renderJudgePayload(payload) {
       );
       toggleResultUnderstandingPrompt(true);
       if (payload.warning) {
-        details.push(renderPreCard("警告", payload.warning));
+        details.push(renderPreCard("警告", payload.warning, { previewMode: "message" }));
       }
       markAccepted(currentProblem.id);
       document.getElementById("solved-toggle").checked = true;
@@ -767,23 +767,23 @@ function renderJudgePayload(payload) {
         details.push(renderPreCard("実際の出力", payload.failedExample.actualStdout ?? ""));
       }
       if (payload.warning) {
-        details.push(renderPreCard("警告", payload.warning));
+        details.push(renderPreCard("警告", payload.warning, { previewMode: "message" }));
       }
       break;
     case "compile_error":
       renderResultState("compileError");
       toggleResultUnderstandingPrompt(false);
-      details.push(renderPreCard("コンパイルメッセージ", payload.compilerMessage ?? ""));
+      details.push(renderPreCard("コンパイルメッセージ", payload.compilerMessage ?? "", { previewMode: "message" }));
       break;
     case "runtime_error":
       renderResultState("runtimeError");
       toggleResultUnderstandingPrompt(false);
-      details.push(renderPreCard("メッセージ", payload.message ?? ""));
+      details.push(renderPreCard("メッセージ", payload.message ?? "", { previewMode: "message" }));
       break;
     case "timeout":
       renderResultState("timeout");
       toggleResultUnderstandingPrompt(false);
-      details.push(renderPreCard("メッセージ", payload.message ?? ""));
+      details.push(renderPreCard("メッセージ", payload.message ?? "", { previewMode: "message" }));
       break;
     default:
       renderResultState("requestError", payload.message ?? ERROR_MESSAGES.judgeUnavailable);
@@ -794,12 +794,16 @@ function renderJudgePayload(payload) {
   renderResultDetails(details);
 }
 
-function renderPreCard(title, content) {
+function renderPreCard(title, content, options = {}) {
   const section = document.createElement("section");
   section.className = "result-card";
-  const display = buildResultDisplayContent(content);
+  const previewMode = options.previewMode ?? "output";
+  const display = buildResultDisplayContent(content, previewMode);
+  const previewLines = previewMode === "message"
+    ? (Number(appConfig.resultMessagePreviewMaxLines) || DEFAULT_CONFIG.resultMessagePreviewMaxLines)
+    : (Number(appConfig.resultPreviewMaxLines) || DEFAULT_CONFIG.resultPreviewMaxLines);
   const noteHtml = display.truncated
-    ? `<p class="result-note">表示が長いため、先頭 ${appConfig.resultPreviewMaxLines} 行・${appConfig.resultPreviewMaxChars} 文字までを表示しています。</p>`
+    ? `<p class="result-note">表示が長いため、先頭 ${previewLines} 行・${appConfig.resultPreviewMaxChars} 文字までを表示しています。</p>`
     : "";
   section.innerHTML = `
     <h3>${escapeHtml(title)}</h3>
@@ -883,14 +887,16 @@ function lineCount(value) {
   return value.replaceAll("\r\n", "\n").split("\n").length;
 }
 
-function buildResultDisplayContent(content) {
+function buildResultDisplayContent(content, previewMode = "output") {
   if (content === "") {
     return { text: "(空)", truncated: false };
   }
 
   const normalized = content.replaceAll("\r\n", "\n");
   const lines = normalized.split("\n");
-  const maxLines = Number(appConfig.resultPreviewMaxLines) || DEFAULT_CONFIG.resultPreviewMaxLines;
+  const maxLines = previewMode === "message"
+    ? (Number(appConfig.resultMessagePreviewMaxLines) || DEFAULT_CONFIG.resultMessagePreviewMaxLines)
+    : (Number(appConfig.resultPreviewMaxLines) || DEFAULT_CONFIG.resultPreviewMaxLines);
   const maxChars = Number(appConfig.resultPreviewMaxChars) || DEFAULT_CONFIG.resultPreviewMaxChars;
   let truncated = false;
   let limited = normalized;

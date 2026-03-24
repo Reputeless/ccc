@@ -9,6 +9,7 @@
     longExampleLineThreshold: 30,
     resultPreviewMaxLines: 120,
     resultPreviewMaxChars: 6000,
+    resultMessagePreviewMaxLines: 40,
     maxCodeBytes: 65536,
   };
   const FILTER_STORAGE_KEY = "ccc:v1:listFilters";

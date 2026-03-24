@@ -15,5 +15,6 @@ ccc_send_json([
     'longExampleLineThreshold' => $config['longExampleLineThreshold'],
     'resultPreviewMaxLines' => $config['resultPreviewMaxLines'],
     'resultPreviewMaxChars' => $config['resultPreviewMaxChars'],
+    'resultMessagePreviewMaxLines' => $config['resultMessagePreviewMaxLines'],
     'maxCodeBytes' => $config['maxCodeBytes'],
 ], 200, ['Cache-Control' => 'no-store']);

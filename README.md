@@ -620,6 +620,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   "longExampleLineThreshold": 30,
   "resultPreviewMaxLines": 120,
   "resultPreviewMaxChars": 6000,
+  "resultMessagePreviewMaxLines": 40,
   "judgeTimeoutSeconds": 10,
   "maxCodeBytes": 65536,
   "languageProfile": {
@@ -654,6 +655,9 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   - `Wrong Answer` 時などに長すぎる実際の出力を省略表示する際の最大行数
 - `resultPreviewMaxChars`:
   - `Wrong Answer` 時などに長すぎる実際の出力を省略表示する際の最大文字数
+- `resultMessagePreviewMaxLines`:
+  - 警告、コンパイルメッセージ、実行時メッセージなどを省略表示する際の最大行数
+  - 既定値は `40`
 - `judgeTimeoutSeconds`:
   - Wandbox 応答を待つ際の基準秒数
   - 初期版では厳密な実行時間制限を保証するものではない
@@ -687,6 +691,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `longExampleLineThreshold`
 - `resultPreviewMaxLines`
 - `resultPreviewMaxChars`
+- `resultMessagePreviewMaxLines`
 - `judgeTimeoutSeconds`
 - `maxCodeBytes`
 - `languageProfile.compiler`

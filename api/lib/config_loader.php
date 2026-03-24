@@ -18,6 +18,7 @@ function ccc_load_app_config(): array
         'longExampleLineThreshold' => 30,
         'resultPreviewMaxLines' => 120,
         'resultPreviewMaxChars' => 6000,
+        'resultMessagePreviewMaxLines' => 40,
         'judgeTimeoutSeconds' => 10,
         'maxCodeBytes' => 65536,
         'languageProfile' => [
