@@ -422,7 +422,7 @@ button, input, select, textarea { font: inherit; }
   margin-top: 0.5em;
 }
 .problem-body > :first-child { margin-top: 0; }
-.problem-body pre, .example-block pre, .result-details pre { padding: 14px; border-radius: 8px; background: #2a2118; color: #fef8f0; overflow: auto; font-family: var(--font-code); white-space: pre-wrap; word-break: break-word; }
+.problem-body pre, .example-block pre, .result-details pre { padding: 14px; border-radius: 8px; background: #232427; color: #f5f6f8; overflow: auto; font-family: var(--font-code); white-space: pre-wrap; word-break: break-word; }
 .copyable-code-block {
   position: relative;
   padding-right: 52px !important;
@@ -717,6 +717,15 @@ button, input, select, textarea { font: inherit; }
 .result-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 14px; background: #fff; }
 .result-card h3 { margin: 2px 0 10px; }
 .result-note { margin: 0 0 10px; color: var(--muted); font-size: 0.95rem; }
+.compiler-term {
+  font-weight: 700;
+}
+.compiler-term-error {
+  color: #cc4b37;
+}
+.compiler-term-warning {
+  color: #b67816;
+}
 .result-understanding-prompt {
   margin: 14px 0 0;
   padding: 12px 0 0;

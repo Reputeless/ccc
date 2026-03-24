@@ -750,7 +750,7 @@ function renderJudgePayload(payload) {
       );
       toggleResultUnderstandingPrompt(true);
       if (payload.warning) {
-        details.push(renderPreCard("警告", payload.warning, { previewMode: "message" }));
+        details.push(renderPreCard("警告", payload.warning, { previewMode: "message", highlightCompilerTerms: true }));
       }
       markAccepted(currentProblem.id);
       document.getElementById("solved-toggle").checked = true;
@@ -767,13 +767,13 @@ function renderJudgePayload(payload) {
         details.push(renderPreCard("実際の出力", payload.failedExample.actualStdout ?? ""));
       }
       if (payload.warning) {
-        details.push(renderPreCard("警告", payload.warning, { previewMode: "message" }));
+        details.push(renderPreCard("警告", payload.warning, { previewMode: "message", highlightCompilerTerms: true }));
       }
       break;
     case "compile_error":
       renderResultState("compileError");
       toggleResultUnderstandingPrompt(false);
-      details.push(renderPreCard("コンパイルメッセージ", payload.compilerMessage ?? "", { previewMode: "message" }));
+      details.push(renderPreCard("コンパイルメッセージ", payload.compilerMessage ?? "", { previewMode: "message", highlightCompilerTerms: true }));
       break;
     case "runtime_error":
       renderResultState("runtimeError");
@@ -805,10 +805,13 @@ function renderPreCard(title, content, options = {}) {
   const noteHtml = display.truncated
     ? `<p class="result-note">表示が長いため、先頭 ${previewLines} 行・${appConfig.resultPreviewMaxChars} 文字までを表示しています。</p>`
     : "";
+  const renderedText = options.highlightCompilerTerms
+    ? highlightCompilerTerms(display.text)
+    : escapeHtml(display.text);
   section.innerHTML = `
     <h3>${escapeHtml(title)}</h3>
     ${noteHtml}
-    <pre><code>${escapeHtml(display.text)}</code></pre>
+    <pre><code>${renderedText}</code></pre>
   `;
   return section;
 }
@@ -916,4 +919,11 @@ function buildResultDisplayContent(content, previewMode = "output") {
   }
 
   return { text: limited, truncated };
+}
+
+function highlightCompilerTerms(text) {
+  const escaped = escapeHtml(text);
+  return escaped
+    .replace(/\berror:/g, '<span class="compiler-term compiler-term-error">error:</span>')
+    .replace(/\bwarning:/g, '<span class="compiler-term compiler-term-warning">warning:</span>');
 }
