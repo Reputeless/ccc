@@ -10,31 +10,10 @@ function ccc_list_problem_summaries(): array
             continue;
         }
 
-        $items[] = [
-            'id' => $manifest['id'],
-            'number' => $manifest['number'],
-            'title' => $manifest['title'],
-            'lecture' => $manifest['lecture'],
-            'difficulty' => $manifest['difficulty'],
-        ];
+        $items[] = ccc_build_problem_summary($manifest);
     }
 
-    usort($items, static function (array $left, array $right): int {
-        $leftLecture = $left['lecture'] ?? PHP_INT_MAX;
-        $rightLecture = $right['lecture'] ?? PHP_INT_MAX;
-        if ($leftLecture !== $rightLecture) {
-            return $leftLecture <=> $rightLecture;
-        }
-        $leftNumber = trim((string) ($left['number'] ?? ''));
-        $rightNumber = trim((string) ($right['number'] ?? ''));
-        if ($leftNumber !== '' || $rightNumber !== '') {
-            $numberCompare = strcmp($leftNumber !== '' ? $leftNumber : (string) $left['id'], $rightNumber !== '' ? $rightNumber : (string) $right['id']);
-            if ($numberCompare !== 0) {
-                return $numberCompare;
-            }
-        }
-        return strcmp((string) $left['id'], (string) $right['id']);
-    });
+    usort($items, 'ccc_compare_problem_summaries');
 
     return $items;
 }
@@ -49,11 +28,7 @@ function ccc_load_problem_detail(string $problemId): ?array
     $renderer = new CccMarkdownRenderer($manifest['id']);
 
     return [
-        'id' => $manifest['id'],
-        'number' => $manifest['number'],
-        'title' => $manifest['title'],
-        'lecture' => $manifest['lecture'],
-        'difficulty' => $manifest['difficulty'],
+        ...ccc_build_problem_summary($manifest),
         'bodyHtml' => $renderer->render(ccc_load_problem_body($manifest)),
         'examples' => ccc_load_problem_examples($manifest),
     ];
@@ -71,6 +46,40 @@ function ccc_load_problem_for_judge(string $problemId): ?array
         'title' => $manifest['title'],
         'examples' => ccc_load_problem_examples($manifest),
     ];
+}
+
+function ccc_build_problem_summary(array $manifest): array
+{
+    return [
+        'id' => $manifest['id'],
+        'number' => $manifest['number'],
+        'title' => $manifest['title'],
+        'lecture' => $manifest['lecture'],
+        'difficulty' => $manifest['difficulty'],
+    ];
+}
+
+function ccc_compare_problem_summaries(array $left, array $right): int
+{
+    $leftLecture = $left['lecture'] ?? PHP_INT_MAX;
+    $rightLecture = $right['lecture'] ?? PHP_INT_MAX;
+    if ($leftLecture !== $rightLecture) {
+        return $leftLecture <=> $rightLecture;
+    }
+
+    $leftNumber = trim((string) ($left['number'] ?? ''));
+    $rightNumber = trim((string) ($right['number'] ?? ''));
+    if ($leftNumber !== '' || $rightNumber !== '') {
+        $numberCompare = strcmp(
+            $leftNumber !== '' ? $leftNumber : (string) $left['id'],
+            $rightNumber !== '' ? $rightNumber : (string) $right['id']
+        );
+        if ($numberCompare !== 0) {
+            return $numberCompare;
+        }
+    }
+
+    return strcmp((string) $left['id'], (string) $right['id']);
 }
 
 function ccc_problem_directories(): array

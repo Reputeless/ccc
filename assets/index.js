@@ -1,10 +1,19 @@
 const FILTER_STORAGE_KEY = "ccc:v1:listFilters";
 const LIST_SCROLL_KEY = "ccc:v1:listScroll";
-const DEFAULT_CONFIG = {
-  appName: "CCC",
-  difficultyLabels: ["基礎", "中級", "発展"],
-  understandingLabels: ["要復習", "ふつう", "自信あり"],
-};
+
+const {
+  DEFAULT_CONFIG,
+  fetchConfig,
+  populateLabelSelect,
+  getDifficultyLabel,
+  formatLectureLabel,
+  getUnderstandingMarkerClass,
+  isProblemSolved,
+  setManualSolved,
+  getUnderstanding,
+  setUnderstanding,
+  escapeHtml,
+} = window.CCC;
 
 let appConfig = { ...DEFAULT_CONFIG };
 let allProblems = [];
@@ -25,14 +34,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupStaticControls();
   await loadProblems();
 });
-
-async function fetchConfig() {
-  const response = await fetch("api/config.php", { headers: { Accept: "application/json" } });
-  if (!response.ok) {
-    throw new Error("config fetch failed");
-  }
-  return { ...DEFAULT_CONFIG, ...(await response.json()) };
-}
 
 async function loadProblems() {
   const response = await fetch("api/problems.php", {
@@ -55,24 +56,23 @@ function setupStaticControls() {
   populateDifficultyOptions();
   restoreFilterState();
 
-  const inputs = [
+  [
     document.getElementById("lecture-min"),
     document.getElementById("lecture-max"),
     document.getElementById("solved-filter"),
     document.getElementById("understanding-filter"),
     document.getElementById("sort-order"),
-  ];
+  ].forEach((element) => element.addEventListener("input", onFilterChanged));
 
-  inputs.forEach((element) => element.addEventListener("input", onFilterChanged));
   document.getElementById("difficulty-options").addEventListener("change", onFilterChanged);
 }
 
 function populateUnderstandingFilter() {
-  const select = document.getElementById("understanding-filter");
-  select.appendChild(new Option("未設定", "unset"));
-  appConfig.understandingLabels.forEach((label, index) => {
-    select.appendChild(new Option(label, String(index + 1)));
+  populateLabelSelect(document.getElementById("understanding-filter"), appConfig.understandingLabels, {
+    emptyLabel: "未設定",
+    emptyValue: "unset",
   });
+  document.getElementById("understanding-filter").insertAdjacentHTML("afterbegin", '<option value="all">すべて</option>');
 }
 
 function populateDifficultyOptions() {
@@ -140,17 +140,8 @@ function renderProblemCard(problem) {
   const article = document.createElement("article");
   article.className = "problem-card";
 
-  const lectureLabel = problem.lecture == null ? "講義回 未設定" : `第 ${problem.lecture} 回`;
-  const difficultyKey = problem.difficulty == null ? "unset" : String(problem.difficulty);
-  const difficultyLabel = problem.difficulty == null
-    ? "未設定"
-    : appConfig.difficultyLabels[problem.difficulty - 1] ?? `難易度 ${problem.difficulty}`;
   const understandingValue = getUnderstanding(problem.id);
-  const understandingMarkerClass = understandingValue === ""
-    ? "understanding-marker-understanding-unset"
-    : `understanding-marker-understanding-${understandingValue}`;
   const numberSlot = problem.number ? `<span class="problem-number">${escapeHtml(problem.number)}</span>` : "";
-  const solvedAnimationClass = animatedSolvedProblemId === problem.id ? " solved-toggle-animate" : "";
 
   article.innerHTML = `
     <div class="problem-main">
@@ -162,27 +153,55 @@ function renderProblemCard(problem) {
       </h3>
     </div>
     <div class="problem-card-actions">
-      <span class="meta-slot meta-slot-lecture">${problem.lecture == null ? "" : `<span class="lecture-badge">${escapeHtml(String(lectureLabel))}</span>`}</span>
-      <span class="meta-slot meta-slot-difficulty">${problem.difficulty == null ? "" : `<span class="difficulty-badge difficulty-${escapeHtml(difficultyKey)}">${escapeHtml(difficultyLabel)}</span>`}</span>
-      <label class="solved-toggle solved-toggle-small${solvedAnimationClass}" title="解いた">
-        <input class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="解いた" ${isProblemSolved(problem.id) ? "checked" : ""}>
-        <span class="solved-toggle-icon" aria-hidden="true">
-          <svg viewBox="0 0 20 20" focusable="false">
-            <circle class="solved-toggle-circle" cx="10" cy="10" r="7.75"></circle>
-            <path class="solved-toggle-check" d="M6 10.5 8.8 13.3 14 8"></path>
-          </svg>
-        </span>
-      </label>
+      <span class="meta-slot meta-slot-lecture">${renderLectureBadge(problem.lecture)}</span>
+      <span class="meta-slot meta-slot-difficulty">${renderDifficultyBadge(problem.difficulty)}</span>
+      ${renderSolvedToggle(problem)}
       <label class="field select-inline compact-select">
         <span class="sr-only">理解度</span>
         <span class="understanding-select-wrap">
-          <span class="understanding-marker ${understandingMarkerClass}" aria-hidden="true"></span>
+          <span class="understanding-marker ${getUnderstandingMarkerClass(understandingValue)}" aria-hidden="true"></span>
           <select class="understanding-select" aria-label="理解度"></select>
         </span>
       </label>
     </div>
   `;
 
+  bindProblemCardInteractions(article, problem, understandingValue);
+  return article;
+}
+
+function renderLectureBadge(lecture) {
+  if (lecture == null) {
+    return "";
+  }
+  return `<span class="lecture-badge">${escapeHtml(formatLectureLabel(lecture))}</span>`;
+}
+
+function renderDifficultyBadge(difficulty) {
+  if (difficulty == null) {
+    return "";
+  }
+  const difficultyKey = String(difficulty);
+  const difficultyLabel = getDifficultyLabel(appConfig, difficulty);
+  return `<span class="difficulty-badge difficulty-${escapeHtml(difficultyKey)}">${escapeHtml(difficultyLabel)}</span>`;
+}
+
+function renderSolvedToggle(problem) {
+  const solvedAnimationClass = animatedSolvedProblemId === problem.id ? " solved-toggle-animate" : "";
+  return `
+    <label class="solved-toggle solved-toggle-small${solvedAnimationClass}" title="解いた">
+      <input class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="解いた" ${isProblemSolved(problem.id) ? "checked" : ""}>
+      <span class="solved-toggle-icon" aria-hidden="true">
+        <svg viewBox="0 0 20 20" focusable="false">
+          <circle class="solved-toggle-circle" cx="10" cy="10" r="7.75"></circle>
+          <path class="solved-toggle-check" d="M6 10.5 8.8 13.3 14 8"></path>
+        </svg>
+      </span>
+    </label>
+  `;
+}
+
+function bindProblemCardInteractions(article, problem, understandingValue) {
   const solvedCheckbox = article.querySelector(".solved-checkbox");
   solvedCheckbox.addEventListener("change", () => {
     animatedSolvedProblemId = problem.id;
@@ -197,27 +216,13 @@ function renderProblemCard(problem) {
 
   const select = article.querySelector(".understanding-select");
   const marker = article.querySelector(".understanding-marker");
-  populateUnderstandingSelect(select, understandingValue);
+  populateLabelSelect(select, appConfig.understandingLabels, { emptyLabel: "" });
+  select.value = understandingValue;
   select.addEventListener("change", () => {
-    updateUnderstandingMarker(marker, select.value);
+    marker.className = `understanding-marker ${getUnderstandingMarkerClass(select.value)}`;
     setUnderstanding(problem.id, select.value);
     renderProblemList();
   });
-
-  return article;
-}
-
-function populateUnderstandingSelect(select, value) {
-  select.innerHTML = "";
-  select.appendChild(new Option("", ""));
-  appConfig.understandingLabels.forEach((label, index) => {
-    select.appendChild(new Option(label, String(index + 1)));
-  });
-  select.value = value;
-}
-
-function updateUnderstandingMarker(marker, value) {
-  marker.className = `understanding-marker ${value === "" ? "understanding-marker-understanding-unset" : `understanding-marker-understanding-${value}`}`;
 }
 
 function matchesFilters(problem, filters) {
@@ -408,47 +413,4 @@ function showListMessage(message, kind, hidden = false) {
   banner.hidden = hidden || !message;
   banner.textContent = message;
   banner.className = `status-banner ${kind === "error" ? "error-banner" : kind === "warning" ? "warning-banner" : "muted-banner"}`;
-}
-
-function getAcceptedOnce(problemId) {
-  return localStorage.getItem(`ccc:v1:accepted:${problemId}`) === "true";
-}
-
-function getManualSolved(problemId) {
-  return localStorage.getItem(`ccc:v1:manualSolved:${problemId}`) ?? "";
-}
-
-function isProblemSolved(problemId) {
-  const manual = getManualSolved(problemId);
-  if (manual === "solved") {
-    return true;
-  }
-  if (manual === "unsolved") {
-    return false;
-  }
-  return getAcceptedOnce(problemId);
-}
-
-function setManualSolved(problemId, solved) {
-  localStorage.setItem(`ccc:v1:manualSolved:${problemId}`, solved ? "solved" : "unsolved");
-}
-
-function getUnderstanding(problemId) {
-  return localStorage.getItem(`ccc:v1:understanding:${problemId}`) ?? "";
-}
-
-function setUnderstanding(problemId, value) {
-  if (value === "") {
-    localStorage.removeItem(`ccc:v1:understanding:${problemId}`);
-    return;
-  }
-  localStorage.setItem(`ccc:v1:understanding:${problemId}`, value);
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }

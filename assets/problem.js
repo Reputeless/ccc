@@ -1,14 +1,18 @@
-const DEFAULT_CONFIG = {
-  appName: "CCC",
-  difficultyLabels: ["基礎", "中級", "発展"],
-  understandingLabels: ["要復習", "ふつう", "自信あり"],
-  tabWidth: 4,
-  editorRows: 20,
-  longExampleLineThreshold: 30,
-  resultPreviewMaxLines: 120,
-  resultPreviewMaxChars: 6000,
-  maxCodeBytes: 65536,
-};
+const {
+  DEFAULT_CONFIG,
+  fetchConfig,
+  populateLabelSelect,
+  getDifficultyLabel,
+  formatLectureLabel,
+  isProblemSolved,
+  setManualSolved,
+  markAccepted,
+  getUnderstanding,
+  setUnderstanding,
+  getStoredCode,
+  setStoredCode,
+  escapeHtml,
+} = window.CCC;
 
 const ERROR_MESSAGES = {
   loadProblem: "問題の読み込みに失敗しました。",
@@ -47,14 +51,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   setupJudgeButton();
 });
 
-async function fetchConfig() {
-  const response = await fetch("api/config.php", { headers: { Accept: "application/json" } });
-  if (!response.ok) {
-    throw new Error("config fetch failed");
-  }
-  return { ...DEFAULT_CONFIG, ...(await response.json()) };
-}
-
 async function fetchProblem(problemId) {
   const response = await fetch(`api/problem.php?id=${encodeURIComponent(problemId)}`, {
     headers: { Accept: "application/json" },
@@ -78,6 +74,30 @@ function renderProblem() {
   document.getElementById("problem-body").innerHTML = currentProblem.bodyHtml;
   renderExamples();
   enhanceCopyableCodeBlocks();
+}
+
+function renderProblemMeta(problem) {
+  const container = document.getElementById("problem-meta");
+  container.innerHTML = "";
+
+  if (problem.number) {
+    container.appendChild(createMetaBadge("lecture-badge", problem.number));
+  }
+
+  if (problem.lecture != null) {
+    container.appendChild(createMetaBadge("lecture-badge", formatLectureLabel(problem.lecture, "回講義")));
+  }
+
+  if (problem.difficulty != null) {
+    container.appendChild(createMetaBadge(`difficulty-badge difficulty-${problem.difficulty}`, getDifficultyLabel(appConfig, problem.difficulty)));
+  }
+}
+
+function createMetaBadge(className, text) {
+  const badge = document.createElement("span");
+  badge.className = className;
+  badge.textContent = text;
+  return badge;
 }
 
 function renderExamples() {
@@ -123,9 +143,7 @@ function renderExampleBlock(title, content) {
 }
 
 function enhanceCopyableCodeBlocks() {
-  const blocks = document.querySelectorAll("#problem-body pre, #examples-list pre");
-
-  blocks.forEach((pre) => {
+  document.querySelectorAll("#problem-body pre, #examples-list pre").forEach((pre) => {
     if (pre.querySelector(".copy-code-button")) {
       return;
     }
@@ -136,34 +154,35 @@ function enhanceCopyableCodeBlocks() {
     }
 
     pre.classList.add("copyable-code-block");
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "copy-code-button";
-    button.setAttribute("aria-label", "コードをコピー");
-    button.title = "コードをコピー";
-
-    button.addEventListener("click", async () => {
-      const text = code.textContent ?? "";
-      const copied = await copyText(text);
-
-      if (!copied) {
-        return;
-      }
-
-      button.classList.add("is-copied");
-      button.setAttribute("aria-label", "コピーしました");
-      button.title = "コピーしました";
-
-      window.setTimeout(() => {
-        button.classList.remove("is-copied");
-        button.setAttribute("aria-label", "コードをコピー");
-        button.title = "コードをコピー";
-      }, 1200);
-    });
-
-    pre.appendChild(button);
+    pre.appendChild(createCopyButton(code));
   });
+}
+
+function createCopyButton(codeElement) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "copy-code-button";
+  button.setAttribute("aria-label", "コードをコピー");
+  button.title = "コードをコピー";
+
+  button.addEventListener("click", async () => {
+    const copied = await copyText(codeElement.textContent ?? "");
+    if (!copied) {
+      return;
+    }
+
+    button.classList.add("is-copied");
+    button.setAttribute("aria-label", "コピーしました");
+    button.title = "コピーしました";
+
+    window.setTimeout(() => {
+      button.classList.remove("is-copied");
+      button.setAttribute("aria-label", "コードをコピー");
+      button.title = "コードをコピー";
+    }, 1200);
+  });
+
+  return button;
 }
 
 async function copyText(text) {
@@ -201,10 +220,10 @@ function setupEditor() {
   const editor = document.getElementById("code-editor");
   editor.rows = appConfig.editorRows;
   editor.style.tabSize = String(appConfig.tabWidth);
-  editor.value = localStorage.getItem(`ccc:v1:code:${currentProblem.id}`) ?? "";
+  editor.value = getStoredCode(currentProblem.id);
 
   editor.addEventListener("input", () => {
-    localStorage.setItem(`ccc:v1:code:${currentProblem.id}`, editor.value);
+    setStoredCode(currentProblem.id, editor.value);
   });
 
   editor.addEventListener("keydown", (event) => {
@@ -215,11 +234,10 @@ function setupEditor() {
     event.preventDefault();
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
-    const nextValue = `${editor.value.slice(0, start)}\t${editor.value.slice(end)}`;
-    editor.value = nextValue;
+    editor.value = `${editor.value.slice(0, start)}\t${editor.value.slice(end)}`;
     editor.selectionStart = start + 1;
     editor.selectionEnd = start + 1;
-    localStorage.setItem(`ccc:v1:code:${currentProblem.id}`, editor.value);
+    setStoredCode(currentProblem.id, editor.value);
   });
 }
 
@@ -231,11 +249,7 @@ function setupMetaControls() {
   });
 
   const understandingSelect = document.getElementById("understanding-select");
-  understandingSelect.innerHTML = "";
-  understandingSelect.appendChild(new Option("", ""));
-  appConfig.understandingLabels.forEach((label, index) => {
-    understandingSelect.appendChild(new Option(label, String(index + 1)));
-  });
+  populateLabelSelect(understandingSelect, appConfig.understandingLabels, { emptyLabel: "" });
   understandingSelect.value = getUnderstanding(currentProblem.id);
   understandingSelect.addEventListener("change", () => {
     setUnderstanding(currentProblem.id, understandingSelect.value);
@@ -310,8 +324,7 @@ function renderJudgePayload(payload) {
       if (payload.warning) {
         details.push(renderPreCard("警告", payload.warning));
       }
-      localStorage.setItem(`ccc:v1:accepted:${currentProblem.id}`, "true");
-      localStorage.removeItem(`ccc:v1:manualSolved:${currentProblem.id}`);
+      markAccepted(currentProblem.id);
       document.getElementById("solved-toggle").checked = true;
       break;
     case "wrong_answer":
@@ -384,32 +397,6 @@ function showProblemError(message) {
   document.getElementById("problem-error-message").textContent = message;
 }
 
-function renderProblemMeta(problem) {
-  const container = document.getElementById("problem-meta");
-  container.innerHTML = "";
-
-  if (problem.number) {
-    container.appendChild(createMetaBadge("lecture-badge", problem.number));
-  }
-
-  if (problem.lecture != null) {
-    container.appendChild(createMetaBadge("lecture-badge", `第 ${problem.lecture} 回講義`));
-  }
-
-  if (problem.difficulty != null) {
-    const difficultyKey = String(problem.difficulty);
-    const difficultyLabel = appConfig.difficultyLabels[problem.difficulty - 1] ?? `難易度 ${problem.difficulty}`;
-    container.appendChild(createMetaBadge(`difficulty-badge difficulty-${difficultyKey}`, difficultyLabel));
-  }
-}
-
-function createMetaBadge(className, text) {
-  const badge = document.createElement("span");
-  badge.className = className;
-  badge.textContent = text;
-  return badge;
-}
-
 function lineCount(value) {
   if (value === "") {
     return 1;
@@ -444,47 +431,4 @@ function buildResultDisplayContent(content) {
   }
 
   return { text: limited, truncated };
-}
-
-function getAcceptedOnce(problemId) {
-  return localStorage.getItem(`ccc:v1:accepted:${problemId}`) === "true";
-}
-
-function getManualSolved(problemId) {
-  return localStorage.getItem(`ccc:v1:manualSolved:${problemId}`) ?? "";
-}
-
-function isProblemSolved(problemId) {
-  const manual = getManualSolved(problemId);
-  if (manual === "solved") {
-    return true;
-  }
-  if (manual === "unsolved") {
-    return false;
-  }
-  return getAcceptedOnce(problemId);
-}
-
-function setManualSolved(problemId, solved) {
-  localStorage.setItem(`ccc:v1:manualSolved:${problemId}`, solved ? "solved" : "unsolved");
-}
-
-function getUnderstanding(problemId) {
-  return localStorage.getItem(`ccc:v1:understanding:${problemId}`) ?? "";
-}
-
-function setUnderstanding(problemId, value) {
-  if (value === "") {
-    localStorage.removeItem(`ccc:v1:understanding:${problemId}`);
-    return;
-  }
-  localStorage.setItem(`ccc:v1:understanding:${problemId}`, value);
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }

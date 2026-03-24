@@ -1,0 +1,133 @@
+(function initCccCommon(global) {
+  const DEFAULT_CONFIG = {
+    appName: "CCC",
+    difficultyLabels: ["基礎", "中級", "発展"],
+    understandingLabels: ["要復習", "ふつう", "自信あり"],
+    tabWidth: 4,
+    editorRows: 20,
+    longExampleLineThreshold: 30,
+    resultPreviewMaxLines: 120,
+    resultPreviewMaxChars: 6000,
+    maxCodeBytes: 65536,
+  };
+
+  function storageKey(kind, problemId) {
+    return `ccc:v1:${kind}:${problemId}`;
+  }
+
+  async function fetchConfig() {
+    const response = await fetch("api/config.php", { headers: { Accept: "application/json" } });
+    if (!response.ok) {
+      throw new Error("config fetch failed");
+    }
+    return { ...DEFAULT_CONFIG, ...(await response.json()) };
+  }
+
+  function populateLabelSelect(select, labels, options = {}) {
+    const { emptyLabel = null, emptyValue = "" } = options;
+    select.innerHTML = "";
+
+    if (emptyLabel !== null) {
+      select.appendChild(new Option(emptyLabel, emptyValue));
+    }
+
+    labels.forEach((label, index) => {
+      select.appendChild(new Option(label, String(index + 1)));
+    });
+  }
+
+  function getDifficultyLabel(config, difficulty) {
+    if (difficulty == null) {
+      return null;
+    }
+    return config.difficultyLabels[difficulty - 1] ?? `難易度 ${difficulty}`;
+  }
+
+  function formatLectureLabel(lecture, suffix = "回") {
+    if (lecture == null) {
+      return null;
+    }
+    return `第 ${lecture} ${suffix}`;
+  }
+
+  function getUnderstandingMarkerClass(value) {
+    return value === ""
+      ? "understanding-marker-understanding-unset"
+      : `understanding-marker-understanding-${value}`;
+  }
+
+  function getAcceptedOnce(problemId) {
+    return localStorage.getItem(storageKey("accepted", problemId)) === "true";
+  }
+
+  function getManualSolved(problemId) {
+    return localStorage.getItem(storageKey("manualSolved", problemId)) ?? "";
+  }
+
+  function isProblemSolved(problemId) {
+    const manual = getManualSolved(problemId);
+    if (manual === "solved") {
+      return true;
+    }
+    if (manual === "unsolved") {
+      return false;
+    }
+    return getAcceptedOnce(problemId);
+  }
+
+  function setManualSolved(problemId, solved) {
+    localStorage.setItem(storageKey("manualSolved", problemId), solved ? "solved" : "unsolved");
+  }
+
+  function markAccepted(problemId) {
+    localStorage.setItem(storageKey("accepted", problemId), "true");
+    localStorage.removeItem(storageKey("manualSolved", problemId));
+  }
+
+  function getUnderstanding(problemId) {
+    return localStorage.getItem(storageKey("understanding", problemId)) ?? "";
+  }
+
+  function setUnderstanding(problemId, value) {
+    if (value === "") {
+      localStorage.removeItem(storageKey("understanding", problemId));
+      return;
+    }
+    localStorage.setItem(storageKey("understanding", problemId), value);
+  }
+
+  function getStoredCode(problemId) {
+    return localStorage.getItem(storageKey("code", problemId)) ?? "";
+  }
+
+  function setStoredCode(problemId, value) {
+    localStorage.setItem(storageKey("code", problemId), value);
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  global.CCC = {
+    DEFAULT_CONFIG,
+    fetchConfig,
+    populateLabelSelect,
+    getDifficultyLabel,
+    formatLectureLabel,
+    getUnderstandingMarkerClass,
+    getAcceptedOnce,
+    getManualSolved,
+    isProblemSolved,
+    setManualSolved,
+    markAccepted,
+    getUnderstanding,
+    setUnderstanding,
+    getStoredCode,
+    setStoredCode,
+    escapeHtml,
+  };
+})(window);
