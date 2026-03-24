@@ -69,6 +69,10 @@ button, input, select, textarea { font: inherit; }
     linear-gradient(120deg, rgba(13, 95, 88, 0.10), transparent 45%);
   box-shadow: var(--shadow);
 }
+.hero-card-link {
+  display: block;
+  text-decoration: none;
+}
 .hero-card:not(.hero-card-compact) {
   border-color: rgba(0, 195, 172, 0.24);
   background: linear-gradient(148deg, #071d24 0%, #0d2e3a 55%, #071820 100%);
