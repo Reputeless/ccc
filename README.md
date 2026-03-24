@@ -567,11 +567,13 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   "tabWidth": 4,
   "editorRows": 20,
   "longExampleLineThreshold": 30,
+  "resultPreviewMaxLines": 120,
+  "resultPreviewMaxChars": 6000,
   "judgeTimeoutSeconds": 10,
   "maxCodeBytes": 65536,
   "languageProfile": {
     "language": "c",
-    "compiler": "gcc-head",
+    "compiler": "gcc-head-c",
     "standard": "c17",
     "gnuExtensions": false,
     "extraFlags": ["-O2", "-Wall", "-Wextra"]
@@ -594,8 +596,13 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   - これを超える場合は入力欄内をスクロールする
 - `longExampleLineThreshold`:
   - 入出力例を折りたたみ表示に切り替える行数しきい値
+- `resultPreviewMaxLines`:
+  - `Wrong Answer` 時などに長すぎる実際の出力を省略表示する際の最大行数
+- `resultPreviewMaxChars`:
+  - `Wrong Answer` 時などに長すぎる実際の出力を省略表示する際の最大文字数
 - `judgeTimeoutSeconds`:
-  - 1 ケースあたりの判定タイムアウト秒数
+  - Wandbox 応答を待つ際の基準秒数
+  - 初期版では厳密な実行時間制限を保証するものではない
 - `maxCodeBytes`:
   - 1 回の判定で受け付けるソースコードの最大バイト数
   - 初期値は `65536` (`64 KiB`) とする
@@ -620,6 +627,8 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `tabWidth`
 - `editorRows`
 - `longExampleLineThreshold`
+- `resultPreviewMaxLines`
+- `resultPreviewMaxChars`
 - `judgeTimeoutSeconds`
 - `maxCodeBytes`
 - `languageProfile.compiler`
@@ -910,7 +919,10 @@ Wandbox の GitHub リポジトリ README の FAQ では、講義や商業での
   "understandingLabels": ["要復習", "ふつう", "自信あり"],
   "tabWidth": 4,
   "editorRows": 20,
-  "longExampleLineThreshold": 30
+  "longExampleLineThreshold": 30,
+  "resultPreviewMaxLines": 120,
+  "resultPreviewMaxChars": 6000,
+  "maxCodeBytes": 65536
 }
 ```
 

@@ -12,5 +12,7 @@ ccc_send_json([
     'tabWidth' => $config['tabWidth'],
     'editorRows' => $config['editorRows'],
     'longExampleLineThreshold' => $config['longExampleLineThreshold'],
+    'resultPreviewMaxLines' => $config['resultPreviewMaxLines'],
+    'resultPreviewMaxChars' => $config['resultPreviewMaxChars'],
     'maxCodeBytes' => $config['maxCodeBytes'],
 ], 200, ['Cache-Control' => 'no-store']);

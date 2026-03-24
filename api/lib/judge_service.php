@@ -13,11 +13,8 @@ function ccc_judge_submission(array $config, array $problem, string $code): arra
             $wandboxResult['compiler_message'] ?? null,
             $wandboxResult['compiler_output'] ?? null,
         ]);
-        $programMessage = ccc_join_messages([
-            $wandboxResult['program_error'] ?? null,
-            $wandboxResult['program_message'] ?? null,
-        ]);
         $programOutput = ccc_extract_program_output($wandboxResult);
+        $programMessage = ccc_extract_program_diagnostics($wandboxResult, $programOutput);
         $statusText = strtolower(trim((string) ($wandboxResult['status'] ?? '')));
 
         if (ccc_is_compile_error($compilerText, $statusText)) {
@@ -34,14 +31,14 @@ function ccc_judge_submission(array $config, array $problem, string $code): arra
         if (ccc_is_timeout($wandboxResult, $programMessage, $statusText)) {
             return [200, [
                 'status' => 'timeout',
-                'message' => $programMessage !== '' ? $programMessage : 'Execution timed out.',
+                'message' => $programMessage !== '' ? $programMessage : ccc_default_timeout_message($wandboxResult),
             ]];
         }
 
         if (ccc_is_runtime_error($wandboxResult, $programMessage, $statusText)) {
             return [200, [
                 'status' => 'runtime_error',
-                'message' => $programMessage !== '' ? $programMessage : 'Program exited abnormally.',
+                'message' => $programMessage !== '' ? $programMessage : ccc_default_runtime_message($wandboxResult),
             ]];
         }
 
@@ -87,14 +84,18 @@ function ccc_call_wandbox(array $config, string $code, string $stdin): array
     }
 
     $payload = [
-        'compiler' => (string) ($profile['compiler'] ?? 'gcc-head'),
+        'compiler' => (string) ($profile['compiler'] ?? 'gcc-head-c'),
         'code' => $code,
         'stdin' => $stdin,
         'save' => false,
-        'compiler-option-raw' => implode(' ', array_unique(array_filter($flags))),
+        'compiler-option-raw' => implode("\n", array_unique(array_filter($flags))),
     ];
 
-    return ccc_http_post_json('https://wandbox.org/api/compile.json', $payload, ((int) ($config['judgeTimeoutSeconds'] ?? 10)) + 5);
+    return ccc_http_post_json(
+        'https://wandbox.org/api/compile.json',
+        $payload,
+        ccc_wandbox_request_timeout_seconds((int) ($config['judgeTimeoutSeconds'] ?? 10))
+    );
 }
 
 function ccc_http_post_json(string $url, array $payload, int $timeoutSeconds): array
@@ -118,23 +119,25 @@ function ccc_http_post_json(string $url, array $payload, int $timeoutSeconds): a
                 'Accept: application/json',
             ],
             CURLOPT_POSTFIELDS => $json,
+            CURLOPT_CONNECTTIMEOUT => 10,
             CURLOPT_TIMEOUT => $timeoutSeconds,
         ]);
 
         $response = curl_exec($ch);
         if ($response === false) {
             $message = curl_error($ch);
-            curl_close($ch);
+            if (stripos($message, 'timed out') !== false) {
+                throw new RuntimeException('The Wandbox request timed out while waiting for a response.');
+            }
             throw new RuntimeException($message);
         }
 
         $statusCode = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        curl_close($ch);
-
-        if ($statusCode >= 400) {
-            throw new RuntimeException('Wandbox returned HTTP ' . $statusCode . '.');
-        }
     } else {
+        if (!in_array('https', stream_get_wrappers(), true)) {
+            throw new RuntimeException('PHP HTTPS support is not enabled. Configure php.ini and enable openssl.');
+        }
+
         $context = stream_context_create([
             'http' => [
                 'method' => 'POST',
@@ -147,7 +150,7 @@ function ccc_http_post_json(string $url, array $payload, int $timeoutSeconds): a
             ],
         ]);
 
-        $response = file_get_contents($url, false, $context);
+        $response = @file_get_contents($url, false, $context);
         if ($response === false) {
             throw new RuntimeException('Failed to contact Wandbox.');
         }
@@ -155,6 +158,9 @@ function ccc_http_post_json(string $url, array $payload, int $timeoutSeconds): a
 
     $decoded = json_decode($response, true);
     if (!is_array($decoded)) {
+        if (isset($statusCode) && $statusCode >= 400) {
+            throw new RuntimeException('Wandbox returned HTTP ' . $statusCode . '.');
+        }
         throw new RuntimeException('Invalid JSON returned from Wandbox.');
     }
 
@@ -165,6 +171,19 @@ function ccc_extract_program_output(array $wandboxResult): string
 {
     $output = $wandboxResult['program_output'] ?? $wandboxResult['stdout'] ?? '';
     return str_replace(["\r\n", "\r"], "\n", (string) $output);
+}
+
+function ccc_extract_program_diagnostics(array $wandboxResult, string $programOutput): string
+{
+    $programError = trim((string) ($wandboxResult['program_error'] ?? ''));
+    $programMessage = trim((string) ($wandboxResult['program_message'] ?? ''));
+    $normalizedOutput = trim($programOutput);
+
+    if ($programMessage !== '' && $programMessage === $normalizedOutput) {
+        $programMessage = '';
+    }
+
+    return ccc_join_messages([$programError, $programMessage]);
 }
 
 function ccc_is_compile_error(string $compilerText, string $statusText): bool
@@ -192,6 +211,11 @@ function ccc_is_warning_text(string $compilerText): bool
 
 function ccc_is_timeout(array $wandboxResult, string $programMessage, string $statusText): bool
 {
+    $statusCode = ccc_parse_status_code($wandboxResult['status'] ?? null);
+    if ($statusCode === 124) {
+        return true;
+    }
+
     $combined = strtolower($programMessage . ' ' . $statusText . ' ' . (string) ($wandboxResult['signal'] ?? ''));
     return str_contains($combined, 'timeout') || str_contains($combined, 'timed out');
 }
@@ -202,11 +226,38 @@ function ccc_is_runtime_error(array $wandboxResult, string $programMessage, stri
         return false;
     }
 
+    $statusCode = ccc_parse_status_code($wandboxResult['status'] ?? null);
+    if ($statusCode !== null && $statusCode !== 0) {
+        return true;
+    }
+
+    if (trim((string) ($wandboxResult['signal'] ?? '')) !== '') {
+        return true;
+    }
+
     if ($programMessage !== '') {
         return true;
     }
 
     return str_contains($statusText, 'runtime') || str_contains($statusText, 'signal');
+}
+
+function ccc_default_timeout_message(array $wandboxResult): string
+{
+    $statusCode = ccc_parse_status_code($wandboxResult['status'] ?? null);
+    if ($statusCode !== null) {
+        return 'Execution timed out (status ' . $statusCode . ').';
+    }
+    return 'Execution timed out.';
+}
+
+function ccc_default_runtime_message(array $wandboxResult): string
+{
+    $statusCode = ccc_parse_status_code($wandboxResult['status'] ?? null);
+    if ($statusCode !== null) {
+        return 'Program exited abnormally (status ' . $statusCode . ').';
+    }
+    return 'Program exited abnormally.';
 }
 
 function ccc_outputs_match(string $actual, string $expected): bool
@@ -230,4 +281,18 @@ function ccc_join_messages(array $parts): string
         }
     }
     return implode("\n", array_unique($items));
+}
+
+function ccc_parse_status_code(mixed $value): ?int
+{
+    $text = trim((string) $value);
+    if ($text === '' || preg_match('/^-?\d+$/', $text) !== 1) {
+        return null;
+    }
+    return (int) $text;
+}
+
+function ccc_wandbox_request_timeout_seconds(int $judgeTimeoutSeconds): int
+{
+    return max($judgeTimeoutSeconds + 20, 30);
 }

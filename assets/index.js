@@ -8,9 +8,9 @@ const DEFAULT_CONFIG = {
 
 let appConfig = { ...DEFAULT_CONFIG };
 let allProblems = [];
+let shouldRestoreInitialScroll = true;
 
 document.addEventListener("DOMContentLoaded", async () => {
-  restoreScrollPosition();
   window.addEventListener("pagehide", saveScrollPosition);
   document.getElementById("reset-filters").addEventListener("click", resetFilters);
 
@@ -128,7 +128,11 @@ function renderProblemList() {
   const fragment = document.createDocumentFragment();
   filtered.forEach((problem) => fragment.appendChild(renderProblemCard(problem)));
   list.appendChild(fragment);
-  requestAnimationFrame(restoreScrollPosition);
+
+  if (shouldRestoreInitialScroll) {
+    shouldRestoreInitialScroll = false;
+    requestAnimationFrame(restoreScrollPosition);
+  }
 }
 
 function renderProblemCard(problem) {
@@ -332,7 +336,7 @@ function restoreScrollPosition() {
   }
   const value = Number(raw);
   if (!Number.isNaN(value)) {
-    window.scrollTo({ top: value });
+    window.scrollTo(0, value);
   }
 }
 

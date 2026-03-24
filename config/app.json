@@ -5,11 +5,13 @@
   "tabWidth": 4,
   "editorRows": 20,
   "longExampleLineThreshold": 30,
+  "resultPreviewMaxLines": 120,
+  "resultPreviewMaxChars": 6000,
   "judgeTimeoutSeconds": 10,
   "maxCodeBytes": 65536,
   "languageProfile": {
     "language": "c",
-    "compiler": "gcc-head",
+    "compiler": "gcc-head-c",
     "standard": "c17",
     "gnuExtensions": false,
     "extraFlags": ["-O2", "-Wall", "-Wextra"]

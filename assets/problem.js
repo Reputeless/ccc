@@ -1,9 +1,12 @@
 const DEFAULT_CONFIG = {
   appName: "CCC",
+  difficultyLabels: ["基礎", "中級", "発展"],
   understandingLabels: ["要復習", "ふつう", "自信あり"],
   tabWidth: 4,
   editorRows: 20,
   longExampleLineThreshold: 30,
+  resultPreviewMaxLines: 120,
+  resultPreviewMaxChars: 6000,
   maxCodeBytes: 65536,
 };
 
@@ -177,6 +180,8 @@ async function judgeCurrentCode() {
     return;
   }
 
+  renderResultBanner("判定中...", "muted");
+  renderResultDetails([]);
   setJudgeLoading(true);
 
   try {
@@ -205,7 +210,7 @@ async function judgeCurrentCode() {
       return;
     }
 
-    if (response.status === 503) {
+    if (!response.ok) {
       renderResultBanner(payload.message ?? ERROR_MESSAGES.judgeUnavailable, "error");
       renderResultDetails([]);
       return;
@@ -267,9 +272,14 @@ function renderJudgePayload(payload) {
 function renderPreCard(title, content) {
   const section = document.createElement("section");
   section.className = "result-card";
+  const display = buildResultDisplayContent(content);
+  const noteHtml = display.truncated
+    ? `<p class="result-note">表示が長いため、先頭 ${appConfig.resultPreviewMaxLines} 行・${appConfig.resultPreviewMaxChars} 文字までを表示しています。</p>`
+    : "";
   section.innerHTML = `
     <h3>${escapeHtml(title)}</h3>
-    <pre><code>${escapeHtml(content === "" ? "(空)" : content)}</code></pre>
+    ${noteHtml}
+    <pre><code>${escapeHtml(display.text)}</code></pre>
   `;
   return section;
 }
@@ -277,7 +287,7 @@ function renderPreCard(title, content) {
 function renderResultBanner(message, kind) {
   const banner = document.getElementById("result-message");
   banner.textContent = message;
-  banner.className = `status-banner ${kind === "error" ? "error-banner" : kind === "warning" ? "warning-banner" : ""}`.trim();
+  banner.className = `status-banner ${kind === "error" ? "error-banner" : kind === "warning" ? "warning-banner" : kind === "muted" ? "muted-banner" : ""}`.trim();
 }
 
 function renderResultDetails(items) {
@@ -311,6 +321,35 @@ function lineCount(value) {
     return 1;
   }
   return value.replaceAll("\r\n", "\n").split("\n").length;
+}
+
+function buildResultDisplayContent(content) {
+  if (content === "") {
+    return { text: "(空)", truncated: false };
+  }
+
+  const normalized = content.replaceAll("\r\n", "\n");
+  const lines = normalized.split("\n");
+  const maxLines = Number(appConfig.resultPreviewMaxLines) || DEFAULT_CONFIG.resultPreviewMaxLines;
+  const maxChars = Number(appConfig.resultPreviewMaxChars) || DEFAULT_CONFIG.resultPreviewMaxChars;
+  let truncated = false;
+  let limited = normalized;
+
+  if (lines.length > maxLines) {
+    limited = lines.slice(0, maxLines).join("\n");
+    truncated = true;
+  }
+
+  if (limited.length > maxChars) {
+    limited = limited.slice(0, maxChars);
+    truncated = true;
+  }
+
+  if (truncated) {
+    limited = `${limited}\n...`;
+  }
+
+  return { text: limited, truncated };
 }
 
 function getAcceptedOnce(problemId) {
