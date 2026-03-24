@@ -36,6 +36,7 @@ const RESULT_STATE_PRESETS = {
 
 let appConfig = { ...DEFAULT_CONFIG };
 let currentProblem = null;
+let understandingControls = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   const problemId = new URLSearchParams(window.location.search).get("id");
@@ -61,6 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderProblem();
   setupEditor();
   setupMetaControls();
+  setupResultUnderstandingPrompt();
   setupJudgeButton();
 });
 
@@ -289,15 +291,41 @@ function setupMetaControls() {
   const understandingWrap = document.getElementById("problem-understanding-wrap");
   const understandingMarker = document.getElementById("problem-understanding-marker");
   populateLabelSelect(understandingSelect, appConfig.understandingLabels, { emptyLabel: "" });
-  understandingSelect.value = getUnderstanding(currentProblem.id);
-  understandingMarker.className = `understanding-marker ${getUnderstandingMarkerClass(understandingSelect.value)}`;
+  understandingControls = {
+    select: understandingSelect,
+    wrap: understandingWrap,
+    marker: understandingMarker,
+  };
+  const initialValue = getUnderstanding(currentProblem.id);
+  understandingSelect.value = initialValue;
+  updateProblemUnderstandingUI(initialValue);
   understandingSelect.addEventListener("change", () => {
-    understandingMarker.className = `understanding-marker ${getUnderstandingMarkerClass(understandingSelect.value)}`;
-    setUnderstanding(currentProblem.id, understandingSelect.value);
-    understandingWrap.classList.remove("understanding-select-wrap-animate");
-    void understandingWrap.offsetWidth;
-    understandingWrap.classList.add("understanding-select-wrap-animate");
+    setProblemUnderstanding(understandingSelect.value, true);
   });
+}
+
+function setupResultUnderstandingPrompt() {
+  const container = document.getElementById("result-understanding-options");
+  container.innerHTML = "";
+
+  appConfig.understandingLabels.forEach((label, index) => {
+    const value = String(index + 1);
+    const option = document.createElement("label");
+    option.className = `understanding-choice understanding-choice-${value}`;
+    option.innerHTML = `
+      <input type="radio" name="result-understanding" value="${value}" class="sr-only">
+      <span class="understanding-choice-label">${escapeHtml(label)}</span>
+    `;
+    const input = option.querySelector("input");
+    input.addEventListener("change", () => {
+      if (input.checked) {
+        setProblemUnderstanding(value, true);
+      }
+    });
+    container.appendChild(option);
+  });
+
+  syncResultUnderstandingPrompt(getUnderstanding(currentProblem.id));
 }
 
 function setupJudgeButton() {
@@ -370,6 +398,7 @@ function renderJudgePayload(payload) {
           ? `合格！（${payload.passedExamples} ケース通過） コンパイラ警告を確認してください`
           : `合格！（${payload.passedExamples} ケース通過）`
       );
+      toggleResultUnderstandingPrompt(true);
       if (payload.warning) {
         details.push(renderPreCard("警告", payload.warning));
       }
@@ -381,6 +410,7 @@ function renderJudgePayload(payload) {
         "wrongAnswer",
         payload.failedExample?.name ? `失敗ケースあり（例 ${payload.failedExample.name}）` : undefined
       );
+      toggleResultUnderstandingPrompt(false);
       if (payload.failedExample) {
         details.push(renderPreCard("入力", payload.failedExample.stdin ?? ""));
         details.push(renderPreCard("期待出力", payload.failedExample.expectedStdout ?? ""));
@@ -392,18 +422,22 @@ function renderJudgePayload(payload) {
       break;
     case "compile_error":
       renderResultState("compileError");
+      toggleResultUnderstandingPrompt(false);
       details.push(renderPreCard("コンパイルメッセージ", payload.compilerMessage ?? ""));
       break;
     case "runtime_error":
       renderResultState("runtimeError");
+      toggleResultUnderstandingPrompt(false);
       details.push(renderPreCard("メッセージ", payload.message ?? ""));
       break;
     case "timeout":
       renderResultState("timeout");
+      toggleResultUnderstandingPrompt(false);
       details.push(renderPreCard("メッセージ", payload.message ?? ""));
       break;
     default:
       renderResultState("requestError", payload.message ?? ERROR_MESSAGES.judgeUnavailable);
+      toggleResultUnderstandingPrompt(false);
       break;
   }
 
@@ -450,6 +484,39 @@ function renderResultDetails(items) {
 function setJudgeLoading(isLoading) {
   document.getElementById("judge-loading").hidden = !isLoading;
   document.getElementById("judge-button").disabled = isLoading;
+}
+
+function toggleResultUnderstandingPrompt(visible) {
+  document.getElementById("result-understanding-prompt").hidden = !visible;
+}
+
+function setProblemUnderstanding(value, animate) {
+  setUnderstanding(currentProblem.id, value);
+  updateProblemUnderstandingUI(value, animate);
+  syncResultUnderstandingPrompt(value);
+}
+
+function updateProblemUnderstandingUI(value, animate = false) {
+  if (!understandingControls) {
+    return;
+  }
+
+  understandingControls.select.value = value;
+  understandingControls.marker.className = `understanding-marker ${getUnderstandingMarkerClass(value)}`;
+
+  if (!animate) {
+    return;
+  }
+
+  understandingControls.wrap.classList.remove("understanding-select-wrap-animate");
+  void understandingControls.wrap.offsetWidth;
+  understandingControls.wrap.classList.add("understanding-select-wrap-animate");
+}
+
+function syncResultUnderstandingPrompt(value) {
+  document.querySelectorAll("input[name='result-understanding']").forEach((input) => {
+    input.checked = input.value === value;
+  });
 }
 
 function showProblemError(message) {

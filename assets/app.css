@@ -712,6 +712,89 @@ button, input, select, textarea { font: inherit; }
 .result-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 14px; background: #fff; }
 .result-card h3 { margin: 2px 0 10px; }
 .result-note { margin: 0 0 10px; color: var(--muted); font-size: 0.95rem; }
+.result-understanding-prompt {
+  margin: 14px 0 0;
+  padding: 12px 0 0;
+  border: 0;
+  border-top: 1px solid rgba(131, 103, 75, 0.14);
+}
+.result-understanding-prompt legend {
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.result-understanding-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.result-understanding-actions {
+  margin-top: 14px;
+  padding-top: 4px;
+}
+.result-understanding-actions-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.result-understanding-actions-label::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: rgba(131, 103, 75, 0.14);
+}
+.result-back-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.understanding-choice {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+.understanding-choice-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid rgba(131, 103, 75, 0.22);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--text);
+  font-weight: 600;
+  transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+.understanding-choice:hover .understanding-choice-label,
+.understanding-choice input:focus-visible + .understanding-choice-label {
+  outline: none;
+  border-color: rgba(13, 95, 88, 0.26);
+}
+.understanding-choice-1 input:checked + .understanding-choice-label {
+  background: #f4dfda;
+  border-color: rgba(145, 78, 69, 0.28);
+  color: #7f473c;
+}
+.understanding-choice-2 input:checked + .understanding-choice-label {
+  background: #f2ead0;
+  border-color: rgba(137, 118, 52, 0.26);
+  color: #745d1f;
+}
+.understanding-choice-3 input:checked + .understanding-choice-label {
+  background: #dff0e6;
+  border-color: rgba(54, 111, 79, 0.28);
+  color: #215f3c;
+}
+.understanding-choice input:checked + .understanding-choice-label {
+  transform: translateY(-1px);
+}
 .back-link, .primary-link { font-weight: 600; text-decoration: none; }
 .error-panel { text-align: center; }
 details.long-example summary { cursor: pointer; font-weight: 600; margin-bottom: 10px; }
