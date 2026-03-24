@@ -14,6 +14,7 @@ const {
   getStoredCode,
   setStoredCode,
   escapeHtml,
+  renderGlobalFooter,
 } = window.CCC;
 
 const ERROR_MESSAGES = {
@@ -58,6 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch {
     appConfig = { ...DEFAULT_CONFIG };
   }
+  renderGlobalFooter(appConfig);
 
   try {
     currentProblem = await fetchProblem(problemId);

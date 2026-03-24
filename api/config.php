@@ -8,6 +8,7 @@ $config = ccc_load_app_config();
 ccc_send_json([
     'appName' => $config['appName'],
     'appSubtitle' => $config['appSubtitle'],
+    'copyrightNotice' => $config['copyrightNotice'],
     'difficultyLabels' => $config['difficultyLabels'],
     'understandingLabels' => $config['understandingLabels'],
     'tabWidth' => $config['tabWidth'],

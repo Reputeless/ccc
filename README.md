@@ -613,6 +613,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 {
   "appName": "CCC",
   "appSubtitle": "C プログラミングの自習と理解度確認のための演習環境です。",
+  "copyrightNotice": "© CCC",
   "difficultyLabels": ["基礎", "中級", "発展"],
   "understandingLabels": ["要復習", "ふつう", "自信あり"],
   "tabWidth": 4,
@@ -640,6 +641,8 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `appSubtitle`:
   - 一覧ページ上部ヒーローに表示する副題
   - 教員ごとにトーンを変えたい場合はここで差し替えられる
+- `copyrightNotice`:
+  - ページ下部に表示する著作権表記や提供者名
 - `difficultyLabels`:
   - 難易度 1, 2, 3 に対応する表示名
 - `understandingLabels`:
@@ -684,6 +687,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 
 - `appName`
 - `appSubtitle`
+- `copyrightNotice`
 - `difficultyLabels`
 - `understandingLabels`
 - `tabWidth`

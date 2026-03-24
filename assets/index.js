@@ -15,6 +15,7 @@ const {
   getUnderstanding,
   setUnderstanding,
   escapeHtml,
+  renderGlobalFooter,
 } = window.CCC;
 
 let appConfig = { ...DEFAULT_CONFIG };
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   document.getElementById("app-name").textContent = appConfig.appName;
   document.getElementById("app-subtitle").textContent = appConfig.appSubtitle;
+  renderGlobalFooter(appConfig);
   setupStaticControls();
   await loadProblems();
 });
@@ -124,6 +126,7 @@ function renderProblemList() {
 
   document.getElementById("problem-count").textContent = `${filtered.length} 問表示 / 全 ${allProblems.length} 問`;
   renderActiveFilters(filterState);
+  renderLearningSummary(filtered);
 
   if (filtered.length === 0) {
     list.innerHTML = '<div class="status-banner muted-banner">条件に合う問題がありません。</div>';
@@ -369,6 +372,14 @@ function getUnderstandingSortRank(value, sortOrder) {
   }
 
   return numericValue;
+}
+
+function renderLearningSummary(filteredProblems) {
+  const solvedCount = filteredProblems.filter((problem) => isProblemSolved(problem.id)).length;
+  const reviewCount = filteredProblems.filter((problem) => getUnderstanding(problem.id) === "1").length;
+
+  document.getElementById("summary-solved-count").textContent = `${solvedCount} / ${filteredProblems.length}`;
+  document.getElementById("summary-review-count").textContent = String(reviewCount);
 }
 
 function renderActiveFilters(filters) {

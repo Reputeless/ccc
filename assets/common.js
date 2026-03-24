@@ -2,6 +2,7 @@
   const DEFAULT_CONFIG = {
     appName: "CCC",
     appSubtitle: "C プログラミングの自習と理解度確認のための演習環境です。",
+    copyrightNotice: "© CCC",
     difficultyLabels: ["基礎", "中級", "発展"],
     understandingLabels: ["要復習", "ふつう", "自信あり"],
     tabWidth: 4,
@@ -171,6 +172,13 @@
       .replaceAll('"', "&quot;");
   }
 
+  function renderGlobalFooter(config) {
+    const copyright = document.getElementById("global-footer-copyright");
+    if (copyright) {
+      copyright.textContent = config.copyrightNotice ?? DEFAULT_CONFIG.copyrightNotice;
+    }
+  }
+
   global.CCC = {
     DEFAULT_CONFIG,
     FILTER_STORAGE_KEY,
@@ -193,5 +201,6 @@
     getStoredCode,
     setStoredCode,
     escapeHtml,
+    renderGlobalFooter,
   };
 })(window);

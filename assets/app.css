@@ -35,6 +35,24 @@ button, input, select, textarea { font: inherit; }
 .page-shell { min-height: 100vh; }
 .site-header { padding: 28px 20px 10px; }
 .site-header-inner { width: min(1240px, calc(100% - 24px)); margin: 0 auto; }
+.site-footer { padding: 0 20px 32px; }
+.site-footer-inner {
+  width: min(1240px, calc(100% - 24px));
+  margin: 0 auto;
+  padding-top: 10px;
+  border-top: 1px solid rgba(131, 103, 75, 0.14);
+  color: var(--muted);
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  text-align: center;
+  opacity: 0.52;
+}
+.site-footer-copy,
+.site-footer-support {
+  margin: 0;
+  font-size: 0.82rem;
+}
 .compact-header { padding-bottom: 0; }
 .content-stack { width: min(1240px, calc(100% - 24px)); margin: 0 auto; padding: 14px 0 56px; }
 .eyebrow { margin: 0 0 8px; color: var(--muted); font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -272,6 +290,33 @@ button, input, select, textarea { font: inherit; }
 .active-filters { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .active-filters-label { font-weight: 600; }
 .active-filter-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.learning-summary {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(131, 103, 75, 0.14);
+}
+.learning-summary-title {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+.learning-summary-list {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.learning-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+.learning-summary-row dt {
+  color: var(--muted);
+}
+.learning-summary-row dd {
+  margin: 0;
+  font-weight: 700;
+}
 .filter-pill, .difficulty-badge, .understanding-pill {
   display: inline-flex;
   align-items: center;
