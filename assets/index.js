@@ -21,6 +21,7 @@ let appConfig = { ...DEFAULT_CONFIG };
 let allProblems = [];
 let shouldRestoreInitialScroll = true;
 let animatedSolvedProblemId = null;
+let animatedUnderstandingProblemId = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("pagehide", saveScrollPosition);
@@ -143,6 +144,9 @@ function renderProblemCard(problem) {
   article.className = "problem-card";
 
   const understandingValue = getUnderstanding(problem.id);
+  const understandingAnimationClass = animatedUnderstandingProblemId === problem.id
+    ? " understanding-select-wrap-animate"
+    : "";
   const numberSlot = problem.number ? `<span class="problem-number">${escapeHtml(problem.number)}</span>` : "";
 
   article.innerHTML = `
@@ -158,7 +162,7 @@ function renderProblemCard(problem) {
       ${renderSolvedToggle(problem)}
       <label class="field select-inline compact-select">
         <span class="sr-only">理解度</span>
-        <span class="understanding-select-wrap">
+        <span class="understanding-select-wrap${understandingAnimationClass}">
           <span class="understanding-marker ${getUnderstandingMarkerClass(understandingValue)}" aria-hidden="true"></span>
           <select class="understanding-select" aria-label="理解度"></select>
         </span>
@@ -227,9 +231,15 @@ function bindProblemCardInteractions(article, problem, understandingValue) {
   populateLabelSelect(select, appConfig.understandingLabels, { emptyLabel: "" });
   select.value = understandingValue;
   select.addEventListener("change", () => {
+    animatedUnderstandingProblemId = problem.id;
     marker.className = `understanding-marker ${getUnderstandingMarkerClass(select.value)}`;
     setUnderstanding(problem.id, select.value);
     renderProblemList();
+    window.setTimeout(() => {
+      if (animatedUnderstandingProblemId === problem.id) {
+        animatedUnderstandingProblemId = null;
+      }
+    }, 520);
   });
 }
 

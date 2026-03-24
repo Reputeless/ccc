@@ -5,6 +5,7 @@ const {
   applyListQuickFilter,
   getDifficultyLabel,
   formatLectureLabel,
+  getUnderstandingMarkerClass,
   isProblemSolved,
   setManualSolved,
   markAccepted,
@@ -179,7 +180,7 @@ function renderExampleBlock(title, content) {
 }
 
 function enhanceCopyableCodeBlocks() {
-  document.querySelectorAll("#problem-body pre, #examples-list pre").forEach((pre) => {
+  document.querySelectorAll("#problem-body pre, #examples-list pre, #result-details pre").forEach((pre) => {
     if (pre.querySelector(".copy-code-button")) {
       return;
     }
@@ -285,10 +286,17 @@ function setupMetaControls() {
   });
 
   const understandingSelect = document.getElementById("understanding-select");
+  const understandingWrap = document.getElementById("problem-understanding-wrap");
+  const understandingMarker = document.getElementById("problem-understanding-marker");
   populateLabelSelect(understandingSelect, appConfig.understandingLabels, { emptyLabel: "" });
   understandingSelect.value = getUnderstanding(currentProblem.id);
+  understandingMarker.className = `understanding-marker ${getUnderstandingMarkerClass(understandingSelect.value)}`;
   understandingSelect.addEventListener("change", () => {
+    understandingMarker.className = `understanding-marker ${getUnderstandingMarkerClass(understandingSelect.value)}`;
     setUnderstanding(currentProblem.id, understandingSelect.value);
+    understandingWrap.classList.remove("understanding-select-wrap-animate");
+    void understandingWrap.offsetWidth;
+    understandingWrap.classList.add("understanding-select-wrap-animate");
   });
 }
 
@@ -356,7 +364,12 @@ function renderJudgePayload(payload) {
 
   switch (payload.status) {
     case "accepted":
-      renderResultState("accepted", `合格！（${payload.passedExamples} ケース通過）`);
+      renderResultState(
+        "accepted",
+        payload.warning
+          ? `合格！（${payload.passedExamples} ケース通過） コンパイラ警告を確認してください`
+          : `合格！（${payload.passedExamples} ケース通過）`
+      );
       if (payload.warning) {
         details.push(renderPreCard("警告", payload.warning));
       }
@@ -364,7 +377,10 @@ function renderJudgePayload(payload) {
       document.getElementById("solved-toggle").checked = true;
       break;
     case "wrong_answer":
-      renderResultState("wrongAnswer");
+      renderResultState(
+        "wrongAnswer",
+        payload.failedExample?.name ? `失敗ケースあり（例 ${payload.failedExample.name}）` : undefined
+      );
       if (payload.failedExample) {
         details.push(renderPreCard("入力", payload.failedExample.stdin ?? ""));
         details.push(renderPreCard("期待出力", payload.failedExample.expectedStdout ?? ""));
@@ -428,6 +444,7 @@ function renderResultDetails(items) {
   const container = document.getElementById("result-details");
   container.innerHTML = "";
   items.forEach((item) => container.appendChild(item));
+  enhanceCopyableCodeBlocks();
 }
 
 function setJudgeLoading(isLoading) {
