@@ -1,0 +1,7 @@
+{
+  "id": "sum-001",
+  "title": "2つの整数の和",
+  "lecture": 1,
+  "difficulty": 1,
+  "examples": ["01", "02"]
+}

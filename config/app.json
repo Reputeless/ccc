@@ -1,0 +1,17 @@
+{
+  "appName": "CCC",
+  "difficultyLabels": ["基礎", "中級", "発展"],
+  "understandingLabels": ["要復習", "ふつう", "自信あり"],
+  "tabWidth": 4,
+  "editorRows": 20,
+  "longExampleLineThreshold": 30,
+  "judgeTimeoutSeconds": 10,
+  "maxCodeBytes": 65536,
+  "languageProfile": {
+    "language": "c",
+    "compiler": "gcc-head",
+    "standard": "c17",
+    "gnuExtensions": false,
+    "extraFlags": ["-O2", "-Wall", "-Wextra"]
+  }
+}

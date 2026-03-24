@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CCC Problem</title>
+  <link rel="stylesheet" href="assets/app.css">
+  <script defer src="assets/problem.js"></script>
+</head>
+<body class="page-shell">
+  <header class="site-header compact-header">
+    <div>
+      <p class="eyebrow">C Code Checker</p>
+      <a class="back-link" href="index.html">← 問題一覧へ戻る</a>
+    </div>
+  </header>
+
+  <main class="content-stack">
+    <section id="problem-error" class="panel error-panel" hidden>
+      <h1>問題を表示できません</h1>
+      <p id="problem-error-message">問題が見つかりません。</p>
+      <a class="primary-link" href="index.html">問題一覧へ戻る</a>
+    </section>
+
+    <section id="problem-view" hidden>
+      <div class="two-column-layout">
+        <article class="panel content-panel">
+          <header class="problem-header">
+            <div>
+              <p id="problem-meta" class="eyebrow"></p>
+              <h1 id="problem-title">問題</h1>
+            </div>
+            <div class="meta-actions">
+              <label class="checkbox-field">
+                <input id="solved-toggle" type="checkbox">
+                <span>解いた</span>
+              </label>
+              <label class="field">
+                <span>理解度</span>
+                <select id="understanding-select"></select>
+              </label>
+            </div>
+          </header>
+          <div id="problem-body" class="problem-body"></div>
+          <section class="examples-section">
+            <h2>入出力例</h2>
+            <div id="examples-list" class="examples-list"></div>
+          </section>
+        </article>
+
+        <aside class="panel editor-panel">
+          <div class="panel-heading">
+            <h2>コード入力</h2>
+            <p class="muted-text">入力のたびに自動保存されます。</p>
+          </div>
+
+          <textarea id="code-editor" class="code-editor" spellcheck="false"></textarea>
+
+          <div class="editor-actions">
+            <button id="judge-button" class="primary-button" type="button">判定する</button>
+          </div>
+
+          <section class="result-section" aria-live="polite">
+            <div class="panel-heading">
+              <h2>判定結果</h2>
+              <div id="judge-loading" class="loading-indicator" hidden>
+                <span class="spinner" aria-hidden="true"></span>
+                <span>判定中...</span>
+              </div>
+            </div>
+            <div id="result-message" class="status-banner muted-banner">まだ判定していません。</div>
+            <div id="result-details" class="result-details"></div>
+          </section>
+        </aside>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
