@@ -22,9 +22,9 @@ function ccc_load_app_config(): array
         'languageProfile' => [
             'language' => 'c',
             'compiler' => 'gcc-head-c',
-            'standard' => 'c17',
+            'standard' => 'c23',
             'gnuExtensions' => false,
-            'extraFlags' => ['-O2', '-Wall', '-Wextra'],
+            'extraFlags' => ['-Wall', '-Wextra', '-Wvla', '-Wstrict-prototypes', '-Wconversion', '-Wshadow', '-pedantic', '-lm'],
         ],
     ];
 

@@ -594,9 +594,9 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   "languageProfile": {
     "language": "c",
     "compiler": "gcc-head-c",
-    "standard": "c17",
+    "standard": "c23",
     "gnuExtensions": false,
-    "extraFlags": ["-O2", "-Wall", "-Wextra"]
+    "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
   }
 }
 ```
@@ -631,11 +631,14 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `languageProfile.compiler`:
   - Wandbox で使うコンパイラ識別子
 - `languageProfile.standard`:
-  - `c17`, `c23` など
+  - C 規格を指定する
+  - 初期版の想定値は `c17` または `c23`
+  - 既定値は `c23`
 - `languageProfile.gnuExtensions`:
   - GCC 拡張を使うかどうか
 - `languageProfile.extraFlags`:
   - 追加のコンパイルフラグ配列
+  - 講義での既定値は `-Wall`, `-Wextra`, `-Wvla`, `-Wstrict-prototypes`, `-Wconversion`, `-Wshadow`, `-pedantic`, `-lm`
 
 ### 初期版で設定可能にしたい項目
 
@@ -682,6 +685,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - 当面は全問題で同じ言語プロファイルを使う
 - 初期ターゲットは C
 - C17 / C23、将来的なバージョンフラグ、GCC 拡張有無、追加フラグをグローバル設定で制御できるようにする
+- 講義での既定値は `C23` とする
 
 ### 将来拡張
 
