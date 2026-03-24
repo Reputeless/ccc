@@ -302,6 +302,13 @@ function setupEditor() {
       return;
     }
 
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && event.code === "Slash") {
+      event.preventDefault();
+      handleEditorCommentToggle(editor);
+      setStoredCode(currentProblem.id, editor.value);
+      return;
+    }
+
     if (event.key !== "Tab") {
       return;
     }
@@ -354,7 +361,56 @@ function handleEditorTabKey(editor, isShiftPressed) {
   );
 }
 
-function applyEditorEdit(editor, replaceStart, replaceEnd, replacement, nextSelectionStart, nextSelectionEnd) {
+function handleEditorCommentToggle(editor) {
+  const block = getEditorSelectedLineBlock(editor.value, editor.selectionStart, editor.selectionEnd);
+  const nonEmptyLines = block.lines.filter((line) => line.trim() !== "");
+  if (nonEmptyLines.length === 0) {
+    return;
+  }
+
+  const shouldUncomment = nonEmptyLines.every((line) => /^(\s*)\/\//.test(line));
+  const edits = [];
+
+  const transformedLines = block.lines.map((line, index) => {
+    const relativeLineStart = block.relativeLineStarts[index];
+
+    if (line.trim() === "") {
+      return line;
+    }
+
+    if (shouldUncomment) {
+      const match = line.match(/^(\s*)\/\//);
+      if (!match) {
+        return line;
+      }
+
+      const removeStart = relativeLineStart + match[1].length;
+      edits.push({ type: "remove", start: removeStart, length: 2 });
+      return line.slice(0, match[1].length) + line.slice(match[1].length + 2);
+    }
+
+    const indentLength = line.match(/^\s*/)?.[0].length ?? 0;
+    const insertStart = relativeLineStart + indentLength;
+    edits.push({ type: "insert", start: insertStart, length: 2 });
+    return line.slice(0, indentLength) + "//" + line.slice(indentLength);
+  });
+
+  const replacement = transformedLines.join("\n");
+  const selectionStart = block.blockStart + mapEditorOffsetThroughEdits(editor.selectionStart - block.blockStart, edits);
+  const selectionEnd = block.blockStart + mapEditorOffsetThroughEdits(editor.selectionEnd - block.blockStart, edits);
+
+  applyEditorEdit(
+    editor,
+    block.blockStart,
+    block.blockEnd,
+    replacement,
+    selectionStart,
+    selectionEnd,
+    "commentToggle"
+  );
+}
+
+function applyEditorEdit(editor, replaceStart, replaceEnd, replacement, nextSelectionStart, nextSelectionEnd, inputType = "indentationChange") {
   const beforeState = {
     value: editor.value,
     selectionStart: editor.selectionStart,
@@ -374,7 +430,7 @@ function applyEditorEdit(editor, replaceStart, replaceEnd, replacement, nextSele
       selectionStart: editor.selectionStart,
       selectionEnd: editor.selectionEnd,
     },
-    inputType: replaceStart === replaceEnd && replacement === "\t" ? "insertTab" : "indentationChange",
+    inputType,
     timestamp: Date.now(),
   });
 }
@@ -489,6 +545,42 @@ function resetEditorHistory() {
   editorHistory.redoStack = [];
   clearPendingEditorInput();
   editorHistory.suppressRecording = false;
+}
+
+function getEditorSelectedLineBlock(text, selectionStart, selectionEnd) {
+  const blockStart = findLineStart(text, selectionStart);
+  const lineStarts = collectAffectedLineStarts(text, blockStart, selectionEnd);
+  const lastLineStart = lineStarts[lineStarts.length - 1];
+  const blockEnd = findLineEnd(text, lastLineStart);
+  const blockText = text.slice(blockStart, blockEnd);
+
+  return {
+    blockStart,
+    blockEnd,
+    lines: blockText.split("\n"),
+    relativeLineStarts: lineStarts.map((lineStart) => lineStart - blockStart),
+  };
+}
+
+function mapEditorOffsetThroughEdits(offset, edits) {
+  let mappedOffset = offset;
+
+  edits.forEach((edit) => {
+    if (edit.type === "insert") {
+      if (offset > edit.start) {
+        mappedOffset += edit.length;
+      }
+      return;
+    }
+
+    if (offset > edit.start + edit.length) {
+      mappedOffset -= edit.length;
+    } else if (offset > edit.start) {
+      mappedOffset = edit.start;
+    }
+  });
+
+  return mappedOffset;
 }
 
 function findLineStart(text, position) {
