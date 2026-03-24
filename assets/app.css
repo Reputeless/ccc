@@ -238,6 +238,7 @@ button, input, select, textarea { font: inherit; }
 }
 .field, .field-group, .checkbox-field { display: flex; flex-direction: column; gap: 8px; }
 .field span, .field-group legend { font-weight: 600; }
+.field-group legend { margin-bottom: 4px; }
 .field input, .field select, .code-editor {
   width: 100%;
   border: 1px solid rgba(131, 103, 75, 0.24);
@@ -254,6 +255,7 @@ button, input, select, textarea { font: inherit; }
   background: #fff;
 }
 .field-group { border: 0; padding: 0; margin: 18px 0 0; }
+.filter-grid > .field-group:last-of-type { margin-bottom: 10px; }
 .chip-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .chip-option {
   display: inline-flex;
