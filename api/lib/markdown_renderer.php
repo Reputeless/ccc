@@ -103,7 +103,8 @@ final class CccMarkdownRenderer
                 $flushParagraph();
                 $flushList();
                 $flushTable();
-                $level = strlen($matches[1]);
+                // The page title is already rendered outside body.md, so body headings are displayed one level lower.
+                $level = min(strlen($matches[1]) + 1, 6);
                 $html[] = '<h' . $level . '>' . $this->renderInline(trim($matches[2])) . '</h' . $level . '>';
                 continue;
             }

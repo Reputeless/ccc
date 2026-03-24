@@ -28,19 +28,21 @@
       <div class="two-column-layout">
         <article class="panel content-panel">
           <header class="problem-header">
-            <div>
-              <div id="problem-meta" class="problem-meta-badges"></div>
+            <div class="problem-header-main">
               <h1 id="problem-title">問題</h1>
-            </div>
-            <div class="meta-actions">
-              <label class="checkbox-field">
-                <input id="solved-toggle" type="checkbox">
-                <span>解いた</span>
-              </label>
-              <label class="field">
-                <span>理解度</span>
-                <select id="understanding-select"></select>
-              </label>
+              <div class="problem-meta-row">
+                <div id="problem-meta" class="problem-meta-badges"></div>
+                <div class="meta-actions">
+                  <label class="checkbox-field compact-checkbox">
+                    <input id="solved-toggle" type="checkbox">
+                    <span>解いた</span>
+                  </label>
+                  <label class="field select-inline compact-select problem-understanding-field">
+                    <span class="sr-only">理解度</span>
+                    <select id="understanding-select" aria-label="理解度"></select>
+                  </label>
+                </div>
+              </div>
             </div>
           </header>
           <div id="problem-body" class="problem-body"></div>
