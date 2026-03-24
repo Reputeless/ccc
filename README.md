@@ -598,6 +598,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 ```json
 {
   "appName": "CCC",
+  "appSubtitle": "C プログラミングの自習と理解度確認のための演習環境です。",
   "difficultyLabels": ["基礎", "中級", "発展"],
   "understandingLabels": ["要復習", "ふつう", "自信あり"],
   "tabWidth": 4,
@@ -621,6 +622,9 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 
 - `appName`:
   - 画面上に表示するアプリ名
+- `appSubtitle`:
+  - 一覧ページ上部ヒーローに表示する副題
+  - 教員ごとにトーンを変えたい場合はここで差し替えられる
 - `difficultyLabels`:
   - 難易度 1, 2, 3 に対応する表示名
 - `understandingLabels`:
@@ -661,6 +665,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 初期版では、少なくとも次を実際に設定可能にしたい。
 
 - `appName`
+- `appSubtitle`
 - `difficultyLabels`
 - `understandingLabels`
 - `tabWidth`

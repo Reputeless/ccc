@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   document.getElementById("app-name").textContent = appConfig.appName;
+  document.getElementById("app-subtitle").textContent = appConfig.appSubtitle;
   setupStaticControls();
   await loadProblems();
 });
