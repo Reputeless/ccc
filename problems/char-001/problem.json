@@ -1,5 +1,6 @@
 {
   "id": "char-001",
+  "number": "7B",
   "title": "文字コードを 1 つ進める",
   "lecture": 7,
   "examples": ["01", "02"]

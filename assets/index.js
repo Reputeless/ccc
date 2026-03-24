@@ -100,7 +100,7 @@ function resetFilters() {
   document.getElementById("lecture-max").value = "";
   document.getElementById("solved-filter").value = "all";
   document.getElementById("understanding-filter").value = "all";
-  document.getElementById("sort-order").value = "asc";
+  document.getElementById("sort-order").value = "lectureAsc";
   document.querySelectorAll("#difficulty-options input[type='checkbox']").forEach((checkbox) => {
     checkbox.checked = false;
   });
@@ -148,11 +148,15 @@ function renderProblemCard(problem) {
   const understandingMarkerClass = understandingValue === ""
     ? "understanding-marker-understanding-unset"
     : `understanding-marker-understanding-${understandingValue}`;
+  const numberSlot = problem.number ? `<span class="problem-number">${escapeHtml(problem.number)}</span>` : "";
 
   article.innerHTML = `
     <div class="problem-main">
       <h3 class="problem-card-title">
-        <a href="problem.html?id=${encodeURIComponent(problem.id)}">${escapeHtml(problem.title)}</a>
+        <a href="problem.html?id=${encodeURIComponent(problem.id)}">
+          <span class="problem-number-slot">${numberSlot}</span>
+          <span class="problem-title-text">${escapeHtml(problem.title)}</span>
+        </a>
       </h3>
     </div>
     <div class="problem-card-actions">
@@ -244,13 +248,49 @@ function matchesFilters(problem, filters) {
 }
 
 function compareProblems(left, right, sortOrder) {
+  const normalizedSortOrder = normalizeSortOrder(sortOrder);
+
+  if (normalizedSortOrder === "numberAsc" || normalizedSortOrder === "numberDesc") {
+    const numberCompare = compareByNumber(left, right);
+    if (numberCompare !== 0) {
+      return normalizedSortOrder === "numberDesc" ? -numberCompare : numberCompare;
+    }
+    return left.id.localeCompare(right.id, "ja");
+  }
+
+  const lectureCompare = compareByLecture(left, right);
+  if (lectureCompare !== 0) {
+    return normalizedSortOrder === "lectureDesc" ? -lectureCompare : lectureCompare;
+  }
+
+  const numberCompare = compareByNumber(left, right);
+  if (numberCompare !== 0) {
+    return numberCompare;
+  }
+
+  return left.id.localeCompare(right.id, "ja");
+}
+
+function compareByLecture(left, right) {
   const leftLecture = left.lecture == null ? Number.POSITIVE_INFINITY : left.lecture;
   const rightLecture = right.lecture == null ? Number.POSITIVE_INFINITY : right.lecture;
-  const lectureDiff = leftLecture - rightLecture;
-  if (lectureDiff !== 0) {
-    return sortOrder === "desc" ? -lectureDiff : lectureDiff;
+  return leftLecture - rightLecture;
+}
+
+function compareByNumber(left, right) {
+  const leftNumber = (left.number ?? "").trim();
+  const rightNumber = (right.number ?? "").trim();
+  return (leftNumber || left.id).localeCompare(rightNumber || right.id, "ja");
+}
+
+function normalizeSortOrder(sortOrder) {
+  if (sortOrder === "asc") {
+    return "lectureAsc";
   }
-  return left.id.localeCompare(right.id, "ja");
+  if (sortOrder === "desc") {
+    return "lectureDesc";
+  }
+  return sortOrder;
 }
 
 function renderActiveFilters(filters) {
@@ -324,7 +364,7 @@ function restoreFilterState() {
     document.getElementById("lecture-max").value = filters.lectureMax ?? "";
     document.getElementById("solved-filter").value = filters.solved ?? "all";
     document.getElementById("understanding-filter").value = filters.understanding ?? "all";
-    document.getElementById("sort-order").value = filters.sortOrder ?? "asc";
+    document.getElementById("sort-order").value = normalizeSortOrder(filters.sortOrder ?? "lectureAsc");
 
     const selectedDifficulties = new Set(filters.difficulties ?? []);
     document.querySelectorAll("#difficulty-options input[type='checkbox']").forEach((checkbox) => {

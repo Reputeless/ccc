@@ -388,6 +388,10 @@ function renderProblemMeta(problem) {
   const container = document.getElementById("problem-meta");
   container.innerHTML = "";
 
+  if (problem.number) {
+    container.appendChild(createMetaBadge("lecture-badge", problem.number));
+  }
+
   if (problem.lecture != null) {
     container.appendChild(createMetaBadge("lecture-badge", `第 ${problem.lecture} 回講義`));
   }

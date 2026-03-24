@@ -1,5 +1,6 @@
 {
   "id": "sum-001",
+  "number": "1-1",
   "title": "2つの整数の和",
   "lecture": 1,
   "difficulty": 1,

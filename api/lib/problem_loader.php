@@ -12,6 +12,7 @@ function ccc_list_problem_summaries(): array
 
         $items[] = [
             'id' => $manifest['id'],
+            'number' => $manifest['number'],
             'title' => $manifest['title'],
             'lecture' => $manifest['lecture'],
             'difficulty' => $manifest['difficulty'],
@@ -23,6 +24,14 @@ function ccc_list_problem_summaries(): array
         $rightLecture = $right['lecture'] ?? PHP_INT_MAX;
         if ($leftLecture !== $rightLecture) {
             return $leftLecture <=> $rightLecture;
+        }
+        $leftNumber = trim((string) ($left['number'] ?? ''));
+        $rightNumber = trim((string) ($right['number'] ?? ''));
+        if ($leftNumber !== '' || $rightNumber !== '') {
+            $numberCompare = strcmp($leftNumber !== '' ? $leftNumber : (string) $left['id'], $rightNumber !== '' ? $rightNumber : (string) $right['id']);
+            if ($numberCompare !== 0) {
+                return $numberCompare;
+            }
         }
         return strcmp((string) $left['id'], (string) $right['id']);
     });
@@ -41,6 +50,7 @@ function ccc_load_problem_detail(string $problemId): ?array
 
     return [
         'id' => $manifest['id'],
+        'number' => $manifest['number'],
         'title' => $manifest['title'],
         'lecture' => $manifest['lecture'],
         'difficulty' => $manifest['difficulty'],
@@ -106,6 +116,7 @@ function ccc_load_problem_manifest(string $problemId): ?array
     }
 
     $id = isset($decoded['id']) ? trim((string) $decoded['id']) : '';
+    $number = array_key_exists('number', $decoded) ? trim((string) $decoded['number']) : null;
     $title = isset($decoded['title']) ? trim((string) $decoded['title']) : '';
     $examples = $decoded['examples'] ?? null;
 
@@ -129,6 +140,7 @@ function ccc_load_problem_manifest(string $problemId): ?array
 
     return [
         'id' => $id,
+        'number' => $number === '' ? null : $number,
         'title' => $title,
         'lecture' => $lecture,
         'difficulty' => $difficulty,
