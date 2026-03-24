@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" width="420" height="240" role="img" aria-labelledby="title desc">
+  <title id="title">4 列 3 行の格子</title>
+  <desc id="desc">横 4 マス、縦 3 マスの格子と、寸法を示す矢印を描いた図</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f7efe2"/>
+      <stop offset="100%" stop-color="#efe4d1"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto-start-reverse">
+      <path d="M0,0 L8,4 L0,8 z" fill="#0f6f69"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="420" height="240" fill="url(#bg)"/>
+  <rect x="56" y="28" width="256" height="176" fill="#fffaf1" stroke="#dccbb1" stroke-width="2"/>
+  <g stroke="#8aa9a4" stroke-width="2">
+    <line x1="120" y1="28" x2="120" y2="204"/>
+    <line x1="184" y1="28" x2="184" y2="204"/>
+    <line x1="248" y1="28" x2="248" y2="204"/>
+    <line x1="56" y1="86.67" x2="312" y2="86.67"/>
+    <line x1="56" y1="145.33" x2="312" y2="145.33"/>
+  </g>
+  <g fill="#17594a" font-family="Segoe UI, BIZ UDPGothic, sans-serif" font-size="18" font-weight="700">
+    <text x="184" y="20" text-anchor="middle">横 4 マス</text>
+    <text x="362" y="121" text-anchor="middle">縦 3 マス</text>
+  </g>
+  <g stroke="#0f6f69" stroke-width="3" fill="none" marker-start="url(#arrow)" marker-end="url(#arrow)">
+    <line x1="64" y1="18" x2="304" y2="18"/>
+    <line x1="334" y1="36" x2="334" y2="196"/>
+  </g>
+</svg>

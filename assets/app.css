@@ -463,7 +463,7 @@ button, input, select, textarea { font: inherit; }
 .problem-body pre code, .example-block pre code, .result-details pre code { tab-size: 4; }
 .problem-body table { width: 100%; border-collapse: collapse; margin: 16px 0; }
 .problem-body th, .problem-body td { border: 1px solid var(--line); padding: 10px; text-align: left; }
-.problem-body img { max-width: 100%; border-radius: 10px; box-shadow: 0 14px 28px rgba(48, 33, 22, 0.10); }
+.problem-body img { max-width: 100%; border-radius: 0; box-shadow: 0 6px 14px rgba(48, 33, 22, 0.08); }
 .meta-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: flex-end; align-items: center; }
 .problem-understanding-field { margin: 0; }
 .checkbox-field { align-items: center; flex-direction: row; gap: 10px; font-weight: 600; }
