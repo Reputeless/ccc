@@ -16,9 +16,20 @@ const {
 
 const ERROR_MESSAGES = {
   loadProblem: "問題の読み込みに失敗しました。",
-  judgeUnavailable: "判定に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。",
+  judgeUnavailable: "判定サーバーとの通信に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。",
   invalidRequest: "送信内容に問題があります。入力内容を確認してください。",
   problemUnavailable: "問題が見つからないか、まだ公開されていません。",
+};
+
+const RESULT_STATE_PRESETS = {
+  idle: { kind: "muted", icon: "", text: "まだ判定していません" },
+  pending: { kind: "muted", icon: "", text: "判定中..." },
+  accepted: { kind: "success", icon: "✔" },
+  wrongAnswer: { kind: "warning", icon: "!" , text: "失敗ケースあり" },
+  compileError: { kind: "error", icon: "!" , text: "コンパイルエラー" },
+  runtimeError: { kind: "error", icon: "!" , text: "実行時エラー" },
+  timeout: { kind: "error", icon: "!" , text: "時間切れ" },
+  requestError: { kind: "error", icon: "!" },
 };
 
 let appConfig = { ...DEFAULT_CONFIG };
@@ -265,12 +276,12 @@ async function judgeCurrentCode() {
   const code = editor.value;
 
   if (new TextEncoder().encode(code).length > appConfig.maxCodeBytes) {
-    renderResultBanner(`コードが長すぎます。${appConfig.maxCodeBytes} バイト以内にしてください。`, "error");
+    renderResultState("requestError", `コードが長すぎます。${appConfig.maxCodeBytes} バイト以内にしてください。`);
     renderResultDetails([]);
     return;
   }
 
-  renderResultBanner("判定中...", "muted");
+  renderResultState("pending");
   renderResultDetails([]);
   setJudgeLoading(true);
 
@@ -290,7 +301,7 @@ async function judgeCurrentCode() {
     const payload = await response.json().catch(() => ({}));
 
     if (response.status === 400) {
-      renderResultBanner(payload.message ?? ERROR_MESSAGES.invalidRequest, "error");
+      renderResultState("requestError", payload.message ?? ERROR_MESSAGES.invalidRequest);
       renderResultDetails([]);
       return;
     }
@@ -301,14 +312,14 @@ async function judgeCurrentCode() {
     }
 
     if (!response.ok) {
-      renderResultBanner(payload.message ?? ERROR_MESSAGES.judgeUnavailable, "error");
+      renderResultState("requestError", payload.message ?? ERROR_MESSAGES.judgeUnavailable);
       renderResultDetails([]);
       return;
     }
 
     renderJudgePayload(payload);
   } catch {
-    renderResultBanner(ERROR_MESSAGES.judgeUnavailable, "error");
+    renderResultState("requestError", ERROR_MESSAGES.judgeUnavailable);
     renderResultDetails([]);
   } finally {
     setJudgeLoading(false);
@@ -320,7 +331,7 @@ function renderJudgePayload(payload) {
 
   switch (payload.status) {
     case "accepted":
-      renderResultBanner(`Accepted (${payload.passedExamples} ケースすべて通過)`, "success");
+      renderResultState("accepted", `合格！（${payload.passedExamples} ケース通過）`);
       if (payload.warning) {
         details.push(renderPreCard("警告", payload.warning));
       }
@@ -328,7 +339,7 @@ function renderJudgePayload(payload) {
       document.getElementById("solved-toggle").checked = true;
       break;
     case "wrong_answer":
-      renderResultBanner("Wrong Answer", "error");
+      renderResultState("wrongAnswer");
       if (payload.failedExample) {
         details.push(renderPreCard("入力", payload.failedExample.stdin ?? ""));
         details.push(renderPreCard("期待出力", payload.failedExample.expectedStdout ?? ""));
@@ -339,19 +350,19 @@ function renderJudgePayload(payload) {
       }
       break;
     case "compile_error":
-      renderResultBanner("Compile Error", "error");
+      renderResultState("compileError");
       details.push(renderPreCard("コンパイルメッセージ", payload.compilerMessage ?? ""));
       break;
     case "runtime_error":
-      renderResultBanner("Runtime Error", "error");
+      renderResultState("runtimeError");
       details.push(renderPreCard("メッセージ", payload.message ?? ""));
       break;
     case "timeout":
-      renderResultBanner("Timeout", "error");
+      renderResultState("timeout");
       details.push(renderPreCard("メッセージ", payload.message ?? ""));
       break;
     default:
-      renderResultBanner(payload.message ?? ERROR_MESSAGES.judgeUnavailable, "error");
+      renderResultState("requestError", payload.message ?? ERROR_MESSAGES.judgeUnavailable);
       break;
   }
 
@@ -373,10 +384,19 @@ function renderPreCard(title, content) {
   return section;
 }
 
-function renderResultBanner(message, kind) {
+function renderResultState(state, message = null) {
+  const preset = RESULT_STATE_PRESETS[state] ?? RESULT_STATE_PRESETS.requestError;
+  renderResultBanner(message ?? preset.text ?? "", preset.kind, preset.icon);
+}
+
+function renderResultBanner(message, kind, icon) {
   const banner = document.getElementById("result-message");
-  banner.textContent = message;
-  banner.className = `status-banner ${kind === "error" ? "error-banner" : kind === "warning" ? "warning-banner" : kind === "muted" ? "muted-banner" : ""}`.trim();
+  const iconHtml = icon ? `<span class="result-status-icon" aria-hidden="true">${escapeHtml(icon)}</span>` : "";
+  banner.innerHTML = `
+    ${iconHtml}
+    <span class="result-status-text">${escapeHtml(message)}</span>
+  `;
+  banner.className = `status-banner result-status-banner ${icon ? "has-icon" : "no-icon"} ${kind === "error" ? "error-banner" : kind === "warning" ? "warning-banner" : kind === "muted" ? "muted-banner" : kind === "success" ? "success-banner" : ""}`.trim();
 }
 
 function renderResultDetails(items) {
