@@ -2,6 +2,7 @@ const {
   DEFAULT_CONFIG,
   fetchConfig,
   populateLabelSelect,
+  applyListQuickFilter,
   getDifficultyLabel,
   formatLectureLabel,
   isProblemSolved,
@@ -92,15 +93,27 @@ function renderProblemMeta(problem) {
   container.innerHTML = "";
 
   if (problem.number) {
-    container.appendChild(createMetaBadge("lecture-badge", problem.number));
+    container.appendChild(createMetaBadge("problem-number-meta", problem.number));
   }
 
   if (problem.lecture != null) {
-    container.appendChild(createMetaBadge("lecture-badge", formatLectureLabel(problem.lecture, "回講義")));
+    container.appendChild(createMetaFilterLink(
+      "lecture-badge meta-filter-trigger",
+      formatLectureLabel(problem.lecture, "回講義"),
+      "lecture",
+      String(problem.lecture),
+      "この講義回で一覧を絞り込む"
+    ));
   }
 
   if (problem.difficulty != null) {
-    container.appendChild(createMetaBadge(`difficulty-badge difficulty-${problem.difficulty}`, getDifficultyLabel(appConfig, problem.difficulty)));
+    container.appendChild(createMetaFilterLink(
+      `difficulty-badge difficulty-${problem.difficulty} meta-filter-trigger`,
+      getDifficultyLabel(appConfig, problem.difficulty),
+      "difficulty",
+      String(problem.difficulty),
+      "この難易度で一覧を絞り込む"
+    ));
   }
 }
 
@@ -109,6 +122,18 @@ function createMetaBadge(className, text) {
   badge.className = className;
   badge.textContent = text;
   return badge;
+}
+
+function createMetaFilterLink(className, text, filterType, filterValue, title) {
+  const link = document.createElement("a");
+  link.className = className;
+  link.href = "index.html";
+  link.textContent = text;
+  link.title = title;
+  link.addEventListener("click", () => {
+    applyListQuickFilter(filterType, filterValue);
+  });
+  return link;
 }
 
 function renderExamples() {

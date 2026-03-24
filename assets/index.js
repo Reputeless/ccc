@@ -1,10 +1,12 @@
-const FILTER_STORAGE_KEY = "ccc:v1:listFilters";
 const LIST_SCROLL_KEY = "ccc:v1:listScroll";
 
 const {
   DEFAULT_CONFIG,
+  FILTER_STORAGE_KEY,
   fetchConfig,
   populateLabelSelect,
+  normalizeSortOrder,
+  applyListQuickFilter,
   getDifficultyLabel,
   formatLectureLabel,
   getUnderstandingMarkerClass,
@@ -172,7 +174,7 @@ function renderLectureBadge(lecture) {
   if (lecture == null) {
     return "";
   }
-  return `<span class="lecture-badge">${escapeHtml(formatLectureLabel(lecture))}</span>`;
+  return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" title="この講義回で絞り込む">${escapeHtml(formatLectureLabel(lecture))}</button>`;
 }
 
 function renderDifficultyBadge(difficulty) {
@@ -181,7 +183,7 @@ function renderDifficultyBadge(difficulty) {
   }
   const difficultyKey = String(difficulty);
   const difficultyLabel = getDifficultyLabel(appConfig, difficulty);
-  return `<span class="difficulty-badge difficulty-${escapeHtml(difficultyKey)}">${escapeHtml(difficultyLabel)}</span>`;
+  return `<button type="button" class="difficulty-badge difficulty-${escapeHtml(difficultyKey)} meta-filter-trigger" data-filter-type="difficulty" data-filter-value="${escapeHtml(difficultyKey)}" title="この難易度で絞り込む">${escapeHtml(difficultyLabel)}</button>`;
 }
 
 function renderSolvedToggle(problem) {
@@ -200,6 +202,14 @@ function renderSolvedToggle(problem) {
 }
 
 function bindProblemCardInteractions(article, problem, understandingValue) {
+  article.querySelectorAll(".meta-filter-trigger").forEach((button) => {
+    button.addEventListener("click", () => {
+      applyListQuickFilter(button.dataset.filterType ?? "", button.dataset.filterValue ?? "");
+      restoreFilterState();
+      renderProblemList();
+    });
+  });
+
   const solvedCheckbox = article.querySelector(".solved-checkbox");
   solvedCheckbox.addEventListener("change", () => {
     animatedSolvedProblemId = problem.id;
@@ -299,56 +309,50 @@ function compareByNumber(left, right) {
   return (leftNumber || left.id).localeCompare(rightNumber || right.id, "ja");
 }
 
-function normalizeSortOrder(sortOrder) {
-  if (sortOrder === "asc") {
-    return "lectureAsc";
-  }
-  if (sortOrder === "desc") {
-    return "lectureDesc";
-  }
-  return sortOrder;
-}
-
 function renderActiveFilters(filters) {
   const container = document.getElementById("active-filter-list");
   container.innerHTML = "";
-  const labels = [];
+  const pills = [];
 
   if (filters.lectureMin !== "") {
-    labels.push(`${filters.lectureMin} <= 講義回`);
+    pills.push({ text: `${filters.lectureMin} <= 講義回` });
   }
   if (filters.lectureMax !== "") {
-    labels.push(`講義回 <= ${filters.lectureMax}`);
+    pills.push({ text: `講義回 <= ${filters.lectureMax}` });
   }
   if (filters.difficulties.length > 0) {
-    const text = filters.difficulties.map((value) => {
+    filters.difficulties.forEach((value) => {
       if (value === "unset") {
-        return "未設定";
+        pills.push({ text: "難易度: 未設定" });
+        return;
       }
-      return appConfig.difficultyLabels[Number(value) - 1] ?? value;
-    }).join(" / ");
-    labels.push(`難易度: ${text}`);
+
+      pills.push({
+        text: `難易度: ${appConfig.difficultyLabels[Number(value) - 1] ?? value}`,
+        className: `difficulty-badge difficulty-${value}`,
+      });
+    });
   }
   if (filters.solved === "solved") {
-    labels.push("解いた問題だけ");
+    pills.push({ text: "解いた問題だけ" });
   } else if (filters.solved === "unsolved") {
-    labels.push("解いていない問題だけ");
+    pills.push({ text: "解いていない問題だけ" });
   }
   if (filters.understanding !== "all") {
     const understandingLabel = filters.understanding === "unset"
       ? "未設定"
       : appConfig.understandingLabels[Number(filters.understanding) - 1] ?? "未設定";
-    labels.push(`理解度: ${understandingLabel}`);
+    pills.push({ text: `理解度: ${understandingLabel}` });
   }
 
-  if (labels.length === 0) {
-    labels.push("フィルタなし");
+  if (pills.length === 0) {
+    pills.push({ text: "フィルタなし" });
   }
 
-  labels.forEach((label) => {
+  pills.forEach((pill) => {
     const chip = document.createElement("span");
-    chip.className = "filter-pill";
-    chip.textContent = label;
+    chip.className = pill.className ?? "filter-pill";
+    chip.textContent = pill.text;
     container.appendChild(chip);
   });
 }

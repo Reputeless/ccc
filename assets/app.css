@@ -365,6 +365,28 @@ button, input, select, textarea { font: inherit; }
   font-size: 0.9rem;
   white-space: nowrap;
 }
+.problem-number-meta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2px 0 0;
+  color: rgba(114, 95, 74, 0.82);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.meta-filter-trigger {
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+.meta-filter-trigger:hover,
+.meta-filter-trigger:focus-visible {
+  outline: none;
+  border-color: rgba(13, 95, 88, 0.24);
+  color: var(--accent-strong);
+}
 .lecture-unset {
   background: #ece7dd;
 }

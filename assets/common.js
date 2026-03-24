@@ -10,6 +10,7 @@
     resultPreviewMaxChars: 6000,
     maxCodeBytes: 65536,
   };
+  const FILTER_STORAGE_KEY = "ccc:v1:listFilters";
 
   function storageKey(kind, problemId) {
     return `ccc:v1:${kind}:${problemId}`;
@@ -34,6 +35,56 @@
     labels.forEach((label, index) => {
       select.appendChild(new Option(label, String(index + 1)));
     });
+  }
+
+  function normalizeSortOrder(sortOrder) {
+    if (sortOrder === "asc") {
+      return "lectureAsc";
+    }
+    if (sortOrder === "desc") {
+      return "lectureDesc";
+    }
+    return sortOrder;
+  }
+
+  function readListFilters() {
+    const raw = localStorage.getItem(FILTER_STORAGE_KEY);
+    if (!raw) {
+      return {};
+    }
+
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  }
+
+  function writeListFilters(filters) {
+    localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
+  }
+
+  function applyListQuickFilter(filterType, filterValue) {
+    const current = readListFilters();
+    const next = {
+      lectureMin: current.lectureMin ?? "",
+      lectureMax: current.lectureMax ?? "",
+      solved: current.solved ?? "all",
+      understanding: current.understanding ?? "all",
+      sortOrder: normalizeSortOrder(current.sortOrder ?? "lectureAsc"),
+      difficulties: Array.isArray(current.difficulties) ? current.difficulties : [],
+    };
+
+    if (filterType === "lecture") {
+      next.lectureMin = filterValue;
+      next.lectureMax = filterValue;
+    } else if (filterType === "difficulty") {
+      next.difficulties = [filterValue];
+    } else {
+      return;
+    }
+
+    writeListFilters(next);
   }
 
   function getDifficultyLabel(config, difficulty) {
@@ -114,8 +165,13 @@
 
   global.CCC = {
     DEFAULT_CONFIG,
+    FILTER_STORAGE_KEY,
     fetchConfig,
     populateLabelSelect,
+    normalizeSortOrder,
+    readListFilters,
+    writeListFilters,
+    applyListQuickFilter,
     getDifficultyLabel,
     formatLectureLabel,
     getUnderstandingMarkerClass,
