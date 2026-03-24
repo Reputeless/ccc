@@ -55,7 +55,7 @@ try {
     ));
     ccc_send_json([
         'status' => 'service_unavailable',
-        'message' => 'Wandbox への接続に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。',
+        'message' => '判定サーバーとの通信に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。',
         'detail' => $throwable->getMessage(),
     ], 503, ['Cache-Control' => 'no-store']);
 }
