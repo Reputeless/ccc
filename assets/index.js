@@ -295,6 +295,25 @@ function compareProblems(left, right, sortOrder) {
     return left.id.localeCompare(right.id, "ja");
   }
 
+  if (normalizedSortOrder === "understandingHigh" || normalizedSortOrder === "understandingLow") {
+    const understandingCompare = compareByUnderstanding(left, right, normalizedSortOrder);
+    if (understandingCompare !== 0) {
+      return understandingCompare;
+    }
+
+    const lectureCompare = compareByLecture(left, right);
+    if (lectureCompare !== 0) {
+      return lectureCompare;
+    }
+
+    const numberCompare = compareByNumber(left, right);
+    if (numberCompare !== 0) {
+      return numberCompare;
+    }
+
+    return left.id.localeCompare(right.id, "ja");
+  }
+
   const lectureCompare = compareByLecture(left, right);
   if (lectureCompare !== 0) {
     return normalizedSortOrder === "lectureDesc" ? -lectureCompare : lectureCompare;
@@ -318,6 +337,38 @@ function compareByNumber(left, right) {
   const leftNumber = (left.number ?? "").trim();
   const rightNumber = (right.number ?? "").trim();
   return (leftNumber || left.id).localeCompare(rightNumber || right.id, "ja");
+}
+
+function compareByUnderstanding(left, right, sortOrder) {
+  const leftUnderstanding = getUnderstandingSortRank(getUnderstanding(left.id), sortOrder);
+  const rightUnderstanding = getUnderstandingSortRank(getUnderstanding(right.id), sortOrder);
+  return leftUnderstanding - rightUnderstanding;
+}
+
+function getUnderstandingSortRank(value, sortOrder) {
+  if (value === "") {
+    return 99;
+  }
+
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return 99;
+  }
+
+  if (sortOrder === "understandingHigh") {
+    if (numericValue === 3) {
+      return 1;
+    }
+    if (numericValue === 2) {
+      return 2;
+    }
+    if (numericValue === 1) {
+      return 3;
+    }
+    return 99;
+  }
+
+  return numericValue;
 }
 
 function renderActiveFilters(filters) {
