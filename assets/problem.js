@@ -37,6 +37,14 @@ const RESULT_STATE_PRESETS = {
 let appConfig = { ...DEFAULT_CONFIG };
 let currentProblem = null;
 let understandingControls = null;
+const editorHistory = {
+  undoStack: [],
+  redoStack: [],
+  pendingBeforeState: null,
+  pendingInputType: "",
+  pendingTimestamp: 0,
+  suppressRecording: false,
+};
 
 document.addEventListener("DOMContentLoaded", async () => {
   const problemId = new URLSearchParams(window.location.search).get("id");
@@ -260,24 +268,274 @@ function setupEditor() {
   editor.rows = appConfig.editorRows;
   editor.style.tabSize = String(appConfig.tabWidth);
   editor.value = getStoredCode(currentProblem.id);
+  resetEditorHistory();
+
+  editor.addEventListener("beforeinput", (event) => {
+    if (editorHistory.suppressRecording) {
+      return;
+    }
+
+    editorHistory.pendingBeforeState = captureEditorState(editor);
+    editorHistory.pendingInputType = event.inputType ?? "";
+    editorHistory.pendingTimestamp = Date.now();
+  });
 
   editor.addEventListener("input", () => {
     setStoredCode(currentProblem.id, editor.value);
+    recordEditorInput(editor);
   });
 
   editor.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "z") {
+      event.preventDefault();
+      if (event.shiftKey) {
+        applyCustomEditorRedo(editor);
+      } else {
+        applyCustomEditorUndo(editor);
+      }
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "y") {
+      event.preventDefault();
+      applyCustomEditorRedo(editor);
+      return;
+    }
+
     if (event.key !== "Tab") {
       return;
     }
 
     event.preventDefault();
-    const start = editor.selectionStart;
-    const end = editor.selectionEnd;
-    editor.value = `${editor.value.slice(0, start)}\t${editor.value.slice(end)}`;
-    editor.selectionStart = start + 1;
-    editor.selectionEnd = start + 1;
+    handleEditorTabKey(editor, event.shiftKey);
     setStoredCode(currentProblem.id, editor.value);
   });
+}
+
+function handleEditorTabKey(editor, isShiftPressed) {
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+  const selection = editor.value.slice(start, end);
+  const hasMultiLineSelection = start !== end && selection.includes("\n");
+
+  if (!isShiftPressed && !hasMultiLineSelection) {
+    applyEditorEdit(editor, start, end, "\t", start + 1, start + 1);
+    return;
+  }
+
+  const currentLineStart = findLineStart(editor.value, start);
+  const lineStarts = collectAffectedLineStarts(editor.value, currentLineStart, end);
+  const lastLineStart = lineStarts[lineStarts.length - 1];
+  const affectedEnd = findLineEnd(editor.value, lastLineStart);
+  const affectedText = editor.value.slice(currentLineStart, affectedEnd);
+  const lines = affectedText.split("\n");
+
+  if (isShiftPressed) {
+    const { text, removedCounts } = dedentLines(lines, appConfig.tabWidth);
+    applyEditorEdit(
+      editor,
+      currentLineStart,
+      affectedEnd,
+      text,
+      Math.max(currentLineStart, start - removedCounts[0]),
+      Math.max(currentLineStart, end - removedCounts.reduce((sum, count) => sum + count, 0))
+    );
+    return;
+  }
+
+  const indentedText = lines.map((line) => `\t${line}`).join("\n");
+  applyEditorEdit(
+    editor,
+    currentLineStart,
+    affectedEnd,
+    indentedText,
+    start + 1,
+    end + lineStarts.length
+  );
+}
+
+function applyEditorEdit(editor, replaceStart, replaceEnd, replacement, nextSelectionStart, nextSelectionEnd) {
+  const beforeState = {
+    value: editor.value,
+    selectionStart: editor.selectionStart,
+    selectionEnd: editor.selectionEnd,
+  };
+
+  editorHistory.suppressRecording = true;
+  editor.setRangeText(replacement, replaceStart, replaceEnd, "end");
+  editorHistory.suppressRecording = false;
+  editor.selectionStart = nextSelectionStart;
+  editor.selectionEnd = nextSelectionEnd;
+
+  pushEditorHistoryEntry({
+    before: beforeState,
+    after: {
+      value: editor.value,
+      selectionStart: editor.selectionStart,
+      selectionEnd: editor.selectionEnd,
+    },
+    inputType: replaceStart === replaceEnd && replacement === "\t" ? "insertTab" : "indentationChange",
+    timestamp: Date.now(),
+  });
+}
+
+function applyCustomEditorUndo(editor) {
+  const lastOperation = editorHistory.undoStack.pop();
+  if (!lastOperation) {
+    return false;
+  }
+
+  editorHistory.redoStack.push(lastOperation);
+  applyEditorHistoryState(editor, lastOperation.before);
+  return true;
+}
+
+function applyCustomEditorRedo(editor) {
+  const nextOperation = editorHistory.redoStack.pop();
+  if (!nextOperation) {
+    return false;
+  }
+
+  editorHistory.undoStack.push(nextOperation);
+  applyEditorHistoryState(editor, nextOperation.after);
+  return true;
+}
+
+function applyEditorHistoryState(editor, state) {
+  editorHistory.suppressRecording = true;
+  editor.value = state.value;
+  editor.selectionStart = state.selectionStart;
+  editor.selectionEnd = state.selectionEnd;
+  editorHistory.suppressRecording = false;
+  setStoredCode(currentProblem.id, editor.value);
+}
+
+function recordEditorInput(editor) {
+  if (editorHistory.suppressRecording || !editorHistory.pendingBeforeState) {
+    return;
+  }
+
+  const afterState = captureEditorState(editor);
+  const beforeState = editorHistory.pendingBeforeState;
+  const inputType = editorHistory.pendingInputType;
+  const timestamp = editorHistory.pendingTimestamp;
+  clearPendingEditorInput();
+
+  if (
+    beforeState.value === afterState.value &&
+    beforeState.selectionStart === afterState.selectionStart &&
+    beforeState.selectionEnd === afterState.selectionEnd
+  ) {
+    return;
+  }
+
+  pushEditorHistoryEntry({
+    before: beforeState,
+    after: afterState,
+    inputType,
+    timestamp,
+  });
+}
+
+function pushEditorHistoryEntry(entry) {
+  const lastEntry = editorHistory.undoStack[editorHistory.undoStack.length - 1];
+
+  if (lastEntry && shouldMergeEditorHistoryEntries(lastEntry, entry)) {
+    lastEntry.after = entry.after;
+    lastEntry.timestamp = entry.timestamp;
+  } else {
+    editorHistory.undoStack.push(entry);
+    if (editorHistory.undoStack.length > 100) {
+      editorHistory.undoStack.shift();
+    }
+  }
+
+  editorHistory.redoStack = [];
+}
+
+function shouldMergeEditorHistoryEntries(previousEntry, nextEntry) {
+  const mergeableTypes = new Set(["insertText", "deleteContentBackward", "deleteContentForward"]);
+  if (!mergeableTypes.has(previousEntry.inputType) || previousEntry.inputType !== nextEntry.inputType) {
+    return false;
+  }
+
+  if (nextEntry.timestamp - previousEntry.timestamp > 1000) {
+    return false;
+  }
+
+  return (
+    previousEntry.after.value === nextEntry.before.value &&
+    previousEntry.after.selectionStart === nextEntry.before.selectionStart &&
+    previousEntry.after.selectionEnd === nextEntry.before.selectionEnd
+  );
+}
+
+function captureEditorState(editor) {
+  return {
+    value: editor.value,
+    selectionStart: editor.selectionStart,
+    selectionEnd: editor.selectionEnd,
+  };
+}
+
+function clearPendingEditorInput() {
+  editorHistory.pendingBeforeState = null;
+  editorHistory.pendingInputType = "";
+  editorHistory.pendingTimestamp = 0;
+}
+
+function resetEditorHistory() {
+  editorHistory.undoStack = [];
+  editorHistory.redoStack = [];
+  clearPendingEditorInput();
+  editorHistory.suppressRecording = false;
+}
+
+function findLineStart(text, position) {
+  const previousBreak = text.lastIndexOf("\n", Math.max(0, position - 1));
+  return previousBreak === -1 ? 0 : previousBreak + 1;
+}
+
+function findLineEnd(text, lineStart) {
+  const nextBreak = text.indexOf("\n", lineStart);
+  return nextBreak === -1 ? text.length : nextBreak;
+}
+
+function collectAffectedLineStarts(text, firstLineStart, selectionEnd) {
+  const starts = [firstLineStart];
+  let searchFrom = firstLineStart;
+
+  while (true) {
+    const nextBreak = text.indexOf("\n", searchFrom);
+    if (nextBreak === -1 || nextBreak >= selectionEnd) {
+      break;
+    }
+
+    starts.push(nextBreak + 1);
+    searchFrom = nextBreak + 1;
+  }
+
+  return starts;
+}
+
+function dedentLines(lines, tabWidth) {
+  const removedCounts = [];
+  const dedentedLines = lines.map((line) => {
+    if (line.startsWith("\t")) {
+      removedCounts.push(1);
+      return line.slice(1);
+    }
+
+    const leadingSpaces = line.match(/^ +/)?.[0].length ?? 0;
+    const spacesToRemove = Math.min(leadingSpaces, tabWidth);
+    removedCounts.push(spacesToRemove);
+    return line.slice(spacesToRemove);
+  });
+
+  return {
+    text: dedentedLines.join("\n"),
+    removedCounts,
+  };
 }
 
 function setupMetaControls() {
