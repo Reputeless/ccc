@@ -763,7 +763,7 @@ function renderJudgePayload(payload) {
       toggleResultUnderstandingPrompt(false);
       if (payload.failedExample) {
         details.push(renderPreCard("入力", payload.failedExample.stdin ?? ""));
-        details.push(renderPreCard("期待出力", payload.failedExample.expectedStdout ?? ""));
+        details.push(renderPreCard("正しい出力", payload.failedExample.expectedStdout ?? ""));
         details.push(renderPreCard("実際の出力", payload.failedExample.actualStdout ?? ""));
       }
       if (payload.warning) {
