@@ -9,71 +9,81 @@
 </head>
 <body class="page-shell">
   <header class="site-header">
-    <div>
-      <p class="eyebrow">C Code Checker</p>
-      <h1 id="app-name">CCC</h1>
-      <p class="page-lead">講義回や理解度で絞り込みながら、自習用の問題に取り組めます。</p>
+    <div class="site-header-inner">
+      <section class="hero-card" aria-labelledby="app-name">
+        <p class="eyebrow">C Code Checker</p>
+        <h1 id="app-name">CCC</h1>
+        <p class="page-lead">講義回や理解度で絞り込みながら、自習用の問題に取り組めます。</p>
+      </section>
     </div>
   </header>
 
   <main class="content-stack">
-    <section class="panel filter-panel" aria-labelledby="filters-heading">
-      <div class="panel-heading">
-        <h2 id="filters-heading">フィルタ</h2>
-        <button id="reset-filters" class="secondary-button" type="button">フィルタを初期化</button>
-      </div>
+    <div class="dashboard-layout">
+      <aside class="panel filter-panel" aria-labelledby="filters-heading">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">Workspace</p>
+            <h2 id="filters-heading">フィルタ</h2>
+          </div>
+          <button id="reset-filters" class="secondary-button" type="button">フィルタを初期化</button>
+        </div>
 
-      <div class="filter-grid">
-        <label class="field">
-          <span>講義回 MIN 以上</span>
-          <input id="lecture-min" type="number" min="1" inputmode="numeric">
-        </label>
-        <label class="field">
-          <span>講義回 MAX 以下</span>
-          <input id="lecture-max" type="number" min="1" inputmode="numeric">
-        </label>
-        <label class="field">
-          <span>解いたかどうか</span>
-          <select id="solved-filter">
-            <option value="all">すべて表示</option>
-            <option value="solved">解いた問題だけを表示</option>
-            <option value="unsolved">解いていない問題だけを表示</option>
-          </select>
-        </label>
-        <label class="field">
-          <span>理解度</span>
-          <select id="understanding-filter">
-            <option value="all">すべて</option>
-          </select>
-        </label>
-        <label class="field field-wide">
-          <span>並び順</span>
-          <select id="sort-order">
-            <option value="asc">講義回の昇順 -> 問題 ID 順</option>
-            <option value="desc">講義回の降順 -> 問題 ID 順</option>
-          </select>
-        </label>
-      </div>
+        <div class="filter-grid">
+          <label class="field">
+            <span>講義回 MIN 以上</span>
+            <input id="lecture-min" type="number" min="1" inputmode="numeric">
+          </label>
+          <label class="field">
+            <span>講義回 MAX 以下</span>
+            <input id="lecture-max" type="number" min="1" inputmode="numeric">
+          </label>
+          <label class="field">
+            <span>解いたかどうか</span>
+            <select id="solved-filter">
+              <option value="all">すべて表示</option>
+              <option value="solved">解いた問題だけを表示</option>
+              <option value="unsolved">解いていない問題だけを表示</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>理解度</span>
+            <select id="understanding-filter">
+              <option value="all">すべて</option>
+            </select>
+          </label>
+          <label class="field field-wide">
+            <span>並び順</span>
+            <select id="sort-order">
+              <option value="asc">講義回の昇順 -> 問題 ID 順</option>
+              <option value="desc">講義回の降順 -> 問題 ID 順</option>
+            </select>
+          </label>
+        </div>
 
-      <fieldset class="field-group">
-        <legend>難易度</legend>
-        <div id="difficulty-options" class="chip-row"></div>
-      </fieldset>
+        <fieldset class="field-group">
+          <legend>難易度</legend>
+          <div id="difficulty-options" class="chip-row"></div>
+        </fieldset>
 
-      <div class="active-filters">
-        <span class="active-filters-label">現在のフィルタ</span>
-        <div id="active-filter-list" class="active-filter-list"></div>
-      </div>
-    </section>
+        <div class="active-filters">
+          <span class="active-filters-label">現在のフィルタ</span>
+          <div id="active-filter-list" class="active-filter-list"></div>
+        </div>
+      </aside>
 
-    <section class="panel" aria-labelledby="problems-heading">
-      <div class="panel-heading">
-        <h2 id="problems-heading">問題一覧</h2>
-        <p id="problem-count" class="muted-text">読み込み中...</p>
-      </div>
-      <div id="list-message" class="status-banner" hidden></div>
-      <div id="problem-list" class="problem-list" aria-live="polite"></div>
-    </section>
+      <section class="panel list-panel" aria-labelledby="problems-heading">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">Problem Shelf</p>
+            <h2 id="problems-heading">問題一覧</h2>
+          </div>
+          <p id="problem-count" class="muted-text">読み込み中...</p>
+        </div>
+        <div id="list-message" class="status-banner" hidden></div>
+        <div id="problem-list" class="problem-list" aria-live="polite"></div>
+      </section>
+    </div>
   </main>
 </body>
 </html>
