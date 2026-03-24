@@ -76,10 +76,16 @@
     };
 
     if (filterType === "lecture") {
-      next.lectureMin = filterValue;
-      next.lectureMax = filterValue;
+      const isSameLecture =
+        String(current.lectureMin ?? "") === filterValue &&
+        String(current.lectureMax ?? "") === filterValue;
+      next.lectureMin = isSameLecture ? "" : filterValue;
+      next.lectureMax = isSameLecture ? "" : filterValue;
     } else if (filterType === "difficulty") {
-      next.difficulties = [filterValue];
+      const currentDifficulties = Array.isArray(current.difficulties) ? current.difficulties : [];
+      const isSameSingleDifficulty =
+        currentDifficulties.length === 1 && currentDifficulties[0] === filterValue;
+      next.difficulties = isSameSingleDifficulty ? [] : [filterValue];
     } else {
       return;
     }
