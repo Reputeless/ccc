@@ -325,6 +325,14 @@ function setupEditor() {
       return;
     }
 
+    if (event.key === "}" && !event.altKey && !event.ctrlKey && !event.metaKey) {
+      if (handleEditorClosingBraceKey(editor)) {
+        event.preventDefault();
+        setStoredCode(currentProblem.id, editor.value);
+        return;
+      }
+    }
+
     if (event.key !== "Tab") {
       return;
     }
@@ -450,6 +458,58 @@ function handleEditorEnterKey(editor) {
 function shouldIncreaseIndentAfterEnter(currentLine) {
   const codePortion = currentLine.replace(/\/\/.*$/, "").trimEnd();
   return codePortion.endsWith("{");
+}
+
+function handleEditorClosingBraceKey(editor) {
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+
+  if (start !== end) {
+    return false;
+  }
+
+  const currentLineStart = findLineStart(editor.value, start);
+  const beforeCursor = editor.value.slice(currentLineStart, start);
+
+  if (beforeCursor.trim() !== "") {
+    return false;
+  }
+
+  const currentIndent = beforeCursor;
+  if (currentIndent === "") {
+    return false;
+  }
+
+  const dedentedIndent = dedentSingleIndent(currentIndent, appConfig.tabWidth);
+  if (dedentedIndent === currentIndent) {
+    return false;
+  }
+
+  applyEditorEdit(
+    editor,
+    currentLineStart,
+    start,
+    `${dedentedIndent}}`,
+    currentLineStart + dedentedIndent.length + 1,
+    currentLineStart + dedentedIndent.length + 1,
+    "insertClosingBrace"
+  );
+
+  return true;
+}
+
+function dedentSingleIndent(indentText, tabWidth) {
+  if (indentText.endsWith("\t")) {
+    return indentText.slice(0, -1);
+  }
+
+  const trailingSpacesMatch = indentText.match(/ +$/);
+  if (!trailingSpacesMatch) {
+    return indentText;
+  }
+
+  const spacesToRemove = Math.min(trailingSpacesMatch[0].length, tabWidth);
+  return indentText.slice(0, -spacesToRemove);
 }
 
 function applyEditorEdit(editor, replaceStart, replaceEnd, replacement, nextSelectionStart, nextSelectionEnd, inputType = "indentationChange") {
