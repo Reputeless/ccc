@@ -1113,6 +1113,7 @@ Wandbox の GitHub リポジトリ README の FAQ では、講義や商業での
 - `/api/problems.php`
 - `/api/problem.php?id=<problemId>`
 - `/api/judge.php`
+- ルートには `robots.txt` を置き、主要ページには `meta robots (noindex, nofollow, noarchive)` を入れる
 
 理由:
 
