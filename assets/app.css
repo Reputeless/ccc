@@ -535,7 +535,7 @@ button, input, select, textarea { font: inherit; }
   color: var(--text);
   font-size: 0.9rem;
 }
-.problem-list { display: grid; gap: 16px; }
+.problem-list { display: grid; gap: 12px; }
 .problem-card {
   border: 1px solid var(--border-problem-card);
   border-radius: 13px;

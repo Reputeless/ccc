@@ -772,8 +772,8 @@ function renderJudgePayload(payload) {
       renderResultState(
         "accepted",
         payload.warning
-          ? `合格！（${payload.passedExamples} ケース通過） コンパイラ警告を確認してください`
-          : `合格！（${payload.passedExamples} ケース通過）`
+          ? "合格！ ただしコンパイラ警告を確認してください"
+          : "合格！"
       );
       toggleResultUnderstandingPrompt(true);
       if (payload.warning) {
