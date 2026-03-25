@@ -113,20 +113,23 @@
             </div>
           </div>
 
-          <div class="record-transfer-block">
-            <h3 class="record-transfer-subtitle">学習記録のエクスポート</h3>
-            <button id="export-learning-record" type="button" class="secondary-button record-transfer-button">学習記録のエクスポート</button>
-            <p class="record-transfer-text">解いた記録と理解度の一覧をファイルに書き出し、別の PC やブラウザへ移せます。</p>
-          </div>
+          <details class="record-transfer-accordion">
+            <summary class="record-transfer-summary">エクスポート・インポート</summary>
+            <div class="record-transfer-content">
+              <div class="record-transfer-block">
+                <button id="export-learning-record" type="button" class="secondary-button record-transfer-button">学習記録のエクスポート</button>
+                <p class="record-transfer-text">解いた記録と理解度の一覧をファイルに書き出し、別の PC やブラウザへ移せます。</p>
+              </div>
 
-          <div class="record-transfer-block">
-            <h3 class="record-transfer-subtitle">学習記録のインポート</h3>
-            <button id="import-learning-record" type="button" class="secondary-button record-transfer-button">学習記録のインポート</button>
-            <p class="record-transfer-text">書き出した学習記録ファイルを読み込み、現在の記録に追加できます。</p>
-          </div>
+              <div class="record-transfer-block">
+                <button id="import-learning-record" type="button" class="secondary-button record-transfer-button">学習記録のインポート</button>
+                <p class="record-transfer-text">書き出した学習記録ファイルを読み込み、現在の記録に追加できます。</p>
+              </div>
+            </div>
+          </details>
 
           <details class="record-danger">
-            <summary class="record-danger-summary">学習記録の消去</summary>
+            <summary class="record-danger-summary">記録の消去</summary>
             <div class="record-danger-content">
               <p class="record-transfer-text">このブラウザに保存された解いた記録、理解度、コード入力内容、最後に開いた問題の記録を消去します。</p>
               <button id="clear-learning-record" type="button" class="record-danger-button">学習記録を消去</button>
@@ -145,14 +148,19 @@
             </div>
           </div>
 
-          <label class="field">
-            <span>テーマ</span>
-            <select id="theme-preference">
-              <option value="light">ライト</option>
-              <option value="dark">ダーク</option>
-              <option value="system">システム設定に合わせる</option>
-            </select>
-          </label>
+          <details class="appearance-accordion">
+            <summary class="appearance-summary">テーマ</summary>
+            <div class="appearance-content">
+              <label class="field">
+                <span class="sr-only">テーマ</span>
+                <select id="theme-preference">
+                  <option value="light">ライト</option>
+                  <option value="dark">ダーク</option>
+                  <option value="system">システム設定に合わせる</option>
+                </select>
+              </label>
+            </div>
+          </details>
         </section>
       </div>
 

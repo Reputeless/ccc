@@ -493,20 +493,28 @@ button, input, select, textarea { font: inherit; }
 .record-transfer-status-error {
   color: #a55447;
 }
-.record-danger {
+.record-transfer-accordion,
+.record-danger,
+.appearance-accordion {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--footer-line);
 }
-.record-danger-summary {
+.record-transfer-summary,
+.record-danger-summary,
+.appearance-summary {
   cursor: pointer;
   font-weight: 600;
   list-style: none;
 }
-.record-danger-summary::-webkit-details-marker {
+.record-transfer-summary::-webkit-details-marker,
+.record-danger-summary::-webkit-details-marker,
+.appearance-summary::-webkit-details-marker {
   display: none;
 }
-.record-danger-summary::after {
+.record-transfer-summary::after,
+.record-danger-summary::after,
+.appearance-summary::after {
   content: "";
   display: inline-block;
   width: 8px;
@@ -517,10 +525,14 @@ button, input, select, textarea { font: inherit; }
   transform: rotate(45deg) translateY(-1px);
   transition: transform 0.18s ease;
 }
-.record-danger[open] .record-danger-summary::after {
+.record-transfer-accordion[open] .record-transfer-summary::after,
+.record-danger[open] .record-danger-summary::after,
+.appearance-accordion[open] .appearance-summary::after {
   transform: rotate(225deg) translateY(-1px);
 }
-.record-danger-content {
+.record-transfer-content,
+.record-danger-content,
+.appearance-content {
   margin-top: 12px;
 }
 .record-danger-button {
