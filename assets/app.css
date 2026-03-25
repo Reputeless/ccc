@@ -1058,6 +1058,13 @@ button, input, select, textarea { font: inherit; }
   align-items: center;
   gap: 10px;
 }
+.understanding-mobile-label {
+  display: none;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
 .understanding-select-wrap-animate {
   animation: understanding-flash 0.5s ease-out;
 }
@@ -1383,9 +1390,28 @@ button, input, select, textarea { font: inherit; }
   100% { transform: scale(1); }
 }
 @media (max-width: 1080px) {
-  .dashboard-layout { grid-template-columns: 1fr; }
-  .dashboard-sidebar { gap: 18px; }
+  .dashboard-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: stretch;
+  }
+  .dashboard-sidebar {
+    display: contents;
+    gap: 18px;
+  }
   .dashboard-sidebar.is-sticky { position: static; }
+  .filter-panel { order: 1; }
+  .list-panel { order: 2; }
+  .record-panel { order: 3; }
+  .appearance-panel { order: 4; }
+  .filter-panel,
+  .list-panel,
+  .record-panel,
+  .appearance-panel {
+    width: 100%;
+    align-self: stretch;
+  }
   .validate-summary { grid-template-columns: 1fr; }
 }
 @media (max-height: 900px) {
@@ -1398,21 +1424,125 @@ button, input, select, textarea { font: inherit; }
   .meta-actions { justify-content: flex-start; }
   .problem-card {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+  .problem-main { margin-block: -10px; }
+  .problem-main-link {
+    padding: 16px 6px 12px;
+    align-items: start;
+    align-content: start;
   }
   .problem-card-actions {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
     justify-self: stretch;
+    justify-content: flex-start;
+    align-items: center;
   }
-  .meta-slot { justify-content: flex-start; min-height: 0; }
-  .understanding-select-wrap { justify-content: flex-start; }
+  .meta-slot {
+    justify-content: flex-start;
+    min-height: 34px;
+    flex: 0 0 auto;
+  }
+  .problem-card-actions .solved-toggle {
+    flex: 0 0 auto;
+  }
+  .problem-card-actions .field.select-inline {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+  .understanding-select-wrap { justify-content: flex-start; width: 100%; }
   .panel-heading, .problem-header { flex-direction: column; }
   .hero-card { padding: 24px 22px; }
 }
 @media (max-width: 640px) {
   .site-header { padding-inline: 14px; }
   .content-stack { width: min(1360px, calc(100% - 16px)); }
-  .panel { padding: 18px; }
+  .panel { padding: 16px; }
   .hero-card h1 { font-size: 1.85rem; }
+  .hero-card:not(.hero-card-compact) {
+    padding: 18px 18px;
+  }
+  .hero-card:not(.hero-card-compact) h1 {
+    margin-bottom: 6px;
+  }
+  .hero-card:not(.hero-card-compact) .page-lead {
+    line-height: 1.35;
+  }
+  .panel-heading {
+    gap: 10px;
+  }
+  .panel-heading h2 {
+    margin: 0;
+  }
+  .section-kicker {
+    margin-bottom: 4px;
+  }
+  .filter-grid {
+    gap: 12px;
+  }
   .filter-inline-row { grid-template-columns: 1fr; }
+  .field span {
+    margin-bottom: 4px;
+  }
+  .field input,
+  .field select {
+    min-height: 40px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .field-group {
+    margin: 0;
+  }
+  .field-group legend {
+    margin-bottom: 8px;
+  }
+  .chip-row {
+    gap: 8px;
+  }
+  .chip-option {
+    min-height: 38px;
+    padding: 7px 11px;
+  }
+  .active-filters {
+    margin-top: 14px;
+    gap: 8px;
+  }
+  .learning-summary {
+    margin-top: 14px;
+    padding-top: 12px;
+  }
+  .problem-main-link {
+    grid-template-columns: 2.7em minmax(0, 1fr);
+    column-gap: 0.55em;
+    font-size: 0.99rem;
+  }
+  .lecture-badge,
+  .difficulty-badge {
+    padding: 6px 10px;
+    font-size: 0.88rem;
+  }
+  .compact-select select {
+    min-height: 36px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+  .problem-card-actions .field.select-inline {
+    flex-basis: auto;
+  }
+  .problem-card-actions .field.select-inline.compact-select {
+    margin-left: auto;
+  }
+  .problem-card-actions .field.select-inline.compact-select .understanding-select {
+    display: none;
+  }
+  .problem-card-actions .field.select-inline.compact-select .understanding-mobile-label {
+    display: inline;
+  }
+  .problem-card-actions .field.select-inline.compact-select .understanding-select-wrap {
+    width: auto;
+    gap: 8px;
+  }
 }

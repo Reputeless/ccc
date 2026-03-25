@@ -213,6 +213,7 @@ function renderProblemCard(problem) {
         <span class="sr-only">理解度</span>
         <span class="understanding-select-wrap${understandingAnimationClass}">
           <span class="understanding-marker ${getUnderstandingMarkerClass(understandingValue)}" aria-hidden="true"></span>
+          <span class="understanding-mobile-label">${escapeHtml(getUnderstandingDisplayLabel(understandingValue))}</span>
           <select class="understanding-select" aria-label="理解度"></select>
         </span>
       </label>
@@ -228,6 +229,15 @@ function renderLectureBadge(lecture) {
     return "";
   }
   return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" title="この講義回で絞り込む">${escapeHtml(formatLectureLabel(lecture))}</button>`;
+}
+
+function getUnderstandingDisplayLabel(value) {
+  if (value === "") {
+    return "未設定";
+  }
+
+  const index = Number(value) - 1;
+  return appConfig.understandingLabels[index] ?? "未設定";
 }
 
 function renderRecordPanel() {
