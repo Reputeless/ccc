@@ -517,7 +517,7 @@ button, input, select, textarea { font: inherit; }
 }
 .problem-card-actions {
   display: grid;
-  grid-template-columns: 96px 72px 40px minmax(110px, 130px);
+  grid-template-columns: 96px 72px 40px minmax(118px, 138px);
   gap: 10px;
   align-items: center;
   justify-self: end;
