@@ -46,6 +46,24 @@
     });
   }
 
+  function populateOrderedLabelSelect(select, labels, order, options = {}) {
+    const { emptyLabel = null, emptyValue = "" } = options;
+    select.innerHTML = "";
+
+    if (emptyLabel !== null) {
+      select.appendChild(new Option(emptyLabel, emptyValue));
+    }
+
+    order.forEach((value) => {
+      const index = Number(value) - 1;
+      const label = labels[index];
+      if (label == null) {
+        return;
+      }
+      select.appendChild(new Option(label, String(value)));
+    });
+  }
+
   function normalizeSortOrder(sortOrder) {
     if (sortOrder === "asc") {
       return "lectureAsc";
@@ -259,6 +277,7 @@
     THEME_STORAGE_KEY,
     fetchConfig,
     populateLabelSelect,
+    populateOrderedLabelSelect,
     normalizeSortOrder,
     readListFilters,
     writeListFilters,

@@ -7,6 +7,7 @@ const {
   FILTER_STORAGE_KEY,
   fetchConfig,
   populateLabelSelect,
+  populateOrderedLabelSelect,
   normalizeSortOrder,
   applyListQuickFilter,
   getThemePreference,
@@ -32,6 +33,7 @@ let shouldRestoreInitialScroll = true;
 let animatedSolvedProblemId = null;
 let animatedUnderstandingProblemId = null;
 let sidebarStickyFrame = 0;
+const UNDERSTANDING_SELECT_ORDER = ["3", "2", "1"];
 
 document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("pagehide", saveScrollPosition);
@@ -491,7 +493,7 @@ function bindProblemCardInteractions(article, problem, understandingValue) {
 
   const select = article.querySelector(".understanding-select");
   const marker = article.querySelector(".understanding-marker");
-  populateLabelSelect(select, appConfig.understandingLabels, { emptyLabel: "" });
+  populateOrderedLabelSelect(select, appConfig.understandingLabels, UNDERSTANDING_SELECT_ORDER, { emptyLabel: "" });
   select.value = understandingValue;
   select.addEventListener("change", () => {
     animatedUnderstandingProblemId = problem.id;

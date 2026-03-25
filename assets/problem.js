@@ -2,6 +2,7 @@ const {
   DEFAULT_CONFIG,
   fetchConfig,
   populateLabelSelect,
+  populateOrderedLabelSelect,
   applyListQuickFilter,
   applyThemePreference,
   bindThemePreferenceListener,
@@ -41,6 +42,7 @@ const RESULT_STATE_PRESETS = {
 let appConfig = { ...DEFAULT_CONFIG };
 let currentProblem = null;
 let understandingControls = null;
+const UNDERSTANDING_SELECT_ORDER = ["3", "2", "1"];
 const editorHistory = {
   undoStack: [],
   redoStack: [],
@@ -119,7 +121,7 @@ function renderProblemMeta(problem) {
   if (problem.lecture != null) {
     container.appendChild(createMetaFilterLink(
       "lecture-badge meta-filter-trigger",
-      formatLectureLabel(problem.lecture, "回講義"),
+      formatLectureLabel(problem.lecture),
       "lecture",
       String(problem.lecture),
       "この講義回で一覧を絞り込む"
@@ -680,7 +682,7 @@ function setupMetaControls() {
   const understandingSelect = document.getElementById("understanding-select");
   const understandingWrap = document.getElementById("problem-understanding-wrap");
   const understandingMarker = document.getElementById("problem-understanding-marker");
-  populateLabelSelect(understandingSelect, appConfig.understandingLabels, { emptyLabel: "" });
+  populateOrderedLabelSelect(understandingSelect, appConfig.understandingLabels, UNDERSTANDING_SELECT_ORDER, { emptyLabel: "" });
   understandingControls = {
     select: understandingSelect,
     wrap: understandingWrap,
