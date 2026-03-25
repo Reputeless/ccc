@@ -388,6 +388,11 @@ button, input, select, textarea { font: inherit; }
 .hero-card-compact .back-link:hover {
   color: #ffffff;
 }
+.hero-card-link-only {
+  min-height: 86px;
+  display: flex;
+  align-items: center;
+}
 .hero-card-compact h1 { font-size: 1.5rem; }
 .panel {
   background: var(--panel);
