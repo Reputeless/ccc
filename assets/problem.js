@@ -13,6 +13,7 @@ const {
   setUnderstanding,
   getStoredCode,
   setStoredCode,
+  setLastOpenedProblemId,
   escapeHtml,
   renderGlobalFooter,
 } = window.CCC;
@@ -69,6 +70,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
+  setLastOpenedProblemId(currentProblem.id);
   renderProblem();
   setupEditor();
   setupMetaControls();

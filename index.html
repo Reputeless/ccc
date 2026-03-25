@@ -24,77 +24,107 @@
 
   <main class="content-stack">
     <div class="dashboard-layout">
-      <aside class="panel filter-panel" aria-labelledby="filters-heading">
-        <div class="panel-heading">
-          <div>
-            <p class="section-kicker">Filters</p>
-            <h2 id="filters-heading">フィルタ</h2>
+      <div class="dashboard-sidebar">
+        <aside class="panel filter-panel" aria-labelledby="filters-heading">
+          <div class="panel-heading">
+            <div>
+              <p class="section-kicker">Filters</p>
+              <h2 id="filters-heading">フィルタ</h2>
+            </div>
+            <button id="reset-filters" class="secondary-button" type="button">フィルタをクリア</button>
           </div>
-          <button id="reset-filters" class="secondary-button" type="button">フィルタをクリア</button>
-        </div>
 
-        <div class="filter-grid">
-          <div class="filter-inline-row">
+          <div class="filter-grid">
+            <div class="filter-inline-row">
+              <label class="field">
+                <span>講義回の下限</span>
+                <input id="lecture-min" type="number" min="1" inputmode="numeric">
+              </label>
+              <label class="field">
+                <span>講義回の上限</span>
+                <input id="lecture-max" type="number" min="1" inputmode="numeric">
+              </label>
+            </div>
             <label class="field">
-              <span>講義回の下限</span>
-              <input id="lecture-min" type="number" min="1" inputmode="numeric">
+              <span>解いたかどうか</span>
+              <select id="solved-filter">
+                <option value="all">すべて表示</option>
+                <option value="solved">解いた問題だけを表示</option>
+                <option value="unsolved">解いていない問題だけを表示</option>
+              </select>
             </label>
             <label class="field">
-              <span>講義回の上限</span>
-              <input id="lecture-max" type="number" min="1" inputmode="numeric">
+              <span>理解度</span>
+              <select id="understanding-filter">
+                <option value="all">すべて</option>
+              </select>
+            </label>
+            <label class="field field-wide">
+              <span>並び順</span>
+              <select id="sort-order">
+                <option value="lectureAsc">講義回が小さい順</option>
+                <option value="lectureDesc">講義回が大きい順</option>
+                <option value="numberAsc">問題番号が小さい順</option>
+                <option value="numberDesc">問題番号が大きい順</option>
+                <option value="understandingHigh">理解度が高い順</option>
+                <option value="understandingLow">理解度が低い順</option>
+              </select>
             </label>
           </div>
-          <label class="field">
-            <span>解いたかどうか</span>
-            <select id="solved-filter">
-              <option value="all">すべて表示</option>
-              <option value="solved">解いた問題だけを表示</option>
-              <option value="unsolved">解いていない問題だけを表示</option>
-            </select>
-          </label>
-          <label class="field">
-            <span>理解度</span>
-            <select id="understanding-filter">
-              <option value="all">すべて</option>
-            </select>
-          </label>
-          <label class="field field-wide">
-            <span>並び順</span>
-            <select id="sort-order">
-              <option value="lectureAsc">講義回が小さい順</option>
-              <option value="lectureDesc">講義回が大きい順</option>
-              <option value="numberAsc">問題番号が小さい順</option>
-              <option value="numberDesc">問題番号が大きい順</option>
-              <option value="understandingHigh">理解度が高い順</option>
-              <option value="understandingLow">理解度が低い順</option>
-            </select>
-          </label>
-        </div>
 
-        <fieldset class="field-group">
-          <legend>難易度</legend>
-          <div id="difficulty-options" class="chip-row"></div>
-        </fieldset>
+          <fieldset class="field-group">
+            <legend>難易度</legend>
+            <div id="difficulty-options" class="chip-row"></div>
+          </fieldset>
 
-        <div class="active-filters">
-          <span class="active-filters-label">現在のフィルタ</span>
-          <div id="active-filter-list" class="active-filter-list"></div>
-        </div>
+          <div class="active-filters">
+            <span class="active-filters-label">現在のフィルタ</span>
+            <div id="active-filter-list" class="active-filter-list"></div>
+          </div>
 
-        <section class="learning-summary" aria-labelledby="learning-summary-heading">
-          <h3 id="learning-summary-heading" class="learning-summary-title">表示中の状況</h3>
-          <dl class="learning-summary-list">
-            <div class="learning-summary-row">
-              <dt>解いた問題</dt>
-              <dd id="summary-solved-count">0 / 0</dd>
+          <section class="learning-summary" aria-labelledby="learning-summary-heading">
+            <h3 id="learning-summary-heading" class="learning-summary-title">表示中の状況</h3>
+            <dl class="learning-summary-list">
+              <div class="learning-summary-row">
+                <dt>解いた問題</dt>
+                <dd id="summary-solved-count">0 / 0</dd>
+              </div>
+              <div class="learning-summary-row">
+                <dt>要復習</dt>
+                <dd id="summary-review-count">0</dd>
+              </div>
+            </dl>
+          </section>
+        </aside>
+
+        <section class="panel record-panel" aria-labelledby="record-panel-heading">
+          <div class="panel-heading panel-heading-compact">
+            <div>
+              <p class="section-kicker">Learning Record</p>
+              <h2 id="record-panel-heading">学習記録</h2>
             </div>
-            <div class="learning-summary-row">
-              <dt>要復習</dt>
-              <dd id="summary-review-count">0</dd>
+          </div>
+
+          <div class="record-transfer-block">
+            <h3 class="record-transfer-subtitle">最後に開いた問題</h3>
+            <div id="last-opened-problem" class="record-problem-slot">
+              <p class="record-transfer-text record-transfer-text-compact">まだ記録がありません。</p>
             </div>
-          </dl>
+          </div>
+
+          <div class="record-transfer-block">
+            <h3 class="record-transfer-subtitle">学習記録のエクスポート</h3>
+            <button type="button" class="secondary-button record-transfer-button">学習記録のエクスポート</button>
+            <p class="record-transfer-text">解いた記録と理解度をファイルに書き出し、別の PC やブラウザへ持ち運べます。</p>
+          </div>
+
+          <div class="record-transfer-block">
+            <h3 class="record-transfer-subtitle">学習記録のインポート</h3>
+            <button type="button" class="secondary-button record-transfer-button">学習記録のインポート</button>
+            <p class="record-transfer-text">書き出した学習記録ファイルを読み込み、現在の記録に追加できます。</p>
+          </div>
         </section>
-      </aside>
+      </div>
 
       <section class="panel list-panel" aria-labelledby="problems-heading">
         <div class="panel-heading">

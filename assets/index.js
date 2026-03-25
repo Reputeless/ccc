@@ -7,6 +7,7 @@ const {
   populateLabelSelect,
   normalizeSortOrder,
   applyListQuickFilter,
+  getLastOpenedProblemId,
   getDifficultyLabel,
   formatLectureLabel,
   getUnderstandingMarkerClass,
@@ -54,6 +55,7 @@ async function loadProblems() {
 
   const payload = await response.json();
   allProblems = Array.isArray(payload.items) ? payload.items : [];
+  renderRecordPanel();
   renderProblemList();
 }
 
@@ -183,6 +185,29 @@ function renderLectureBadge(lecture) {
     return "";
   }
   return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" title="この講義回で絞り込む">${escapeHtml(formatLectureLabel(lecture))}</button>`;
+}
+
+function renderRecordPanel() {
+  const container = document.getElementById("last-opened-problem");
+  if (!container) {
+    return;
+  }
+
+  const lastOpenedId = getLastOpenedProblemId();
+  const problem = allProblems.find((item) => item.id === lastOpenedId);
+
+  if (!problem) {
+    container.innerHTML = '<p class="record-transfer-text record-transfer-text-compact">まだ記録がありません。</p>';
+    return;
+  }
+
+  const number = problem.number ? `<span class="record-problem-number">${escapeHtml(problem.number)}</span>` : "";
+  container.innerHTML = `
+    <a class="record-problem-link" href="problem.html?id=${encodeURIComponent(problem.id)}">
+      ${number}
+      <span class="record-problem-title">${escapeHtml(problem.title)}</span>
+    </a>
+  `;
 }
 
 function renderDifficultyBadge(difficulty) {

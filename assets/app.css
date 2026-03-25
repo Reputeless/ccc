@@ -367,14 +367,20 @@ button, input, select, textarea { font: inherit; }
 }
 .content-stack > .panel + .panel, .content-stack > section + section { margin-top: 20px; }
 .dashboard-layout { display: grid; grid-template-columns: minmax(280px, 330px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.dashboard-sidebar { display: grid; gap: 18px; align-self: start; }
 .filter-panel {
   position: sticky;
   top: 18px;
   background: var(--surface-filter-panel);
   border-color: var(--border-panel-accent);
 }
+.record-panel {
+  background: var(--surface-filter-panel);
+  border-color: var(--border-panel-accent);
+}
 .list-panel { min-height: 60vh; background: var(--surface-list-panel); }
 .panel-heading, .problem-header { display: flex; gap: 16px; justify-content: space-between; align-items: start; }
+.panel-heading-compact { margin-bottom: 2px; }
 .problem-header { margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
 .problem-header-main { width: 100%; min-width: 0; }
 .problem-header-main h1 { margin: 0; }
@@ -450,6 +456,64 @@ button, input, select, textarea { font: inherit; }
 .learning-summary-row dd {
   margin: 0;
   font-weight: 700;
+}
+.record-transfer-block + .record-transfer-block {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--footer-line);
+}
+.record-transfer-subtitle {
+  margin: 0 0 10px;
+  font-size: 0.98rem;
+}
+.record-transfer-button {
+  width: 100%;
+  justify-content: center;
+}
+.record-transfer-text {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.record-transfer-text-compact {
+  margin-top: 0;
+}
+.record-problem-slot {
+  min-height: 24px;
+}
+.record-problem-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-chip-option);
+  border-radius: 8px;
+  background: var(--surface-chip-option);
+  transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+}
+.record-problem-link:hover {
+  border-color: var(--border-button-secondary-hover);
+  background: var(--surface-button-secondary-hover);
+  color: var(--accent);
+}
+.record-problem-link:focus-visible {
+  outline: none;
+  border-color: var(--border-field-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.record-problem-number {
+  color: var(--problem-number-color);
+  font-size: 0.86em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.record-problem-title {
+  min-width: 0;
 }
 .filter-pill, .difficulty-badge, .understanding-pill {
   display: inline-flex;
@@ -1029,6 +1093,7 @@ button, input, select, textarea { font: inherit; }
 }
 @media (max-width: 1080px) {
   .dashboard-layout { grid-template-columns: 1fr; }
+  .dashboard-sidebar { gap: 18px; }
   .filter-panel { position: static; }
 }
 @media (max-width: 900px) {

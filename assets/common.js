@@ -14,6 +14,7 @@
     maxCodeBytes: 65536,
   };
   const FILTER_STORAGE_KEY = "ccc:v1:listFilters";
+  const LAST_OPENED_PROBLEM_KEY = "ccc:v1:lastOpenedProblem";
 
   function storageKey(kind, problemId) {
     return `ccc:v1:${kind}:${problemId}`;
@@ -65,6 +66,18 @@
 
   function writeListFilters(filters) {
     localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
+  }
+
+  function getLastOpenedProblemId() {
+    return localStorage.getItem(LAST_OPENED_PROBLEM_KEY) ?? "";
+  }
+
+  function setLastOpenedProblemId(problemId) {
+    if (!problemId) {
+      localStorage.removeItem(LAST_OPENED_PROBLEM_KEY);
+      return;
+    }
+    localStorage.setItem(LAST_OPENED_PROBLEM_KEY, problemId);
   }
 
   function applyListQuickFilter(filterType, filterValue) {
@@ -182,11 +195,14 @@
   global.CCC = {
     DEFAULT_CONFIG,
     FILTER_STORAGE_KEY,
+    LAST_OPENED_PROBLEM_KEY,
     fetchConfig,
     populateLabelSelect,
     normalizeSortOrder,
     readListFilters,
     writeListFilters,
+    getLastOpenedProblemId,
+    setLastOpenedProblemId,
     applyListQuickFilter,
     getDifficultyLabel,
     formatLectureLabel,
