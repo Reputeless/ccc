@@ -1114,6 +1114,7 @@ Wandbox の GitHub リポジトリ README の FAQ では、講義や商業での
 - `/api/problem.php?id=<problemId>`
 - `/api/judge.php`
 - ルートには `robots.txt` を置き、主要ページには `meta robots (noindex, nofollow, noarchive)` を入れる
+- `theme-color` のような補助的な meta は入れるが、固定文言の `description` や OGP など共有促進系の meta は初期版では入れない
 
 理由:
 
