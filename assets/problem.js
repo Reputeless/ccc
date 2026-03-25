@@ -124,7 +124,7 @@ function renderProblemMeta(problem) {
       formatLectureLabel(problem.lecture),
       "lecture",
       String(problem.lecture),
-      "この講義回で一覧を絞り込む"
+      "この講義回で絞り込む"
     ));
   }
 
@@ -134,7 +134,7 @@ function renderProblemMeta(problem) {
       getDifficultyLabel(appConfig, problem.difficulty),
       "difficulty",
       String(problem.difficulty),
-      "この難易度で一覧を絞り込む"
+      "この難易度で絞り込む"
     ));
   }
 }
