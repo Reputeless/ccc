@@ -106,18 +106,44 @@ function renderProblem() {
   document.getElementById("problem-title").textContent = currentProblem.title;
   renderProblemMeta(currentProblem);
   document.getElementById("problem-body").innerHTML = currentProblem.bodyHtml;
+  renderGuide();
   highlightProblemBodyCode();
   renderExamples();
   enhanceCopyableCodeBlocks();
 }
 
 function highlightProblemBodyCode() {
-  const problemBody = document.getElementById("problem-body");
-  if (!problemBody || !window.Prism?.highlightAllUnder) {
+  if (!window.Prism?.highlightAllUnder) {
     return;
   }
 
-  window.Prism.highlightAllUnder(problemBody);
+  ["problem-body", "guide-container"].forEach((id) => {
+    const container = document.getElementById(id);
+    if (!container) {
+      return;
+    }
+
+    window.Prism.highlightAllUnder(container);
+  });
+}
+
+function renderGuide() {
+  const container = document.getElementById("guide-container");
+  const guideHtml = typeof currentProblem.guideHtml === "string" ? currentProblem.guideHtml.trim() : "";
+
+  if (guideHtml === "") {
+    container.innerHTML = `<p class="guide-empty-text">この問題の解説はありません。</p>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <details class="guide-accordion">
+      <summary class="guide-summary">解説を読む</summary>
+      <div class="guide-content problem-body">
+        ${guideHtml}
+      </div>
+    </details>
+  `;
 }
 
 function renderProblemMeta(problem) {
@@ -252,7 +278,7 @@ function renderExampleBlock(title, content) {
 }
 
 function enhanceCopyableCodeBlocks() {
-  document.querySelectorAll("#problem-body pre, #examples-list pre, #result-details pre").forEach((pre) => {
+  document.querySelectorAll("#problem-body pre, #guide-container pre, #examples-list pre, #result-details pre").forEach((pre) => {
     if (pre.querySelector(".copy-code-button")) {
       return;
     }

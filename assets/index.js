@@ -463,7 +463,7 @@ function clearStoredCodeWithConfirmation() {
 
 function clearLearningProgressWithConfirmation() {
   const confirmed = window.confirm(
-    "このブラウザに保存された解いた記録と理解度を消去します。\nコード入力内容と最後に開いた問題の記録は残ります。\n\nよろしいですか？"
+    "このブラウザに保存された解いた記録と理解度を消去します。\nコード入力内容は残ります。\n\nよろしいですか？"
   );
 
   if (!confirmed) {

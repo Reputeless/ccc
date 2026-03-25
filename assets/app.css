@@ -684,6 +684,9 @@ button, input, select, textarea { font: inherit; }
   background: var(--danger-soft);
   color: var(--status-error-icon);
 }
+.validate-guide-cell {
+  white-space: nowrap;
+}
 .validate-detail-ok {
   color: var(--muted);
 }
@@ -1208,6 +1211,54 @@ button, input, select, textarea { font: inherit; }
   border: 1px solid var(--result-section-border);
   border-radius: 12px;
   background: var(--surface-result-section);
+}
+.guide-section {
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--result-section-border);
+  border-radius: 12px;
+  background: var(--surface-result-section);
+}
+.guide-container {
+  margin-top: 8px;
+}
+.guide-accordion {
+  border-top: 1px solid var(--footer-line);
+  padding-top: 12px;
+}
+.guide-summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+}
+.guide-summary::-webkit-details-marker {
+  display: none;
+}
+.guide-summary::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 10px;
+  border-right: 2px solid rgba(62, 53, 45, 0.68);
+  border-bottom: 2px solid rgba(62, 53, 45, 0.68);
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform 0.18s ease;
+}
+.guide-accordion[open] .guide-summary::after {
+  transform: rotate(225deg) translateY(-1px);
+}
+.guide-content {
+  margin-top: 12px;
+}
+.guide-content > :first-child {
+  margin-top: 0;
+}
+.guide-empty-text {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--footer-line);
+  color: var(--muted);
 }
 .primary-button, .secondary-button {
   border: 0;

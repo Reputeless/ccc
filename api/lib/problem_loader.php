@@ -43,6 +43,7 @@ function ccc_load_problem_detail(string $problemId, ?array $config = null): ?arr
         'profileId' => $profile['id'],
         'languageProfile' => ccc_build_language_profile_summary($profile),
         'bodyHtml' => $renderer->render(ccc_load_problem_body($manifest)),
+        'guideHtml' => ccc_load_problem_guide_html($manifest, $renderer),
         'examples' => ccc_load_problem_examples($manifest),
     ];
 }
@@ -220,6 +221,21 @@ function ccc_load_problem_body(array $manifest): string
     }
 
     return $body;
+}
+
+function ccc_load_problem_guide_html(array $manifest, CccMarkdownRenderer $renderer): ?string
+{
+    $guidePath = ccc_problem_guide_path($manifest['id']);
+    if (!is_file($guidePath)) {
+        return null;
+    }
+
+    $guide = file_get_contents($guidePath);
+    if ($guide === false) {
+        throw new RuntimeException($manifest['id'] . '/guide.md could not be read.');
+    }
+
+    return $renderer->render($guide);
 }
 
 function ccc_load_problem_examples(array $manifest): array

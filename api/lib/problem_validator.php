@@ -71,6 +71,7 @@ function ccc_create_problem_validation_row(string $directory): array
         'profileId' => '',
         'publishedAt' => '',
         'examples' => '',
+        'guide' => '',
         'errors' => [],
         'warnings' => [],
         'details' => [],
@@ -174,6 +175,8 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
     if (!is_file($bodyPath)) {
         $row['errors'][] = 'body.md がありません。';
     }
+
+    $row['guide'] = is_file(ccc_problem_guide_path($row['directory'])) ? 'あり' : 'なし';
 }
 
 function ccc_validate_problem_optional_integer(array &$row, array $decoded, string $field): void

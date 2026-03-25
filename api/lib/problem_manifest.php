@@ -16,6 +16,11 @@ function ccc_problem_body_path(string $problemId): string
     return ccc_problem_directory_path($problemId) . DIRECTORY_SEPARATOR . 'body.md';
 }
 
+function ccc_problem_guide_path(string $problemId): string
+{
+    return ccc_problem_directory_path($problemId) . DIRECTORY_SEPARATOR . 'guide.md';
+}
+
 function ccc_problem_example_input_path(string $problemId, string $exampleName): string
 {
     return ccc_problem_directory_path($problemId) . DIRECTORY_SEPARATOR . $exampleName . '.in.txt';

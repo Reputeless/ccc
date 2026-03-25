@@ -81,6 +81,7 @@ $items = $report['items'];
               <th>profileId</th>
               <th>publishedAt</th>
               <th>examples</th>
+              <th>guide</th>
               <th>結果</th>
               <th>詳細</th>
             </tr>
@@ -96,6 +97,11 @@ $items = $report['items'];
                 <td><code><?= h((string) $item['profileId']) ?></code></td>
                 <td><code><?= h((string) $item['publishedAt']) ?></code></td>
                 <td><code><?= h((string) $item['examples']) ?></code></td>
+                <td class="validate-guide-cell">
+                  <?php if (($item['guide'] ?? '') === 'あり'): ?>
+                    <span class="validate-status validate-status-ok">あり</span>
+                  <?php endif; ?>
+                </td>
                 <td>
                   <span class="validate-status validate-status-<?= h($item['status']) ?>">
                     <?= $item['status'] === 'ok' ? 'OK' : ($item['status'] === 'warning' ? '警告' : 'エラー') ?>
