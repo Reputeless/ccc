@@ -162,6 +162,8 @@ function ccc_load_problem_manifest(string $problemId): ?array
     $profileId = array_key_exists('profileId', $decoded) ? trim((string) $decoded['profileId']) : null;
     if ($profileId === '') {
         $profileId = null;
+    } elseif ($profileId !== null) {
+        $profileId = ccc_normalize_profile_id($profileId);
     }
 
     return [

@@ -24,54 +24,8 @@ function ccc_load_app_config(): array
         'resultMessagePreviewMaxLines' => 40,
         'judgeTimeoutSeconds' => 10,
         'maxCodeBytes' => 65536,
-        'defaultProfileId' => 'c23',
-        'languageProfiles' => [
-            'c17' => [
-                'language' => 'c',
-                'compiler' => 'gcc-head-c',
-                'standard' => 'c17',
-                'gnuExtensions' => false,
-                'editorIndentStyle' => 'tab',
-                'editorIndentWidth' => 4,
-                'extraFlags' => ['-Wall', '-Wextra', '-Wvla', '-Wstrict-prototypes', '-Wconversion', '-Wshadow', '-pedantic', '-lm'],
-            ],
-            'c23' => [
-                'language' => 'c',
-                'compiler' => 'gcc-head-c',
-                'standard' => 'c23',
-                'gnuExtensions' => false,
-                'editorIndentStyle' => 'tab',
-                'editorIndentWidth' => 4,
-                'extraFlags' => ['-Wall', '-Wextra', '-Wvla', '-Wstrict-prototypes', '-Wconversion', '-Wshadow', '-pedantic', '-lm'],
-            ],
-            'cpp20' => [
-                'language' => 'cpp',
-                'compiler' => 'gcc-head',
-                'standard' => 'c++20',
-                'gnuExtensions' => false,
-                'editorIndentStyle' => 'tab',
-                'editorIndentWidth' => 4,
-                'extraFlags' => ['-Wall', '-Wextra', '-Wconversion', '-Wshadow', '-pedantic'],
-            ],
-            'cpp23' => [
-                'language' => 'cpp',
-                'compiler' => 'gcc-head',
-                'standard' => 'c++23',
-                'gnuExtensions' => false,
-                'editorIndentStyle' => 'tab',
-                'editorIndentWidth' => 4,
-                'extraFlags' => ['-Wall', '-Wextra', '-Wconversion', '-Wshadow', '-pedantic'],
-            ],
-            'python3.14' => [
-                'language' => 'python',
-                'compiler' => 'cpython-3.14.0',
-                'standard' => null,
-                'gnuExtensions' => false,
-                'editorIndentStyle' => 'spaces',
-                'editorIndentWidth' => 4,
-                'extraFlags' => [],
-            ],
-        ],
+        'defaultProfileId' => ccc_default_profile_id(),
+        'languageProfiles' => ccc_built_in_language_profiles(),
     ];
 
     $path = CCC_CONFIG_DIR . DIRECTORY_SEPARATOR . 'app.json';
@@ -92,9 +46,9 @@ function ccc_load_app_config(): array
 
 function ccc_normalize_app_config(array $config): array
 {
-    $defaultProfileIdText = trim((string) ($config['defaultProfileId'] ?? 'c23'));
+    $defaultProfileIdText = trim((string) ($config['defaultProfileId'] ?? ccc_default_profile_id()));
     if ($defaultProfileIdText === '') {
-        $defaultProfileIdText = 'c23';
+        $defaultProfileIdText = ccc_default_profile_id();
     }
     $defaultProfileId = ccc_normalize_profile_id($defaultProfileIdText);
 
@@ -131,40 +85,88 @@ function ccc_normalize_app_config(array $config): array
 
 function ccc_default_language_profile(): array
 {
+    $profiles = ccc_built_in_language_profiles();
+    return $profiles[ccc_default_profile_id()];
+}
+
+function ccc_default_profile_id(): string
+{
+    return 'c23';
+}
+
+function ccc_built_in_language_profiles(): array
+{
     return [
-        'language' => 'c',
-        'compiler' => 'gcc-head-c',
-        'standard' => 'c23',
-        'gnuExtensions' => false,
-        'editorIndentStyle' => 'tab',
-        'editorIndentWidth' => 4,
-        'extraFlags' => ['-Wall', '-Wextra', '-Wvla', '-Wstrict-prototypes', '-Wconversion', '-Wshadow', '-pedantic', '-lm'],
+        'c17' => [
+            ...ccc_language_profile_defaults_for_language('c'),
+            'standard' => 'c17',
+        ],
+        'c23' => [
+            ...ccc_language_profile_defaults_for_language('c'),
+            'standard' => 'c23',
+        ],
+        'cpp20' => [
+            ...ccc_language_profile_defaults_for_language('cpp'),
+            'standard' => 'c++20',
+        ],
+        'cpp23' => [
+            ...ccc_language_profile_defaults_for_language('cpp'),
+            'standard' => 'c++23',
+        ],
+        'python3.14' => ccc_language_profile_defaults_for_language('python'),
     ];
 }
 
-function ccc_default_language_profile_for_language(string $language): array
+function ccc_generic_language_profile_defaults(): array
 {
-    return match ($language) {
+    return [
+        'gnuExtensions' => false,
+        'editorIndentStyle' => 'tab',
+        'editorIndentWidth' => 4,
+        'extraFlags' => [],
+    ];
+}
+
+function ccc_language_profile_defaults_for_language(string $language): array
+{
+    $normalizedLanguage = ccc_normalize_language_name($language);
+    $defaults = ccc_generic_language_profile_defaults();
+
+    return match ($normalizedLanguage) {
+        'c' => [
+            ...$defaults,
+            'language' => 'c',
+            'compiler' => 'gcc-head-c',
+            'standard' => 'c23',
+            'extraFlags' => ['-Wall', '-Wextra', '-Wvla', '-Wstrict-prototypes', '-Wconversion', '-Wshadow', '-pedantic', '-lm'],
+        ],
         'cpp' => [
+            ...$defaults,
             'language' => 'cpp',
             'compiler' => 'gcc-head',
             'standard' => 'c++23',
-            'gnuExtensions' => false,
-            'editorIndentStyle' => 'tab',
-            'editorIndentWidth' => 4,
             'extraFlags' => ['-Wall', '-Wextra', '-Wconversion', '-Wshadow', '-pedantic'],
         ],
         'python' => [
+            ...$defaults,
             'language' => 'python',
             'compiler' => 'cpython-3.14.0',
             'standard' => null,
-            'gnuExtensions' => false,
             'editorIndentStyle' => 'spaces',
-            'editorIndentWidth' => 4,
-            'extraFlags' => [],
         ],
-        default => ccc_default_language_profile(),
+        default => [
+            ...$defaults,
+            'language' => $normalizedLanguage,
+            'compiler' => '',
+            'standard' => null,
+        ],
     };
+}
+
+function ccc_normalize_language_name(string $language): string
+{
+    $normalized = trim(strtolower($language));
+    return $normalized === '' ? 'c' : $normalized;
 }
 
 function ccc_normalize_profile_id(string $profileId): string
@@ -183,13 +185,13 @@ function ccc_normalize_language_profile(mixed $profile): array
         throw new RuntimeException('Invalid language profile.');
     }
 
-    $language = trim((string) ($profile['language'] ?? 'c'));
+    $language = ccc_normalize_language_name((string) ($profile['language'] ?? 'c'));
     $merged = ccc_array_merge_recursive_distinct(
-        ccc_default_language_profile_for_language($language),
+        ccc_language_profile_defaults_for_language($language),
         $profile
     );
 
-    $language = trim((string) ($merged['language'] ?? ''));
+    $language = ccc_normalize_language_name((string) ($merged['language'] ?? ''));
     $compiler = trim((string) ($merged['compiler'] ?? ''));
     $standard = trim((string) ($merged['standard'] ?? ''));
     $extraFlags = is_array($merged['extraFlags'] ?? null) ? $merged['extraFlags'] : [];
@@ -232,7 +234,7 @@ function ccc_resolve_language_profile(array $config, ?string $profileId = null):
 {
     $effectiveProfileId = $profileId !== null && trim($profileId) !== ''
         ? ccc_normalize_profile_id($profileId)
-        : (string) ($config['defaultProfileId'] ?? 'c-default');
+        : (string) ($config['defaultProfileId'] ?? ccc_default_profile_id());
     $profiles = $config['languageProfiles'] ?? [];
 
     if (!isset($profiles[$effectiveProfileId]) || !is_array($profiles[$effectiveProfileId])) {
