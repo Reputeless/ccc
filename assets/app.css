@@ -417,6 +417,7 @@ button, input, select, textarea { font: inherit; }
 }
 .list-panel { min-height: 60vh; background: var(--surface-list-panel); }
 .panel-heading, .problem-header { display: flex; gap: 16px; justify-content: space-between; align-items: start; }
+.panel-heading h2 { margin: 0 0 18px; }
 .panel-heading-compact { margin-bottom: 2px; }
 .problem-header { margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
 .problem-header-main { width: 100%; min-width: 0; }
@@ -594,6 +595,9 @@ button, input, select, textarea { font: inherit; }
   color: #7f3c32;
 }
 .validate-panel {
+  width: min(1360px, calc(100% - 24px));
+  margin: 0 auto;
+  padding: 18px 0 36px;
   min-height: auto;
 }
 .validate-back-link {
@@ -666,6 +670,7 @@ button, input, select, textarea { font: inherit; }
   font-size: 0.88rem;
   font-weight: 700;
   line-height: 1;
+  white-space: nowrap;
 }
 .validate-status-ok {
   background: var(--status-success-bg);
@@ -1426,7 +1431,7 @@ button, input, select, textarea { font: inherit; }
     width: 100%;
     align-self: stretch;
   }
-  .validate-summary { grid-template-columns: 1fr; }
+  .validate-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 @media (max-height: 900px) {
   .dashboard-sidebar.is-sticky { position: static; }
@@ -1478,9 +1483,51 @@ button, input, select, textarea { font: inherit; }
   .hero-card { padding: 24px 22px; }
 }
 @media (max-width: 640px) {
-  .site-header { padding-inline: 0; }
+  .site-header {
+    padding-inline: 0;
+    padding-top: 18px;
+    padding-bottom: 4px;
+  }
+  .site-footer {
+    padding-inline: 0;
+    padding-bottom: 28px;
+  }
+  .site-footer-inner {
+    width: min(1360px, calc(100% - 16px));
+    padding-top: 12px;
+  }
+  .site-footer-line {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+  }
+  .site-footer-copy,
+  .site-footer-link {
+    font-size: 0.8rem;
+    line-height: 1.25;
+  }
+  .validate-panel {
+    width: min(1360px, calc(100% - 16px));
+    padding: 10px 0 28px;
+  }
+  .validate-summary {
+    gap: 8px;
+  }
+  .validate-summary-card {
+    padding: 10px 8px;
+  }
+  .validate-summary-label {
+    font-size: 0.74rem;
+    letter-spacing: 0.02em;
+  }
+  .validate-summary-value {
+    font-size: 1.2rem;
+  }
   .site-header-inner,
   .content-stack { width: min(1360px, calc(100% - 16px)); }
+  .content-stack {
+    padding-top: 10px;
+  }
   .panel { padding: 16px; }
   .hero-card h1 { font-size: 1.85rem; }
   .hero-card:not(.hero-card-compact) {
@@ -1501,6 +1548,10 @@ button, input, select, textarea { font: inherit; }
   .panel-heading {
     gap: 10px;
   }
+  .dashboard-layout,
+  .dashboard-sidebar {
+    gap: 14px;
+  }
   .panel-heading h2 {
     margin: 0;
   }
@@ -1514,6 +1565,18 @@ button, input, select, textarea { font: inherit; }
   .filter-panel .panel-heading .secondary-button {
     align-self: start;
     white-space: nowrap;
+  }
+  .list-panel .panel-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 8px 12px;
+    margin-bottom: 10px;
+  }
+  .list-panel #problem-count {
+    align-self: end;
+    white-space: nowrap;
+    margin: 0 0 2px;
   }
   .section-kicker {
     margin-bottom: 4px;
@@ -1592,8 +1655,7 @@ button, input, select, textarea { font: inherit; }
     gap: 8px;
   }
   .learning-summary {
-    margin-top: 14px;
-    padding-top: 12px;
+    display: none;
   }
   .problem-main-link {
     grid-template-columns: 2.7em minmax(0, 1fr);

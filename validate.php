@@ -44,7 +44,7 @@ $items = $report['items'];
 </head>
 <body>
   <div class="page-shell">
-    <section class="panel validate-panel">
+    <section class="validate-panel">
       <div class="panel-heading panel-heading-compact">
         <div>
           <h1>問題ステータス</h1>
