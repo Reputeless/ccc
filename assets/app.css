@@ -1500,6 +1500,9 @@ button, input, select, textarea { font: inherit; }
     padding-top: 18px;
     padding-bottom: 4px;
   }
+  .compact-header {
+    padding-bottom: 0;
+  }
   .site-footer {
     padding-inline: 0;
     padding-bottom: 28px;
@@ -1540,6 +1543,9 @@ button, input, select, textarea { font: inherit; }
   .content-stack {
     padding-top: 10px;
   }
+  .compact-header + .content-stack {
+    padding-top: 0;
+  }
   .panel { padding: 16px; }
   .hero-card h1 { font-size: 1.85rem; }
   .hero-card:not(.hero-card-compact) {
@@ -1559,6 +1565,13 @@ button, input, select, textarea { font: inherit; }
   }
   .panel-heading {
     gap: 10px;
+  }
+  .problem-meta-row {
+    align-items: stretch;
+  }
+  .meta-actions {
+    justify-content: flex-end;
+    align-self: stretch;
   }
   .dashboard-layout,
   .dashboard-sidebar {
@@ -1714,6 +1727,54 @@ button, input, select, textarea { font: inherit; }
     gap: 8px;
     justify-content: flex-end;
     transform: translateY(4px);
+  }
+  .problem-body {
+    font-size: 1rem;
+    line-height: 1.66;
+  }
+  .problem-body h1,
+  .problem-body h2,
+  .problem-body h3 {
+    margin-top: 1.2em;
+  }
+  .problem-body h3,
+  .examples-section h2 {
+    font-size: 1.34rem;
+  }
+  .problem-body p,
+  .problem-body ul,
+  .problem-body ol,
+  .problem-body pre,
+  .problem-body table {
+    margin-block: 0.8em;
+  }
+  .problem-body h3 + p,
+  .problem-body h3 + ul,
+  .problem-body h3 + ol,
+  .problem-body h3 + pre,
+  .problem-body h3 + table {
+    margin-top: 0.4em;
+  }
+  .problem-body pre,
+  .example-block pre,
+  .result-details pre {
+    padding: 12px;
+  }
+  .examples-section {
+    margin-top: 24px;
+    padding-top: 18px;
+  }
+  .examples-list {
+    gap: 12px;
+  }
+  .example-header {
+    padding: 10px 14px;
+  }
+  .example-content {
+    padding: 14px;
+  }
+  .example-grid {
+    gap: 12px;
   }
 }
 @media (max-width: 360px) {
