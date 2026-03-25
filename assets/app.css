@@ -76,6 +76,14 @@
   --status-error-icon: #974f3d;
   --status-warning-icon: #8f6418;
   --spinner-track: rgba(23, 89, 74, 0.25);
+  --syntax-comment-color: #8ea2b3;
+  --syntax-keyword-color: #8fd7c8;
+  --syntax-string-color: #e2c681;
+  --syntax-number-color: #f2a58f;
+  --syntax-function-color: #8cc7f0;
+  --syntax-type-color: #b8c89c;
+  --syntax-operator-color: #c9d3da;
+  --syntax-punctuation-color: #c9d3da;
 }
 
 html[data-theme="dark"] {
@@ -147,6 +155,14 @@ html[data-theme="dark"] {
   --status-muted-icon: #bcccca;
   --status-success-bg: rgba(25, 93, 69, 0.36);
   --spinner-track: rgba(102, 221, 209, 0.20);
+  --syntax-comment-color: #8192a0;
+  --syntax-keyword-color: #72ddd0;
+  --syntax-string-color: #e7c779;
+  --syntax-number-color: #f0a18c;
+  --syntax-function-color: #8ac8ff;
+  --syntax-type-color: #b8cf8d;
+  --syntax-operator-color: #dce6eb;
+  --syntax-punctuation-color: #dce6eb;
 }
 
 * { box-sizing: border-box; }
@@ -785,6 +801,47 @@ button, input, select, textarea { font: inherit; }
 }
 .problem-body code, .example-block code, .result-details code, .code-editor { font-family: var(--font-code); }
 .problem-body pre code, .example-block pre code, .result-details pre code { tab-size: 4; }
+.problem-body pre code .token.comment,
+.problem-body pre code .token.prolog,
+.problem-body pre code .token.doctype,
+.problem-body pre code .token.cdata {
+  color: var(--syntax-comment-color);
+}
+.problem-body pre code .token.keyword,
+.problem-body pre code .token.atrule {
+  color: var(--syntax-keyword-color);
+}
+.problem-body pre code .token.string,
+.problem-body pre code .token.char,
+.problem-body pre code .token.attr-value {
+  color: var(--syntax-string-color);
+}
+.problem-body pre code .token.number,
+.problem-body pre code .token.boolean,
+.problem-body pre code .token.constant {
+  color: var(--syntax-number-color);
+}
+.problem-body pre code .token.function,
+.problem-body pre code .token.function-variable {
+  color: var(--syntax-function-color);
+}
+.problem-body pre code .token.class-name,
+.problem-body pre code .token.builtin {
+  color: var(--syntax-type-color);
+}
+.problem-body pre code .token.operator {
+  color: var(--syntax-operator-color);
+}
+.problem-body pre code .token.punctuation {
+  color: var(--syntax-punctuation-color);
+}
+.problem-body pre code .token.important,
+.problem-body pre code .token.bold {
+  font-weight: 700;
+}
+.problem-body pre code .token.italic {
+  font-style: italic;
+}
 .problem-body table { width: 100%; border-collapse: collapse; margin: 16px 0; }
 .problem-body th, .problem-body td { border: 1px solid var(--line); padding: 10px; text-align: left; }
 .problem-body img { max-width: 100%; border-radius: 0; box-shadow: var(--image-shadow, 0 6px 14px rgba(48, 33, 22, 0.08)); }

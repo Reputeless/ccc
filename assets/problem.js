@@ -106,8 +106,18 @@ function renderProblem() {
   document.getElementById("problem-title").textContent = currentProblem.title;
   renderProblemMeta(currentProblem);
   document.getElementById("problem-body").innerHTML = currentProblem.bodyHtml;
+  highlightProblemBodyCode();
   renderExamples();
   enhanceCopyableCodeBlocks();
+}
+
+function highlightProblemBodyCode() {
+  const problemBody = document.getElementById("problem-body");
+  if (!problemBody || !window.Prism?.highlightAllUnder) {
+    return;
+  }
+
+  window.Prism.highlightAllUnder(problemBody);
 }
 
 function renderProblemMeta(problem) {
