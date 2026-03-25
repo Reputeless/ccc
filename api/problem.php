@@ -10,7 +10,8 @@ if ($problemId === '') {
 }
 
 try {
-    $problem = ccc_load_problem_detail($problemId);
+    $config = ccc_load_app_config();
+    $problem = ccc_load_problem_detail($problemId, $config);
 } catch (InvalidArgumentException $exception) {
     ccc_send_json(['message' => $exception->getMessage()], 400, ['Cache-Control' => 'no-store']);
 } catch (Throwable $throwable) {

@@ -284,8 +284,9 @@ async function copyText(text) {
 
 function setupEditor() {
   const editor = document.getElementById("code-editor");
+  const indentSettings = getEditorIndentSettings();
   editor.rows = appConfig.editorRows;
-  editor.style.tabSize = String(appConfig.tabWidth);
+  editor.style.tabSize = String(indentSettings.width);
   editor.value = getStoredCode(currentProblem.id);
   resetEditorHistory();
 
@@ -354,13 +355,21 @@ function setupEditor() {
 }
 
 function handleEditorTabKey(editor, isShiftPressed) {
+  const indentSettings = getEditorIndentSettings();
   const start = editor.selectionStart;
   const end = editor.selectionEnd;
   const selection = editor.value.slice(start, end);
   const hasMultiLineSelection = start !== end && selection.includes("\n");
 
   if (!isShiftPressed && !hasMultiLineSelection) {
-    applyEditorEdit(editor, start, end, "\t", start + 1, start + 1);
+    applyEditorEdit(
+      editor,
+      start,
+      end,
+      indentSettings.unit,
+      start + indentSettings.unit.length,
+      start + indentSettings.unit.length
+    );
     return;
   }
 
@@ -372,7 +381,7 @@ function handleEditorTabKey(editor, isShiftPressed) {
   const lines = affectedText.split("\n");
 
   if (isShiftPressed) {
-    const { text, removedCounts } = dedentLines(lines, appConfig.tabWidth);
+    const { text, removedCounts } = dedentLines(lines, indentSettings.width);
     applyEditorEdit(
       editor,
       currentLineStart,
@@ -384,14 +393,14 @@ function handleEditorTabKey(editor, isShiftPressed) {
     return;
   }
 
-  const indentedText = lines.map((line) => `\t${line}`).join("\n");
+  const indentedText = lines.map((line) => `${indentSettings.unit}${line}`).join("\n");
   applyEditorEdit(
     editor,
     currentLineStart,
     affectedEnd,
     indentedText,
-    start + 1,
-    end + lineStarts.length
+    start + indentSettings.unit.length,
+    end + (lineStarts.length * indentSettings.unit.length)
   );
 }
 
@@ -445,13 +454,14 @@ function handleEditorCommentToggle(editor) {
 }
 
 function handleEditorEnterKey(editor) {
+  const indentSettings = getEditorIndentSettings();
   const start = editor.selectionStart;
   const end = editor.selectionEnd;
   const currentLineStart = findLineStart(editor.value, start);
   const currentLine = editor.value.slice(currentLineStart, start);
   const indent = currentLine.match(/^[\t ]*/)?.[0] ?? "";
   const nextIndent = shouldIncreaseIndentAfterEnter(currentLine)
-    ? `${indent}\t`
+    ? `${indent}${indentSettings.unit}`
     : indent;
 
   applyEditorEdit(
@@ -471,6 +481,7 @@ function shouldIncreaseIndentAfterEnter(currentLine) {
 }
 
 function handleEditorClosingBraceKey(editor) {
+  const indentSettings = getEditorIndentSettings();
   const start = editor.selectionStart;
   const end = editor.selectionEnd;
 
@@ -490,7 +501,7 @@ function handleEditorClosingBraceKey(editor) {
     return false;
   }
 
-  const dedentedIndent = dedentSingleIndent(currentIndent, appConfig.tabWidth);
+  const dedentedIndent = dedentSingleIndent(currentIndent, indentSettings.width);
   if (dedentedIndent === currentIndent) {
     return false;
   }
@@ -520,6 +531,20 @@ function dedentSingleIndent(indentText, tabWidth) {
 
   const spacesToRemove = Math.min(trailingSpacesMatch[0].length, tabWidth);
   return indentText.slice(0, -spacesToRemove);
+}
+
+function getEditorIndentSettings() {
+  const profile = currentProblem?.languageProfile ?? {};
+  const width = Number(profile.editorIndentWidth) > 0
+    ? Number(profile.editorIndentWidth)
+    : (Number(appConfig.tabWidth) || DEFAULT_CONFIG.tabWidth);
+  const style = profile.editorIndentStyle === "spaces" ? "spaces" : "tab";
+
+  return {
+    style,
+    width,
+    unit: style === "spaces" ? " ".repeat(width) : "\t",
+  };
 }
 
 function applyEditorEdit(editor, replaceStart, replaceEnd, replacement, nextSelectionStart, nextSelectionEnd, inputType = "indentationChange") {

@@ -1,13 +1,17 @@
 <?php
 declare(strict_types=1);
 
-function ccc_list_problem_summaries(): array
+function ccc_list_problem_summaries(?array $config = null): array
 {
     $items = [];
     foreach (ccc_problem_directories() as $problemId) {
         $manifest = ccc_load_problem_manifest($problemId);
         if ($manifest === null || !ccc_problem_is_published($manifest)) {
             continue;
+        }
+
+        if ($config !== null) {
+            ccc_resolve_problem_language_profile($manifest, $config);
         }
 
         $items[] = ccc_build_problem_summary($manifest);
@@ -18,32 +22,41 @@ function ccc_list_problem_summaries(): array
     return $items;
 }
 
-function ccc_load_problem_detail(string $problemId): ?array
+function ccc_load_problem_detail(string $problemId, ?array $config = null): ?array
 {
     $manifest = ccc_load_problem_manifest($problemId);
     if ($manifest === null || !ccc_problem_is_published($manifest)) {
         return null;
     }
 
+    $config ??= ccc_load_app_config();
+    $profile = ccc_resolve_problem_language_profile($manifest, $config);
     $renderer = new CccMarkdownRenderer($manifest['id']);
 
     return [
         ...ccc_build_problem_summary($manifest),
+        'profileId' => $profile['id'],
+        'languageProfile' => ccc_build_language_profile_summary($profile),
         'bodyHtml' => $renderer->render(ccc_load_problem_body($manifest)),
         'examples' => ccc_load_problem_examples($manifest),
     ];
 }
 
-function ccc_load_problem_for_judge(string $problemId): ?array
+function ccc_load_problem_for_judge(string $problemId, ?array $config = null): ?array
 {
     $manifest = ccc_load_problem_manifest($problemId);
     if ($manifest === null || !ccc_problem_is_published($manifest)) {
         return null;
     }
 
+    $config ??= ccc_load_app_config();
+    $profile = ccc_resolve_problem_language_profile($manifest, $config);
+
     return [
         'id' => $manifest['id'],
         'title' => $manifest['title'],
+        'profileId' => $profile['id'],
+        'languageProfile' => $profile,
         'examples' => ccc_load_problem_examples($manifest),
     ];
 }
@@ -146,6 +159,10 @@ function ccc_load_problem_manifest(string $problemId): ?array
     if ($publishedAt === '') {
         $publishedAt = null;
     }
+    $profileId = array_key_exists('profileId', $decoded) ? trim((string) $decoded['profileId']) : null;
+    if ($profileId === '') {
+        $profileId = null;
+    }
 
     return [
         'id' => $id,
@@ -154,9 +171,15 @@ function ccc_load_problem_manifest(string $problemId): ?array
         'lecture' => $lecture,
         'difficulty' => $difficulty,
         'publishedAt' => $publishedAt,
+        'profileId' => $profileId,
         'examples' => array_map(static fn ($item) => trim((string) $item), $examples),
         '_dir' => $problemDir,
     ];
+}
+
+function ccc_resolve_problem_language_profile(array $manifest, array $config): array
+{
+    return ccc_resolve_language_profile($config, $manifest['profileId'] ?? null);
 }
 
 function ccc_problem_is_published(array $manifest): bool

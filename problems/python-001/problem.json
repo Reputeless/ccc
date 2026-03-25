@@ -1,0 +1,9 @@
+{
+  "id": "python-001",
+  "number": "12-2",
+  "title": "Python で Hello, Python!",
+  "lecture": 12,
+  "difficulty": 1,
+  "profileId": "python3.14",
+  "examples": ["01"]
+}

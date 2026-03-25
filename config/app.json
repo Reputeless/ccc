@@ -14,11 +14,52 @@
   "resultMessagePreviewMaxLines": 40,
   "judgeTimeoutSeconds": 10,
   "maxCodeBytes": 65536,
-  "languageProfile": {
-    "language": "c",
-    "compiler": "gcc-head-c",
-    "standard": "c23",
-    "gnuExtensions": false,
-    "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
+  "defaultProfileId": "c23",
+  "languageProfiles": {
+    "c17": {
+      "language": "c",
+      "compiler": "gcc-head-c",
+      "standard": "c17",
+      "gnuExtensions": false,
+      "editorIndentStyle": "tab",
+      "editorIndentWidth": 4,
+      "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
+    },
+    "c23": {
+      "language": "c",
+      "compiler": "gcc-head-c",
+      "standard": "c23",
+      "gnuExtensions": false,
+      "editorIndentStyle": "tab",
+      "editorIndentWidth": 4,
+      "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
+    },
+    "cpp20": {
+      "language": "cpp",
+      "compiler": "gcc-head",
+      "standard": "c++20",
+      "gnuExtensions": false,
+      "editorIndentStyle": "tab",
+      "editorIndentWidth": 4,
+      "extraFlags": ["-Wall", "-Wextra", "-Wconversion", "-Wshadow", "-pedantic"]
+    },
+    "cpp23": {
+      "language": "cpp",
+      "compiler": "gcc-head",
+      "standard": "c++23",
+      "gnuExtensions": false,
+      "editorIndentStyle": "tab",
+      "editorIndentWidth": 4,
+      "extraFlags": ["-Wall", "-Wextra", "-Wconversion", "-Wshadow", "-pedantic"]
+    },
+    "python3.14": {
+      "language": "python",
+      "compiler": "cpython-3.14.0",
+      "standard": null,
+      "gnuExtensions": false,
+      "editorIndentStyle": "spaces",
+      "editorIndentWidth": 4,
+      "extraFlags": []
+    }
   }
 }

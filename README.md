@@ -372,6 +372,7 @@ problems/
   "title": "2つの整数の和",
   "lecture": 1,
   "difficulty": 1,
+  "profileId": "c23",
   "publishedAt": "2026-04-01T09:00:00+09:00",
   "examples": [
     "01"
@@ -386,6 +387,7 @@ problems/
 - `number`: 任意
 - `lecture`: 任意
 - `difficulty`: 任意
+- `profileId`: 任意
 - `publishedAt`: 任意
 - `examples`: 必須、1 から 6 組
 
@@ -418,6 +420,7 @@ problems/
   "id": "sum-001",
   "number": "1-1",
   "title": "2つの整数の和",
+  "profileId": "c23",
   "examples": ["01"]
 }
 ```
@@ -450,6 +453,7 @@ problems/
   "title": "2つの整数の和",
   "lecture": 1,
   "difficulty": 1,
+  "profileId": "c23",
   "examples": ["01", "02"]
 }
 ```
@@ -494,6 +498,7 @@ a b
   "title": "2つの整数の和",
   "lecture": 1,
   "difficulty": 1,
+  "profileId": "c23",
   "publishedAt": "2026-04-01T09:00:00+09:00",
   "examples": ["01", "02"]
 }
@@ -564,6 +569,7 @@ problems/
 - `title`: 必須、空文字不可
 - `lecture`: 任意、指定時は整数
 - `difficulty`: 任意、指定時は 1 から 3 の整数
+- `profileId`: 任意、指定時は `config/app.json` 内の `languageProfiles` に存在すること
 - `publishedAt`: 任意、指定時はタイムゾーン付きの ISO 8601 文字列を推奨
 - `examples`: 必須、1 件以上 6 件以下
 - `examples[]`: 文字列
@@ -643,12 +649,53 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   "resultMessagePreviewMaxLines": 40,
   "judgeTimeoutSeconds": 10,
   "maxCodeBytes": 65536,
-  "languageProfile": {
-    "language": "c",
-    "compiler": "gcc-head-c",
-    "standard": "c23",
-    "gnuExtensions": false,
-    "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
+  "defaultProfileId": "c23",
+  "languageProfiles": {
+    "c17": {
+      "language": "c",
+      "compiler": "gcc-head-c",
+      "standard": "c17",
+      "gnuExtensions": false,
+      "editorIndentStyle": "tab",
+      "editorIndentWidth": 4,
+      "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
+    },
+    "c23": {
+      "language": "c",
+      "compiler": "gcc-head-c",
+      "standard": "c23",
+      "gnuExtensions": false,
+      "editorIndentStyle": "tab",
+      "editorIndentWidth": 4,
+      "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
+    },
+    "cpp20": {
+      "language": "cpp",
+      "compiler": "gcc-head",
+      "standard": "c++20",
+      "gnuExtensions": false,
+      "editorIndentStyle": "tab",
+      "editorIndentWidth": 4,
+      "extraFlags": ["-Wall", "-Wextra", "-Wconversion", "-Wshadow", "-pedantic"]
+    },
+    "cpp23": {
+      "language": "cpp",
+      "compiler": "gcc-head",
+      "standard": "c++23",
+      "gnuExtensions": false,
+      "editorIndentStyle": "tab",
+      "editorIndentWidth": 4,
+      "extraFlags": ["-Wall", "-Wextra", "-Wconversion", "-Wshadow", "-pedantic"]
+    },
+    "python3.14": {
+      "language": "python",
+      "compiler": "cpython-3.14.0",
+      "standard": null,
+      "gnuExtensions": false,
+      "editorIndentStyle": "spaces",
+      "editorIndentWidth": 4,
+      "extraFlags": []
+    }
   }
 }
 ```
@@ -692,19 +739,43 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `maxCodeBytes`:
   - 1 回の判定で受け付けるソースコードの最大バイト数
   - 初期値は `65536` (`64 KiB`) とする
-- `languageProfile.language`:
-  - 初期版では `c`
-- `languageProfile.compiler`:
+- `defaultProfileId`:
+  - 問題ごとに `profileId` が未指定のときに使う既定の言語プロファイル ID
+- `languageProfiles`:
+  - 言語ごとのコンパイル設定をまとめた連想配列
+- `languageProfiles.<profileId>.language`:
+  - 言語識別子
+  - 例: `c`
+- `languageProfiles.<profileId>.compiler`:
   - Wandbox で使うコンパイラ識別子
-- `languageProfile.standard`:
-  - C 規格を指定する
-  - 初期版の想定値は `c17` または `c23`
+- `languageProfiles.<profileId>.standard`:
+  - 言語規格を指定する
+  - C の想定値は `c17` または `c23`
   - 既定値は `c23`
-- `languageProfile.gnuExtensions`:
+- `languageProfiles.<profileId>.gnuExtensions`:
   - GCC 拡張を使うかどうか
-- `languageProfile.extraFlags`:
+- `languageProfiles.<profileId>.editorIndentStyle`:
+  - コード入力欄で `Tab` キーを押したときの字下げ方式
+  - `tab` または `spaces`
+- `languageProfiles.<profileId>.editorIndentWidth`:
+  - 1 段の字下げ幅
+  - `spaces` のときは実際にその数の空白を挿入する
+- `languageProfiles.<profileId>.extraFlags`:
   - 追加のコンパイルフラグ配列
-  - 講義での既定値は `-Wall`, `-Wextra`, `-Wvla`, `-Wstrict-prototypes`, `-Wconversion`, `-Wshadow`, `-pedantic`, `-lm`
+  - C 講義での既定値は `-Wall`, `-Wextra`, `-Wvla`, `-Wstrict-prototypes`, `-Wconversion`, `-Wshadow`, `-pedantic`, `-lm`
+
+### 定義済みプロファイル例
+
+初期版では、少なくとも次の定義済みプロファイルを持っておくと扱いやすい。
+
+- `c17`
+- `c23`
+- `cpp20`
+- `cpp23`
+- `python3.14`
+
+`defaultProfileId` は既定で `c23` とする。
+`python3.14` は、コード入力欄でも `spaces 4` を既定にする。
 
 ### 初期版で設定可能にしたい項目
 
@@ -725,10 +796,8 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `resultMessagePreviewMaxLines`
 - `judgeTimeoutSeconds`
 - `maxCodeBytes`
-- `languageProfile.compiler`
-- `languageProfile.standard`
-- `languageProfile.gnuExtensions`
-- `languageProfile.extraFlags`
+- `defaultProfileId`
+- `languageProfiles`
 
 ### 後回しでもよい項目
 
@@ -737,7 +806,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - タブ入力時に `\t` を入れるか空白展開するかの切り替え
 - 問題一覧の既定ソート順の詳細設定
 - UI 文言の完全な多言語化
-- 複数の言語プロファイル切り替え
+- 言語ごとの設定 UI の詳細
 
 ### 初期版では設定ファイルに入れないもの
 
@@ -753,15 +822,18 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 
 ### 初期方針
 
-- 当面は全問題で同じ言語プロファイルを使う
 - 初期ターゲットは C
-- C17 / C23、将来的なバージョンフラグ、GCC 拡張有無、追加フラグをグローバル設定で制御できるようにする
+- `config/app.json` では、`defaultProfileId` と `languageProfiles` により複数の言語プロファイルを定義できるようにする
+- 各問題は任意で `profileId` を持てるようにし、未指定時は `defaultProfileId` を使う
+- C17 / C23、将来的なバージョンフラグ、GCC 拡張有無、追加フラグをプロファイル単位で制御できるようにする
 - 講義での既定値は `C23` とする
+- 現在の定義済みプロファイルでは、Wandbox の `gcc-head-c`, `gcc-head`, `cpython-3.14.0` を使う
 
 ### 将来拡張
 
-- 内部構造は将来の C++ など他言語対応に耐えられる形にする
+- 内部構造は将来の C++ や Python など他言語対応に耐えられる形にする
 - ただし、初期版の UI に言語選択は出さない
+- 問題ページ API では `profileId` と解決済みの `languageProfile` を返し、将来の表示拡張に備える
 
 ## 想定ホスティング
 

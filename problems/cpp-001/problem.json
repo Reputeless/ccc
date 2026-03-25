@@ -1,0 +1,9 @@
+{
+  "id": "cpp-001",
+  "number": "12-1",
+  "title": "C++23 で Hello, C++!",
+  "lecture": 12,
+  "difficulty": 1,
+  "profileId": "cpp23",
+  "examples": ["01"]
+}

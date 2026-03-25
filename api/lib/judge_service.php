@@ -4,9 +4,12 @@ declare(strict_types=1);
 function ccc_judge_submission(array $config, array $problem, string $code): array
 {
     $warningMessage = null;
+    $profile = isset($problem['languageProfile']) && is_array($problem['languageProfile'])
+        ? $problem['languageProfile']
+        : ccc_resolve_language_profile($config);
 
     foreach ($problem['examples'] as $index => $example) {
-        $wandboxResult = ccc_call_wandbox($config, $code, $example['stdin']);
+        $wandboxResult = ccc_call_wandbox($config, $profile, $code, $example['stdin']);
 
         $compilerText = ccc_join_messages([
             $wandboxResult['compiler_error'] ?? null,
@@ -71,9 +74,8 @@ function ccc_judge_submission(array $config, array $problem, string $code): arra
     return [200, $response];
 }
 
-function ccc_call_wandbox(array $config, string $code, string $stdin): array
+function ccc_call_wandbox(array $config, array $profile, string $code, string $stdin): array
 {
-    $profile = $config['languageProfile'];
     $flags = [];
 
     if (!empty($profile['standard'])) {

@@ -4,5 +4,6 @@
   "title": "2つの整数の和",
   "lecture": 1,
   "difficulty": 1,
+  "profileId": "c23",
   "examples": ["01", "02"]
 }

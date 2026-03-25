@@ -4,5 +4,6 @@
   "title": "大きい方の整数を出力する",
   "lecture": 2,
   "difficulty": 1,
+  "profileId": "c23",
   "examples": ["01", "02"]
 }

@@ -4,7 +4,8 @@ declare(strict_types=1);
 require_once __DIR__ . '/bootstrap.php';
 
 try {
-    $items = ccc_list_problem_summaries();
+    $config = ccc_load_app_config();
+    $items = ccc_list_problem_summaries($config);
     ccc_send_json(['items' => $items], 200, ['Cache-Control' => 'no-store']);
 } catch (Throwable $throwable) {
     ccc_send_json([

@@ -4,5 +4,6 @@
   "title": "1 から N まで表示する",
   "lecture": 4,
   "difficulty": 3,
+  "profileId": "c23",
   "examples": ["01", "02"]
 }
