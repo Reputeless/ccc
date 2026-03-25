@@ -123,6 +123,7 @@ function highlightProblemBodyCode() {
 function renderProblemMeta(problem) {
   const container = document.getElementById("problem-meta");
   container.innerHTML = "";
+  const profileLabel = formatLanguageProfileLabel(problem.languageProfile);
 
   if (problem.number) {
     container.appendChild(createMetaBadge("problem-number-meta", problem.number));
@@ -147,6 +148,10 @@ function renderProblemMeta(problem) {
       "この難易度で絞り込む"
     ));
   }
+
+  if (profileLabel) {
+    container.appendChild(createMetaBadge("problem-profile-meta", `言語: ${profileLabel}`));
+  }
 }
 
 function createMetaBadge(className, text) {
@@ -154,6 +159,44 @@ function createMetaBadge(className, text) {
   badge.className = className;
   badge.textContent = text;
   return badge;
+}
+
+function formatLanguageProfileLabel(profile) {
+  if (!profile || typeof profile !== "object") {
+    return "";
+  }
+
+  const language = String(profile.language ?? "").toLowerCase();
+  const standard = String(profile.standard ?? "").trim();
+
+  if (language === "c") {
+    if (standard) {
+      return standard.toUpperCase();
+    }
+    return "C";
+  }
+
+  if (language === "cpp") {
+    if (standard) {
+      return standard.replace(/^c\+\+/i, "C++");
+    }
+    return "C++";
+  }
+
+  if (language === "python") {
+    const compiler = String(profile.compiler ?? "");
+    const match = compiler.match(/cpython-(\d+\.\d+)/i);
+    if (match) {
+      return `Python ${match[1]}`;
+    }
+    return "Python";
+  }
+
+  if (standard) {
+    return standard;
+  }
+
+  return String(profile.id ?? "").trim();
 }
 
 function createMetaFilterLink(className, text, filterType, filterValue, title) {

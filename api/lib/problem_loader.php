@@ -5,16 +5,21 @@ function ccc_list_problem_summaries(?array $config = null): array
 {
     $items = [];
     foreach (ccc_problem_directories() as $problemId) {
-        $manifest = ccc_load_problem_manifest($problemId);
-        if ($manifest === null || !ccc_problem_is_published($manifest)) {
+        try {
+            $manifest = ccc_load_problem_manifest($problemId);
+            if ($manifest === null || !ccc_problem_is_published($manifest)) {
+                continue;
+            }
+
+            if ($config !== null) {
+                ccc_resolve_problem_language_profile($manifest, $config);
+            }
+
+            $items[] = ccc_build_problem_summary($manifest);
+        } catch (Throwable $throwable) {
+            error_log('[CCC problems] Skipped invalid problem "' . $problemId . '": ' . $throwable->getMessage());
             continue;
         }
-
-        if ($config !== null) {
-            ccc_resolve_problem_language_profile($manifest, $config);
-        }
-
-        $items[] = ccc_build_problem_summary($manifest);
     }
 
     usort($items, 'ccc_compare_problem_summaries');

@@ -245,7 +245,7 @@ function renderRecordPanel() {
     return;
   }
 
-  const number = problem.number ? `<span class="record-problem-number">${escapeHtml(problem.number)}</span>` : "";
+  const number = `<span class="record-problem-number">${problem.number ? escapeHtml(problem.number) : ""}</span>`;
   container.innerHTML = `
     <a class="record-problem-link" href="problem.html?id=${encodeURIComponent(problem.id)}">
       ${number}
