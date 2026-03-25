@@ -92,11 +92,11 @@
   }
 
   function normalizeThemePreference(value) {
-    return value === "light" || value === "dark" || value === "system" ? value : "system";
+    return value === "light" || value === "dark" || value === "system" ? value : "light";
   }
 
   function getThemePreference() {
-    return normalizeThemePreference(localStorage.getItem(THEME_STORAGE_KEY) ?? "system");
+    return normalizeThemePreference(localStorage.getItem(THEME_STORAGE_KEY) ?? "light");
   }
 
   function setThemePreference(value) {

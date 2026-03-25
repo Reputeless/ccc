@@ -405,6 +405,17 @@ button, input, select, textarea { font: inherit; }
   backdrop-filter: blur(10px);
 }
 .content-stack > .panel + .panel, .content-stack > section + section { margin-top: 20px; }
+.panel,
+.two-column-layout,
+.content-panel,
+.editor-panel,
+.result-section,
+.guide-section,
+.problem-header-main,
+.problem-body,
+.guide-container {
+  min-width: 0;
+}
 .dashboard-layout { display: grid; grid-template-columns: minmax(280px, 330px) minmax(0, 1fr); gap: 18px; align-items: start; }
 .dashboard-sidebar { display: grid; gap: 18px; align-self: start; }
 .dashboard-sidebar.is-sticky {
@@ -1812,6 +1823,15 @@ button, input, select, textarea { font: inherit; }
   .example-block pre,
   .result-details pre {
     padding: 12px;
+  }
+  .problem-body pre {
+    max-width: 100%;
+    white-space: pre;
+    overflow-x: auto;
+    word-break: normal;
+  }
+  .problem-body pre code {
+    white-space: inherit;
   }
   .examples-section {
     margin-top: 24px;
