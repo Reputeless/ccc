@@ -50,7 +50,7 @@ $items = $report['items'];
           <h1>問題ステータス</h1>
         </div>
         <div>
-          <a class="secondary-button validate-back-link" href="index.html">問題一覧へ戻る</a>
+          <a class="secondary-button validate-back-link" href="./">問題一覧へ戻る</a>
         </div>
       </div>
 

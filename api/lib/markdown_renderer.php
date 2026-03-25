@@ -4,10 +4,12 @@ declare(strict_types=1);
 final class CccMarkdownRenderer
 {
     private string $problemId;
+    private ?string $basePathPrefix;
 
-    public function __construct(string $problemId)
+    public function __construct(string $problemId, ?string $basePathPrefix = null)
     {
         $this->problemId = $problemId;
+        $this->basePathPrefix = $basePathPrefix;
     }
 
     public function render(string $markdown): string
@@ -168,6 +170,9 @@ final class CccMarkdownRenderer
         }
 
         $trimmed = ltrim($url, './');
+        if ($this->basePathPrefix !== null) {
+            return $this->basePathPrefix . $trimmed;
+        }
         return 'problems/' . rawurlencode($this->problemId) . '/' . $trimmed;
     }
 

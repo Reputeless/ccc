@@ -909,6 +909,16 @@ button, input, select, textarea { font: inherit; }
 .content-panel {
   background: var(--surface-content-panel);
 }
+.teacher-guide-panel {
+  max-width: 980px;
+  margin-inline: auto;
+}
+.teacher-guide-header {
+  margin-bottom: 20px;
+}
+.teacher-guide-header h1 {
+  margin: 0;
+}
 .problem-meta-badges {
   display: flex;
   flex-wrap: wrap;

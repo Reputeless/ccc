@@ -228,7 +228,7 @@ function formatLanguageProfileLabel(profile) {
 function createMetaFilterLink(className, text, filterType, filterValue, title) {
   const link = document.createElement("a");
   link.className = className;
-  link.href = "index.html";
+  link.href = "./";
   link.textContent = text;
   link.title = title;
   link.addEventListener("click", () => {
