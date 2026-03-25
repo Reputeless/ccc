@@ -368,9 +368,11 @@ button, input, select, textarea { font: inherit; }
 .content-stack > .panel + .panel, .content-stack > section + section { margin-top: 20px; }
 .dashboard-layout { display: grid; grid-template-columns: minmax(280px, 330px) minmax(0, 1fr); gap: 18px; align-items: start; }
 .dashboard-sidebar { display: grid; gap: 18px; align-self: start; }
-.filter-panel {
+.dashboard-sidebar.is-sticky {
   position: sticky;
   top: 18px;
+}
+.filter-panel {
   background: var(--surface-filter-panel);
   border-color: var(--border-panel-accent);
 }
@@ -1159,7 +1161,10 @@ button, input, select, textarea { font: inherit; }
 @media (max-width: 1080px) {
   .dashboard-layout { grid-template-columns: 1fr; }
   .dashboard-sidebar { gap: 18px; }
-  .filter-panel { position: static; }
+  .dashboard-sidebar.is-sticky { position: static; }
+}
+@media (max-height: 900px) {
+  .dashboard-sidebar.is-sticky { position: static; }
 }
 @media (max-width: 900px) {
   .two-column-layout { grid-template-columns: 1fr; }

@@ -1,4 +1,6 @@
 const LIST_SCROLL_KEY = "ccc:v1:listScroll";
+const SIDEBAR_STICKY_BREAKPOINT = 1080;
+const SIDEBAR_STICKY_TOP = 18;
 
 const {
   DEFAULT_CONFIG,
@@ -29,9 +31,11 @@ let allProblems = [];
 let shouldRestoreInitialScroll = true;
 let animatedSolvedProblemId = null;
 let animatedUnderstandingProblemId = null;
+let sidebarStickyFrame = 0;
 
 document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("pagehide", saveScrollPosition);
+  window.addEventListener("resize", scheduleSidebarStickyUpdate);
   document.getElementById("reset-filters").addEventListener("click", resetFilters);
   applyThemePreference();
   bindThemePreferenceListener();
@@ -47,6 +51,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderGlobalFooter(appConfig);
   setupStaticControls();
   await loadProblems();
+  scheduleSidebarStickyUpdate();
 });
 
 async function loadProblems() {
@@ -163,6 +168,7 @@ function renderProblemList() {
 
   if (filtered.length === 0) {
     list.innerHTML = '<div class="status-banner muted-banner">条件に合う問題がありません。</div>';
+    scheduleSidebarStickyUpdate();
     return;
   }
 
@@ -174,6 +180,8 @@ function renderProblemList() {
     shouldRestoreInitialScroll = false;
     requestAnimationFrame(restoreScrollPosition);
   }
+
+  scheduleSidebarStickyUpdate();
 }
 
 function renderProblemCard(problem) {
@@ -229,6 +237,7 @@ function renderRecordPanel() {
 
   if (!problem) {
     container.innerHTML = '<p class="record-transfer-text record-transfer-text-compact">まだ記録がありません。</p>';
+    scheduleSidebarStickyUpdate();
     return;
   }
 
@@ -239,6 +248,7 @@ function renderRecordPanel() {
       <span class="record-problem-title">${escapeHtml(problem.title)}</span>
     </a>
   `;
+  scheduleSidebarStickyUpdate();
 }
 
 function exportLearningRecord() {
@@ -391,6 +401,31 @@ function showRecordTransferStatus(message, isError = false) {
   status.hidden = !message;
   status.textContent = message;
   status.className = `record-transfer-status${isError ? " record-transfer-status-error" : ""}`;
+  scheduleSidebarStickyUpdate();
+}
+
+function scheduleSidebarStickyUpdate() {
+  if (sidebarStickyFrame) {
+    window.cancelAnimationFrame(sidebarStickyFrame);
+  }
+
+  sidebarStickyFrame = window.requestAnimationFrame(() => {
+    sidebarStickyFrame = 0;
+    updateSidebarStickyState();
+  });
+}
+
+function updateSidebarStickyState() {
+  const sidebar = document.querySelector(".dashboard-sidebar");
+  if (!sidebar) {
+    return;
+  }
+
+  const canUseSticky = window.innerWidth > SIDEBAR_STICKY_BREAKPOINT;
+  const availableHeight = window.innerHeight - SIDEBAR_STICKY_TOP - 8;
+  const fitsViewport = sidebar.scrollHeight <= availableHeight;
+
+  sidebar.classList.toggle("is-sticky", canUseSticky && fitsViewport);
 }
 
 function clearLearningRecordWithConfirmation() {
