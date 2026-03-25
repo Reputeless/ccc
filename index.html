@@ -124,6 +124,14 @@
             <p class="record-transfer-text">書き出した学習記録ファイルを読み込み、現在の記録に追加できます。</p>
           </div>
 
+          <details class="record-danger">
+            <summary class="record-danger-summary">学習記録の消去</summary>
+            <div class="record-danger-content">
+              <p class="record-transfer-text">このブラウザに保存された解いた記録、理解度、コード入力内容、最後に開いた問題の記録を消去します。</p>
+              <button id="clear-learning-record" type="button" class="record-danger-button">学習記録を消去</button>
+            </div>
+          </details>
+
           <div id="record-transfer-status" class="record-transfer-status" aria-live="polite" hidden></div>
           <input id="import-learning-record-file" type="file" accept="application/json,.json" hidden>
         </section>

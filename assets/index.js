@@ -15,6 +15,7 @@ const {
   setManualSolved,
   getUnderstanding,
   setUnderstanding,
+  clearLearningRecord,
   escapeHtml,
   renderGlobalFooter,
 } = window.CCC;
@@ -82,6 +83,7 @@ function setupRecordTransferControls() {
     document.getElementById("import-learning-record-file").click();
   });
   document.getElementById("import-learning-record-file").addEventListener("change", importLearningRecord);
+  document.getElementById("clear-learning-record").addEventListener("click", clearLearningRecordWithConfirmation);
 }
 
 function populateUnderstandingFilter() {
@@ -369,6 +371,22 @@ function showRecordTransferStatus(message, isError = false) {
   status.hidden = !message;
   status.textContent = message;
   status.className = `record-transfer-status${isError ? " record-transfer-status-error" : ""}`;
+}
+
+function clearLearningRecordWithConfirmation() {
+  const confirmed = window.confirm(
+    "このブラウザに保存された学習記録を消去します。\n解いた記録、理解度、コード入力内容、最後に開いた問題の記録が削除されます。\n\nよろしいですか？"
+  );
+
+  if (!confirmed) {
+    showRecordTransferStatus("消去をキャンセルしました。");
+    return;
+  }
+
+  clearLearningRecord(allProblems.map((problem) => problem.id));
+  renderRecordPanel();
+  renderProblemList();
+  showRecordTransferStatus("学習記録を消去しました。");
 }
 
 function renderDifficultyBadge(difficulty) {

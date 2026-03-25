@@ -487,6 +487,56 @@ button, input, select, textarea { font: inherit; }
 .record-transfer-status-error {
   color: #a55447;
 }
+.record-danger {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--footer-line);
+}
+.record-danger-summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+}
+.record-danger-summary::-webkit-details-marker {
+  display: none;
+}
+.record-danger-summary::after {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 10px;
+  border-right: 2px solid rgba(62, 53, 45, 0.68);
+  border-bottom: 2px solid rgba(62, 53, 45, 0.68);
+  transform: rotate(45deg) translateY(-1px);
+  transition: transform 0.18s ease;
+}
+.record-danger[open] .record-danger-summary::after {
+  transform: rotate(225deg) translateY(-1px);
+}
+.record-danger-content {
+  margin-top: 12px;
+}
+.record-danger-button {
+  margin-top: 10px;
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid rgba(165, 84, 71, 0.28);
+  border-radius: 8px;
+  background: rgba(165, 84, 71, 0.06);
+  color: #8f473c;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+.record-danger-button:hover,
+.record-danger-button:focus-visible {
+  outline: none;
+  border-color: rgba(165, 84, 71, 0.44);
+  background: rgba(165, 84, 71, 0.10);
+  color: #7f3c32;
+}
 .record-transfer-text-compact {
   margin-top: 0;
 }
