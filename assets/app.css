@@ -76,6 +76,7 @@
   --status-error-icon: #974f3d;
   --status-warning-icon: #8f6418;
   --spinner-track: rgba(23, 89, 74, 0.25);
+  --accordion-arrow: rgba(62, 53, 45, 0.78);
   --syntax-comment-color: #8ea2b3;
   --syntax-keyword-color: #8fd7c8;
   --syntax-string-color: #e2c681;
@@ -155,6 +156,7 @@ html[data-theme="dark"] {
   --status-muted-icon: #bcccca;
   --status-success-bg: rgba(25, 93, 69, 0.36);
   --spinner-track: rgba(102, 221, 209, 0.20);
+  --accordion-arrow: rgba(220, 236, 234, 0.92);
   --syntax-comment-color: #8192a0;
   --syntax-keyword-color: #72ddd0;
   --syntax-string-color: #e7c779;
@@ -559,8 +561,8 @@ button, input, select, textarea { font: inherit; }
   width: 8px;
   height: 8px;
   margin-left: 10px;
-  border-right: 2px solid rgba(62, 53, 45, 0.68);
-  border-bottom: 2px solid rgba(62, 53, 45, 0.68);
+  border-right: 2px solid var(--accordion-arrow);
+  border-bottom: 2px solid var(--accordion-arrow);
   transform: rotate(45deg) translateY(-1px);
   transition: transform 0.18s ease;
 }
@@ -1158,8 +1160,8 @@ button, input, select, textarea { font: inherit; }
   width: 10px;
   height: 10px;
   flex: 0 0 auto;
-  border-right: 2px solid rgba(62, 53, 45, 0.68);
-  border-bottom: 2px solid rgba(62, 53, 45, 0.68);
+  border-right: 2px solid var(--accordion-arrow);
+  border-bottom: 2px solid var(--accordion-arrow);
   transform: rotate(45deg);
   transition: transform 0.18s ease;
 }
@@ -1240,8 +1242,8 @@ button, input, select, textarea { font: inherit; }
   width: 8px;
   height: 8px;
   margin-left: 10px;
-  border-right: 2px solid rgba(62, 53, 45, 0.68);
-  border-bottom: 2px solid rgba(62, 53, 45, 0.68);
+  border-right: 2px solid var(--accordion-arrow);
+  border-bottom: 2px solid var(--accordion-arrow);
   transform: rotate(45deg) translateY(-1px);
   transition: transform 0.18s ease;
 }
