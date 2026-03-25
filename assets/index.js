@@ -206,17 +206,21 @@ function renderProblemCard(problem) {
       </a>
     </div>
     <div class="problem-card-actions">
-      <span class="meta-slot meta-slot-lecture">${renderLectureBadge(problem.lecture)}</span>
-      <span class="meta-slot meta-slot-difficulty">${renderDifficultyBadge(problem.difficulty)}</span>
-      ${renderSolvedToggle(problem)}
-      <label class="field select-inline compact-select">
-        <span class="sr-only">理解度</span>
-        <span class="understanding-select-wrap${understandingAnimationClass}">
-          <span class="understanding-marker ${getUnderstandingMarkerClass(understandingValue)}" aria-hidden="true"></span>
-          <span class="understanding-mobile-label">${escapeHtml(getUnderstandingDisplayLabel(understandingValue))}</span>
-          <select class="understanding-select" aria-label="理解度"></select>
-        </span>
-      </label>
+      <div class="problem-card-meta-group">
+        <span class="meta-slot meta-slot-lecture">${renderLectureBadge(problem.lecture)}</span>
+        <span class="meta-slot meta-slot-difficulty">${renderDifficultyBadge(problem.difficulty)}</span>
+      </div>
+      <div class="problem-card-state-group">
+        ${renderSolvedToggle(problem)}
+        <label class="field select-inline compact-select">
+          <span class="sr-only">理解度</span>
+          <span class="understanding-select-wrap${understandingAnimationClass}">
+            <span class="understanding-marker ${getUnderstandingMarkerClass(understandingValue)}" aria-hidden="true"></span>
+            <span class="understanding-mobile-label">${escapeHtml(getUnderstandingDisplayLabel(understandingValue))}</span>
+            <select class="understanding-select" aria-label="理解度"></select>
+          </span>
+        </label>
+      </div>
     </div>
   `;
 

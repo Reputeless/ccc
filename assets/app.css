@@ -409,14 +409,8 @@ button, input, select, textarea { font: inherit; }
   position: sticky;
   top: 18px;
 }
-.filter-panel {
-  background: var(--surface-filter-panel);
-  border-color: var(--border-panel-accent);
-}
-.record-panel {
-  background: var(--surface-filter-panel);
-  border-color: var(--border-panel-accent);
-}
+.filter-panel,
+.record-panel,
 .appearance-panel {
   background: var(--surface-filter-panel);
   border-color: var(--border-panel-accent);
@@ -440,9 +434,16 @@ button, input, select, textarea { font: inherit; }
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
+.lecture-range-label,
+.range-separator {
+  display: none;
+}
 .field, .field-group, .checkbox-field { display: flex; flex-direction: column; gap: 8px; }
 .field span, .field-group legend { font-weight: 600; }
-.field-group legend { margin-bottom: 4px; }
+.field-group legend {
+  margin-bottom: 4px;
+  padding: 0;
+}
 .field input, .field select, .code-editor {
   width: 100%;
   border: 1px solid var(--border-field);
@@ -803,11 +804,23 @@ button, input, select, textarea { font: inherit; }
 }
 .problem-card-actions {
   display: grid;
-  grid-template-columns: 96px 72px 40px minmax(118px, 138px);
+  grid-template-columns: auto auto;
   gap: 10px;
   align-items: center;
   justify-self: end;
   align-self: center;
+}
+.problem-card-meta-group {
+  display: grid;
+  grid-template-columns: 96px 72px;
+  gap: 10px;
+  align-items: center;
+}
+.problem-card-state-group {
+  display: grid;
+  grid-template-columns: 40px minmax(118px, 138px);
+  gap: 10px;
+  align-items: center;
 }
 .meta-slot {
   min-height: 38px;
@@ -1390,6 +1403,7 @@ button, input, select, textarea { font: inherit; }
   100% { transform: scale(1); }
 }
 @media (max-width: 1080px) {
+  /* On smaller screens, treat the sidebar panels as a linear stack. */
   .dashboard-layout {
     display: flex;
     flex-direction: column;
@@ -1434,42 +1448,55 @@ button, input, select, textarea { font: inherit; }
     align-content: start;
   }
   .problem-card-actions {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    justify-self: stretch;
+    align-items: center;
+  }
+  .problem-card-meta-group {
     display: flex;
     flex-wrap: wrap;
     gap: 8px 10px;
-    justify-self: stretch;
-    justify-content: flex-start;
     align-items: center;
+  }
+  .problem-card-state-group {
+    grid-template-columns: 40px minmax(118px, 138px);
+    justify-content: end;
+    justify-items: end;
   }
   .meta-slot {
     justify-content: flex-start;
     min-height: 34px;
     flex: 0 0 auto;
   }
-  .problem-card-actions .solved-toggle {
-    flex: 0 0 auto;
-  }
-  .problem-card-actions .field.select-inline {
-    flex: 1 1 220px;
+  .problem-card-state-group .field.select-inline {
     min-width: 0;
+    align-self: center;
   }
-  .understanding-select-wrap { justify-content: flex-start; width: 100%; }
+  .problem-card-state-group .understanding-select-wrap { justify-content: flex-start; width: 100%; }
   .panel-heading, .problem-header { flex-direction: column; }
   .hero-card { padding: 24px 22px; }
 }
 @media (max-width: 640px) {
-  .site-header { padding-inline: 14px; }
+  .site-header { padding-inline: 0; }
+  .site-header-inner,
   .content-stack { width: min(1360px, calc(100% - 16px)); }
   .panel { padding: 16px; }
   .hero-card h1 { font-size: 1.85rem; }
   .hero-card:not(.hero-card-compact) {
     padding: 18px 18px;
+    box-shadow:
+      0 10px 24px rgba(0, 0, 0, 0.24),
+      inset 3px 0 0 rgba(0, 195, 172, 0.42),
+      inset 0 1px 0 rgba(0, 195, 172, 0.14);
   }
-  .hero-card:not(.hero-card-compact) h1 {
-    margin-bottom: 6px;
-  }
+  .hero-card:not(.hero-card-compact) .eyebrow,
   .hero-card:not(.hero-card-compact) .page-lead {
-    line-height: 1.35;
+    display: none;
+  }
+  /* Mobile hero is intentionally minimal so the list appears earlier. */
+  .hero-card:not(.hero-card-compact) h1 {
+    margin: 0;
   }
   .panel-heading {
     gap: 10px;
@@ -1477,15 +1504,54 @@ button, input, select, textarea { font: inherit; }
   .panel-heading h2 {
     margin: 0;
   }
+  .filter-panel .panel-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px 12px;
+    margin-bottom: 10px;
+  }
+  .filter-panel .panel-heading .secondary-button {
+    align-self: start;
+    white-space: nowrap;
+  }
   .section-kicker {
     margin-bottom: 4px;
   }
   .filter-grid {
     gap: 12px;
   }
-  .filter-inline-row { grid-template-columns: 1fr; }
+  .filter-inline-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lecture-range-row {
+    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 10px;
+  }
+  .lecture-range-label,
+  .range-separator {
+    display: inline;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .lecture-range-row .field {
+    gap: 0;
+  }
+  .lecture-range-row .field span {
+    display: none;
+  }
   .field span {
     margin-bottom: 4px;
+  }
+  .field-inline-mobile {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 0;
+  }
+  .field-inline-mobile span {
+    margin-bottom: 0;
+    white-space: nowrap;
   }
   .field input,
   .field select {
@@ -1498,6 +1564,21 @@ button, input, select, textarea { font: inherit; }
   }
   .field-group legend {
     margin-bottom: 8px;
+  }
+  .field-group-inline-mobile {
+    display: flow-root;
+    margin-top: 10px;
+  }
+  .field-group-inline-mobile legend {
+    float: left;
+    margin: 8px 12px 0 0;
+    white-space: nowrap;
+    padding: 0;
+  }
+  .field-group-inline-mobile .chip-row {
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
   }
   .chip-row {
     gap: 8px;
@@ -1524,25 +1605,60 @@ button, input, select, textarea { font: inherit; }
     padding: 6px 10px;
     font-size: 0.88rem;
   }
+  .problem-card .meta-filter-trigger {
+    pointer-events: none;
+    cursor: default;
+  }
   .compact-select select {
     min-height: 36px;
     padding-top: 7px;
     padding-bottom: 7px;
   }
-  .problem-card-actions .field.select-inline {
-    flex-basis: auto;
+  .problem-card-state-group {
+    grid-template-columns: 40px 88px;
+    column-gap: 8px;
+    align-items: center;
+    justify-items: end;
   }
-  .problem-card-actions .field.select-inline.compact-select {
-    margin-left: auto;
+  .problem-card-state-group .field.select-inline.compact-select {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: 88px;
+    margin: 0;
   }
-  .problem-card-actions .field.select-inline.compact-select .understanding-select {
+  .problem-card-state-group .field.select-inline.compact-select .understanding-select {
     display: none;
   }
-  .problem-card-actions .field.select-inline.compact-select .understanding-mobile-label {
+  .problem-card-state-group .field.select-inline.compact-select .understanding-mobile-label {
+    display: inline;
+    line-height: 1;
+  }
+  .problem-card-state-group .field.select-inline.compact-select .understanding-select-wrap {
+    width: 100%;
+    min-height: 34px;
+    gap: 8px;
+    justify-content: flex-end;
+    transform: translateY(4px);
+  }
+}
+@media (max-width: 360px) {
+  .filter-inline-row { grid-template-columns: 1fr; }
+  .lecture-range-row {
+    grid-template-columns: 1fr;
+    row-gap: 8px;
+  }
+  .lecture-range-label {
     display: inline;
   }
-  .problem-card-actions .field.select-inline.compact-select .understanding-select-wrap {
-    width: auto;
+  .lecture-range-row .field {
     gap: 8px;
+  }
+  .lecture-range-row .field span {
+    display: inline;
+    margin-bottom: 4px;
+  }
+  .range-separator {
+    display: none;
   }
 }

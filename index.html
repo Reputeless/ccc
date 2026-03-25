@@ -36,17 +36,19 @@
           </div>
 
           <div class="filter-grid">
-            <div class="filter-inline-row">
+            <div class="filter-inline-row lecture-range-row">
+              <span class="lecture-range-label">講義回</span>
               <label class="field">
                 <span>講義回の下限</span>
                 <input id="lecture-min" type="number" min="1" inputmode="numeric">
               </label>
+              <span class="range-separator" aria-hidden="true">～</span>
               <label class="field">
                 <span>講義回の上限</span>
                 <input id="lecture-max" type="number" min="1" inputmode="numeric">
               </label>
             </div>
-            <label class="field">
+            <label class="field field-inline-mobile">
               <span>解いた状態</span>
               <select id="solved-filter">
                 <option value="all">すべて表示</option>
@@ -54,13 +56,13 @@
                 <option value="unsolved">解いていない問題だけを表示</option>
               </select>
             </label>
-            <label class="field">
+            <label class="field field-inline-mobile">
               <span>理解度</span>
               <select id="understanding-filter">
                 <option value="all">すべて</option>
               </select>
             </label>
-            <label class="field field-wide">
+            <label class="field field-wide field-inline-mobile">
               <span>並び順</span>
               <select id="sort-order">
                 <option value="lectureAsc">講義回が小さい順</option>
@@ -73,7 +75,7 @@
             </label>
           </div>
 
-          <fieldset class="field-group">
+          <fieldset class="field-group field-group-inline-mobile">
             <legend>難易度</legend>
             <div id="difficulty-options" class="chip-row"></div>
           </fieldset>
