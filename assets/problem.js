@@ -316,7 +316,7 @@ function setupEditor() {
       return;
     }
 
-    if (event.key === "Enter" && !event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
+    if (event.key === "Enter" && !event.altKey && !event.ctrlKey && !event.metaKey) {
       event.preventDefault();
       handleEditorEnterKey(editor);
       setStoredCode(currentProblem.id, editor.value);
@@ -430,16 +430,24 @@ function handleEditorEnterKey(editor) {
   const currentLineStart = findLineStart(editor.value, start);
   const currentLine = editor.value.slice(currentLineStart, start);
   const indent = currentLine.match(/^[\t ]*/)?.[0] ?? "";
+  const nextIndent = shouldIncreaseIndentAfterEnter(currentLine)
+    ? `${indent}\t`
+    : indent;
 
   applyEditorEdit(
     editor,
     start,
     end,
-    `\n${indent}`,
-    start + 1 + indent.length,
-    start + 1 + indent.length,
+    `\n${nextIndent}`,
+    start + 1 + nextIndent.length,
+    start + 1 + nextIndent.length,
     "insertLineBreak"
   );
+}
+
+function shouldIncreaseIndentAfterEnter(currentLine) {
+  const codePortion = currentLine.replace(/\/\/.*$/, "").trimEnd();
+  return codePortion.endsWith("{");
 }
 
 function applyEditorEdit(editor, replaceStart, replaceEnd, replacement, nextSelectionStart, nextSelectionEnd, inputType = "indentationChange") {
