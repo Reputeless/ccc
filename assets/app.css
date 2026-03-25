@@ -609,9 +609,9 @@ button, input, select, textarea { font: inherit; }
   right: 8px;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--copy-button-border, rgba(255, 248, 240, 0.20));
+  border: 1px solid var(--copy-button-border, rgba(223, 229, 236, 0.20));
   border-radius: 6px;
-  background: var(--copy-button-bg, rgba(255, 248, 240, 0.08));
+  background: var(--copy-button-bg, rgba(223, 229, 236, 0.08));
   color: transparent;
   cursor: pointer;
   transition: background-color 0.18s ease, border-color 0.18s ease;
@@ -622,7 +622,7 @@ button, input, select, textarea { font: inherit; }
   width: 14px;
   height: 14px;
   margin: auto;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23cfc4b7' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='3' width='8' height='10' rx='1.5'/%3E%3Cpath d='M3 10.5V5.5C3 4.67 3.67 4 4.5 4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23b9c2cb' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='3' width='8' height='10' rx='1.5'/%3E%3Cpath d='M3 10.5V5.5C3 4.67 3.67 4 4.5 4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: center;
   background-size: 14px 14px;
@@ -630,8 +630,8 @@ button, input, select, textarea { font: inherit; }
 .copy-code-button:hover,
 .copy-code-button:focus-visible {
   outline: none;
-  border-color: var(--copy-button-hover-border, rgba(255, 248, 240, 0.42));
-  background: var(--copy-button-hover-bg, rgba(255, 248, 240, 0.18));
+  border-color: var(--copy-button-hover-border, rgba(223, 229, 236, 0.42));
+  background: var(--copy-button-hover-bg, rgba(223, 229, 236, 0.18));
 }
 .copy-code-button.is-copied {
   border-color: var(--copy-button-copied-border, rgba(153, 230, 196, 0.48));
@@ -771,10 +771,38 @@ button, input, select, textarea { font: inherit; }
 .example-card {
   border: 1px solid var(--example-card-border);
   border-radius: 12px;
-  padding: 16px;
   background: var(--surface-example-card);
+  overflow: hidden;
 }
-.example-header { margin: 0 0 12px; font-size: 1rem; }
+.example-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+  background: rgba(122, 132, 148, 0.08);
+  border-bottom: 1px solid rgba(122, 132, 148, 0.12);
+}
+.example-header::-webkit-details-marker { display: none; }
+.example-header::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border-right: 2px solid rgba(62, 53, 45, 0.68);
+  border-bottom: 2px solid rgba(62, 53, 45, 0.68);
+  transform: rotate(45deg);
+  transition: transform 0.18s ease;
+}
+.example-accordion:not([open]) .example-header::after {
+  transform: rotate(-45deg) translateY(-1px);
+}
+.example-content { padding: 16px; }
 .example-grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
 .example-block h4 { margin: 0 0 8px; }
 .editor-panel {
@@ -983,7 +1011,6 @@ button, input, select, textarea { font: inherit; }
 }
 .back-link, .primary-link { font-weight: 600; text-decoration: none; }
 .error-panel { text-align: center; }
-details.long-example summary { cursor: pointer; font-weight: 600; margin-bottom: 10px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes solved-pop {
   0% { transform: scale(0.92); }

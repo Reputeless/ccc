@@ -153,29 +153,27 @@ function renderExamples() {
   const list = document.getElementById("examples-list");
   list.innerHTML = "";
 
-  currentProblem.examples.forEach((example, index) => {
-    const card = document.createElement("article");
-    card.className = "example-card";
+  currentProblem.examples.forEach((example) => {
+    const card = document.createElement("details");
+    card.className = "example-card example-accordion";
+    card.open = true;
 
-    const inputBlock = renderExampleBlock("入力", example.stdin);
-    const outputBlock = renderExampleBlock("出力", example.stdout);
-    const longExample = Math.max(lineCount(example.stdin), lineCount(example.stdout)) >= appConfig.longExampleLineThreshold;
+    const header = document.createElement("summary");
+    header.className = "example-header";
+    header.innerHTML = `<span>例 ${escapeHtml(example.name)}</span>`;
 
-    if (longExample) {
-      card.innerHTML = `<details class="long-example" ${index === 0 ? "open" : ""}><summary>例 ${escapeHtml(example.name)}</summary></details>`;
-      const details = card.querySelector("details");
-      const wrapper = document.createElement("div");
-      wrapper.className = "example-grid";
-      wrapper.append(inputBlock, outputBlock);
-      details.appendChild(wrapper);
-    } else {
-      card.innerHTML = `<h3 class="example-header">例 ${escapeHtml(example.name)}</h3>`;
-      const wrapper = document.createElement("div");
-      wrapper.className = "example-grid";
-      wrapper.append(inputBlock, outputBlock);
-      card.appendChild(wrapper);
-    }
+    const wrapper = document.createElement("div");
+    wrapper.className = "example-content";
 
+    const grid = document.createElement("div");
+    grid.className = "example-grid";
+    grid.append(
+      renderExampleBlock("入力", example.stdin),
+      renderExampleBlock("出力", example.stdout)
+    );
+    wrapper.appendChild(grid);
+
+    card.append(header, wrapper);
     list.appendChild(card);
   });
 }
