@@ -1480,6 +1480,18 @@ button, input, select, textarea { font: inherit; }
   }
   .problem-card-state-group .understanding-select-wrap { justify-content: flex-start; width: 100%; }
   .panel-heading, .problem-header { flex-direction: column; }
+  .filter-panel .panel-heading,
+  .list-panel .panel-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 8px 12px;
+  }
+  .filter-panel .panel-heading .secondary-button,
+  .list-panel #problem-count {
+    align-self: start;
+    white-space: nowrap;
+  }
   .hero-card { padding: 24px 22px; }
 }
 @media (max-width: 640px) {
