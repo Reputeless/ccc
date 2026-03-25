@@ -29,8 +29,7 @@ function ccc_validate_problem_set(?array $config = null): array
 
 function ccc_validate_problem_directory(string $directory, array $config): array
 {
-    $problemDir = CCC_PROBLEMS_DIR . DIRECTORY_SEPARATOR . $directory;
-    $manifestPath = $problemDir . DIRECTORY_SEPARATOR . 'problem.json';
+    $manifestPath = ccc_problem_manifest_path($directory);
     $row = ccc_create_problem_validation_row($directory);
 
     if (!is_file($manifestPath)) {
@@ -38,15 +37,20 @@ function ccc_validate_problem_directory(string $directory, array $config): array
         return $row;
     }
 
-    $raw = file_get_contents($manifestPath);
-    $decoded = json_decode($raw ?: '', true);
-    if (!is_array($decoded)) {
+    try {
+        $decoded = ccc_read_problem_manifest_json($directory);
+    } catch (Throwable) {
         $row['errors'][] = 'problem.json が正しい JSON ではありません。';
         return $row;
     }
 
+    if (!is_array($decoded)) {
+        $row['errors'][] = 'problem.json がありません。';
+        return $row;
+    }
+
     ccc_fill_problem_validation_row($row, $decoded);
-    ccc_validate_problem_manifest_fields($row, $decoded, $problemDir, $config);
+    ccc_validate_problem_manifest_fields($row, $decoded, $config);
 
     if (($row['id'] ?? '') !== '' && $row['id'] !== $directory) {
         $row['warnings'][] = 'フォルダ名と id が一致していません。';
@@ -92,7 +96,7 @@ function ccc_fill_problem_validation_row(array &$row, array $decoded): void
     }
 }
 
-function ccc_validate_problem_manifest_fields(array &$row, array $decoded, string $problemDir, array $config): void
+function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array $config): void
 {
     if ($row['id'] === '') {
         $row['errors'][] = 'id がありません。';
@@ -154,8 +158,8 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, strin
                 continue;
             }
 
-            $inputPath = $problemDir . DIRECTORY_SEPARATOR . $name . '.in.txt';
-            $outputPath = $problemDir . DIRECTORY_SEPARATOR . $name . '.out.txt';
+            $inputPath = ccc_problem_example_input_path($row['directory'], $name);
+            $outputPath = ccc_problem_example_output_path($row['directory'], $name);
 
             if (!is_file($inputPath)) {
                 $row['errors'][] = $name . '.in.txt がありません。';
@@ -166,7 +170,7 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, strin
         }
     }
 
-    $bodyPath = $problemDir . DIRECTORY_SEPARATOR . 'body.md';
+    $bodyPath = ccc_problem_body_path($row['directory']);
     if (!is_file($bodyPath)) {
         $row['errors'][] = 'body.md がありません。';
     }

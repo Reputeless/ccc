@@ -7,6 +7,7 @@ define('CCC_PROBLEMS_DIR', CCC_ROOT . DIRECTORY_SEPARATOR . 'problems');
 
 require_once __DIR__ . '/lib/response.php';
 require_once __DIR__ . '/lib/config_loader.php';
+require_once __DIR__ . '/lib/problem_manifest.php';
 require_once __DIR__ . '/lib/problem_loader.php';
 require_once __DIR__ . '/lib/problem_validator.php';
 require_once __DIR__ . '/lib/markdown_renderer.php';

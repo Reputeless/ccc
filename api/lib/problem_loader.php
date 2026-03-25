@@ -126,20 +126,9 @@ function ccc_problem_directories(): array
 
 function ccc_load_problem_manifest(string $problemId): ?array
 {
-    if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $problemId)) {
-        throw new InvalidArgumentException('Invalid problem id format.');
-    }
-
-    $problemDir = CCC_PROBLEMS_DIR . DIRECTORY_SEPARATOR . $problemId;
-    $manifestPath = $problemDir . DIRECTORY_SEPARATOR . 'problem.json';
-    if (!is_file($manifestPath)) {
+    $decoded = ccc_read_problem_manifest_json($problemId);
+    if ($decoded === null) {
         return null;
-    }
-
-    $raw = file_get_contents($manifestPath);
-    $decoded = json_decode($raw ?: '', true);
-    if (!is_array($decoded)) {
-        throw new RuntimeException($problemId . '/problem.json is not valid JSON.');
     }
 
     $id = isset($decoded['id']) ? trim((string) $decoded['id']) : '';
@@ -147,11 +136,25 @@ function ccc_load_problem_manifest(string $problemId): ?array
     $title = isset($decoded['title']) ? trim((string) $decoded['title']) : '';
     $examples = $decoded['examples'] ?? null;
 
-    if ($id === '' || $title === '') {
-        throw new RuntimeException($problemId . '/problem.json requires id and title.');
+    if ($id === '') {
+        throw new RuntimeException($problemId . '/problem.json requires id.');
+    }
+    if ($number === null || $number === '') {
+        throw new RuntimeException($problemId . '/problem.json requires number.');
+    }
+    if ($title === '') {
+        throw new RuntimeException($problemId . '/problem.json requires title.');
     }
     if (!is_array($examples) || count($examples) < 1 || count($examples) > 6) {
         throw new RuntimeException($problemId . '/problem.json requires 1 to 6 examples.');
+    }
+
+    $exampleNames = array_map(static fn ($item): string => trim((string) $item), $examples);
+    if (in_array('', $exampleNames, true)) {
+        throw new RuntimeException($problemId . '/problem.json contains an empty example name.');
+    }
+    if (count($exampleNames) !== count(array_unique($exampleNames))) {
+        throw new RuntimeException($problemId . '/problem.json contains duplicate example names.');
     }
 
     $lecture = array_key_exists('lecture', $decoded) ? ccc_optional_int($decoded['lecture'], 'lecture') : null;
@@ -173,14 +176,13 @@ function ccc_load_problem_manifest(string $problemId): ?array
 
     return [
         'id' => $id,
-        'number' => $number === '' ? null : $number,
+        'number' => $number,
         'title' => $title,
         'lecture' => $lecture,
         'difficulty' => $difficulty,
         'publishedAt' => $publishedAt,
         'profileId' => $profileId,
-        'examples' => array_map(static fn ($item) => trim((string) $item), $examples),
-        '_dir' => $problemDir,
+        'examples' => $exampleNames,
     ];
 }
 
@@ -207,7 +209,7 @@ function ccc_problem_is_published(array $manifest): bool
 
 function ccc_load_problem_body(array $manifest): string
 {
-    $bodyPath = $manifest['_dir'] . DIRECTORY_SEPARATOR . 'body.md';
+    $bodyPath = ccc_problem_body_path($manifest['id']);
     if (!is_file($bodyPath)) {
         throw new RuntimeException($manifest['id'] . '/body.md is missing.');
     }
@@ -228,8 +230,8 @@ function ccc_load_problem_examples(array $manifest): array
             throw new RuntimeException($manifest['id'] . '/problem.json contains an empty example name.');
         }
 
-        $inputPath = $manifest['_dir'] . DIRECTORY_SEPARATOR . $name . '.in.txt';
-        $outputPath = $manifest['_dir'] . DIRECTORY_SEPARATOR . $name . '.out.txt';
+        $inputPath = ccc_problem_example_input_path($manifest['id'], $name);
+        $outputPath = ccc_problem_example_output_path($manifest['id'], $name);
         if (!is_file($inputPath) || !is_file($outputPath)) {
             throw new RuntimeException($manifest['id'] . ' example files are missing for "' . $name . '".');
         }

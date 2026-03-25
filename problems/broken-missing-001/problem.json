@@ -1,0 +1,6 @@
+{
+  "id": "broken-missing-001",
+  "title": "不足ファイルのテスト",
+  "profileId": "unknown-profile",
+  "examples": ["01", "02"]
+}
