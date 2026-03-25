@@ -378,6 +378,10 @@ button, input, select, textarea { font: inherit; }
   background: var(--surface-filter-panel);
   border-color: var(--border-panel-accent);
 }
+.appearance-panel {
+  background: var(--surface-filter-panel);
+  border-color: var(--border-panel-accent);
+}
 .list-panel { min-height: 60vh; background: var(--surface-list-panel); }
 .panel-heading, .problem-header { display: flex; gap: 16px; justify-content: space-between; align-items: start; }
 .panel-heading-compact { margin-bottom: 2px; }

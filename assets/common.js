@@ -17,6 +17,9 @@
   };
   const FILTER_STORAGE_KEY = "ccc:v1:listFilters";
   const LAST_OPENED_PROBLEM_KEY = "ccc:v1:lastOpenedProblem";
+  const THEME_STORAGE_KEY = "ccc:v1:theme";
+  let themeMediaQuery = null;
+  let themeMediaQueryListenerBound = false;
 
   function storageKey(kind, problemId) {
     return `ccc:v1:${kind}:${problemId}`;
@@ -68,6 +71,50 @@
 
   function writeListFilters(filters) {
     localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
+  }
+
+  function normalizeThemePreference(value) {
+    return value === "light" || value === "dark" || value === "system" ? value : "system";
+  }
+
+  function getThemePreference() {
+    return normalizeThemePreference(localStorage.getItem(THEME_STORAGE_KEY) ?? "system");
+  }
+
+  function setThemePreference(value) {
+    localStorage.setItem(THEME_STORAGE_KEY, normalizeThemePreference(value));
+  }
+
+  function resolveThemePreference(value) {
+    const preference = normalizeThemePreference(value);
+    if (preference === "light" || preference === "dark") {
+      return preference;
+    }
+
+    if (typeof global.matchMedia === "function") {
+      return global.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    return "light";
+  }
+
+  function applyThemePreference(value = getThemePreference()) {
+    const resolvedTheme = resolveThemePreference(value);
+    document.documentElement.dataset.theme = resolvedTheme;
+  }
+
+  function bindThemePreferenceListener() {
+    if (themeMediaQueryListenerBound || typeof global.matchMedia !== "function") {
+      return;
+    }
+
+    themeMediaQuery = global.matchMedia("(prefers-color-scheme: dark)");
+    themeMediaQuery.addEventListener("change", () => {
+      if (getThemePreference() === "system") {
+        applyThemePreference("system");
+      }
+    });
+    themeMediaQueryListenerBound = true;
   }
 
   function getLastOpenedProblemId() {
@@ -209,11 +256,16 @@
     DEFAULT_CONFIG,
     FILTER_STORAGE_KEY,
     LAST_OPENED_PROBLEM_KEY,
+    THEME_STORAGE_KEY,
     fetchConfig,
     populateLabelSelect,
     normalizeSortOrder,
     readListFilters,
     writeListFilters,
+    getThemePreference,
+    setThemePreference,
+    applyThemePreference,
+    bindThemePreferenceListener,
     getLastOpenedProblemId,
     setLastOpenedProblemId,
     applyListQuickFilter,

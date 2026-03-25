@@ -3,6 +3,8 @@ const {
   fetchConfig,
   populateLabelSelect,
   applyListQuickFilter,
+  applyThemePreference,
+  bindThemePreferenceListener,
   getDifficultyLabel,
   formatLectureLabel,
   getUnderstandingMarkerClass,
@@ -49,6 +51,9 @@ const editorHistory = {
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
+  applyThemePreference();
+  bindThemePreferenceListener();
+
   const problemId = new URLSearchParams(window.location.search).get("id");
   if (!problemId) {
     showProblemError(ERROR_MESSAGES.problemUnavailable);

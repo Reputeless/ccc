@@ -7,6 +7,10 @@ const {
   populateLabelSelect,
   normalizeSortOrder,
   applyListQuickFilter,
+  getThemePreference,
+  setThemePreference,
+  applyThemePreference,
+  bindThemePreferenceListener,
   getLastOpenedProblemId,
   getDifficultyLabel,
   formatLectureLabel,
@@ -29,6 +33,8 @@ let animatedUnderstandingProblemId = null;
 document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("pagehide", saveScrollPosition);
   document.getElementById("reset-filters").addEventListener("click", resetFilters);
+  applyThemePreference();
+  bindThemePreferenceListener();
 
   try {
     appConfig = await fetchConfig();
@@ -65,6 +71,7 @@ function setupStaticControls() {
   populateDifficultyOptions();
   restoreFilterState();
   setupRecordTransferControls();
+  setupAppearanceControls();
 
   [
     document.getElementById("lecture-min"),
@@ -75,6 +82,19 @@ function setupStaticControls() {
   ].forEach((element) => element.addEventListener("input", onFilterChanged));
 
   document.getElementById("difficulty-options").addEventListener("change", onFilterChanged);
+}
+
+function setupAppearanceControls() {
+  const select = document.getElementById("theme-preference");
+  if (!select) {
+    return;
+  }
+
+  select.value = getThemePreference();
+  select.addEventListener("change", () => {
+    setThemePreference(select.value);
+    applyThemePreference(select.value);
+  });
 }
 
 function setupRecordTransferControls() {
