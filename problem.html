@@ -4,17 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CCC Problem</title>
-  <script>
-    (() => {
-      const key = "ccc:v1:theme";
-      const preference = localStorage.getItem(key);
-      const prefersDark = typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches;
-      const resolved = preference === "dark" || (preference !== "light" && prefersDark)
-        ? "dark"
-        : "light";
-      document.documentElement.dataset.theme = resolved;
-    })();
-  </script>
+  <script src="assets/theme-init.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
