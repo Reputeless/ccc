@@ -131,8 +131,14 @@
           <details class="record-danger">
             <summary class="record-danger-summary">記録の消去</summary>
             <div class="record-danger-content">
-              <p class="record-transfer-text">このブラウザに保存された解いた記録、理解度、コード入力内容、最後に開いた問題の記録を消去します。</p>
-              <button id="clear-learning-record" type="button" class="record-danger-button">学習記録を消去</button>
+              <div class="record-transfer-block">
+                <button id="clear-stored-code" type="button" class="record-danger-button">コード入力内容を消去</button>
+                <p class="record-transfer-text">このブラウザに保存されたコード入力内容だけを消去します。解いた記録と理解度は残ります。</p>
+              </div>
+              <div class="record-transfer-block">
+                <button id="clear-learning-progress" type="button" class="record-danger-button">解いた記録と理解度を消去</button>
+                <p class="record-transfer-text">このブラウザに保存された解いた記録と理解度だけを消去します。コード入力内容は残ります。</p>
+              </div>
             </div>
           </details>
 

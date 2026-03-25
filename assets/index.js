@@ -22,7 +22,8 @@ const {
   setManualSolved,
   getUnderstanding,
   setUnderstanding,
-  clearLearningRecord,
+  clearStoredCode,
+  clearLearningProgress,
   escapeHtml,
   renderGlobalFooter,
 } = window.CCC;
@@ -110,7 +111,8 @@ function setupRecordTransferControls() {
     document.getElementById("import-learning-record-file").click();
   });
   document.getElementById("import-learning-record-file").addEventListener("change", importLearningRecord);
-  document.getElementById("clear-learning-record").addEventListener("click", clearLearningRecordWithConfirmation);
+  document.getElementById("clear-stored-code").addEventListener("click", clearStoredCodeWithConfirmation);
+  document.getElementById("clear-learning-progress").addEventListener("click", clearLearningProgressWithConfirmation);
 }
 
 function populateUnderstandingFilter() {
@@ -430,9 +432,9 @@ function updateSidebarStickyState() {
   sidebar.classList.toggle("is-sticky", canUseSticky && fitsViewport);
 }
 
-function clearLearningRecordWithConfirmation() {
+function clearStoredCodeWithConfirmation() {
   const confirmed = window.confirm(
-    "このブラウザに保存された学習記録を消去します。\n解いた記録、理解度、コード入力内容、最後に開いた問題の記録が削除されます。\n\nよろしいですか？"
+    "このブラウザに保存されたコード入力内容を消去します。\n解いた記録と理解度は残ります。\n\nよろしいですか？"
   );
 
   if (!confirmed) {
@@ -440,10 +442,25 @@ function clearLearningRecordWithConfirmation() {
     return;
   }
 
-  clearLearningRecord(allProblems.map((problem) => problem.id));
+  clearStoredCode(allProblems.map((problem) => problem.id));
+  renderProblemList();
+  showRecordTransferStatus("コード入力内容を消去しました。");
+}
+
+function clearLearningProgressWithConfirmation() {
+  const confirmed = window.confirm(
+    "このブラウザに保存された解いた記録と理解度を消去します。\nコード入力内容と最後に開いた問題の記録は残ります。\n\nよろしいですか？"
+  );
+
+  if (!confirmed) {
+    showRecordTransferStatus("消去をキャンセルしました。");
+    return;
+  }
+
+  clearLearningProgress(allProblems.map((problem) => problem.id));
   renderRecordPanel();
   renderProblemList();
-  showRecordTransferStatus("学習記録を消去しました。");
+  showRecordTransferStatus("解いた記録と理解度を消去しました。");
 }
 
 function renderDifficultyBadge(difficulty) {

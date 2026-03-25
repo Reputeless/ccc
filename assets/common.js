@@ -244,15 +244,24 @@
     localStorage.setItem(storageKey("code", problemId), value);
   }
 
-  function clearLearningRecord(problemIds) {
-    localStorage.removeItem(LAST_OPENED_PROBLEM_KEY);
+  function clearStoredCode(problemIds) {
+    problemIds.forEach((problemId) => {
+      localStorage.removeItem(storageKey("code", problemId));
+    });
+  }
 
+  function clearLearningProgress(problemIds) {
     problemIds.forEach((problemId) => {
       localStorage.removeItem(storageKey("accepted", problemId));
       localStorage.removeItem(storageKey("manualSolved", problemId));
       localStorage.removeItem(storageKey("understanding", problemId));
-      localStorage.removeItem(storageKey("code", problemId));
     });
+  }
+
+  function clearLearningRecord(problemIds) {
+    localStorage.removeItem(LAST_OPENED_PROBLEM_KEY);
+    clearLearningProgress(problemIds);
+    clearStoredCode(problemIds);
   }
 
   function escapeHtml(value) {
@@ -300,6 +309,8 @@
     setUnderstanding,
     getStoredCode,
     setStoredCode,
+    clearStoredCode,
+    clearLearningProgress,
     clearLearningRecord,
     escapeHtml,
     renderGlobalFooter,
