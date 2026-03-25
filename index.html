@@ -114,15 +114,18 @@
 
           <div class="record-transfer-block">
             <h3 class="record-transfer-subtitle">学習記録のエクスポート</h3>
-            <button type="button" class="secondary-button record-transfer-button">学習記録のエクスポート</button>
+            <button id="export-learning-record" type="button" class="secondary-button record-transfer-button">学習記録のエクスポート</button>
             <p class="record-transfer-text">解いた記録と理解度をファイルに書き出し、別の PC やブラウザへ持ち運べます。</p>
           </div>
 
           <div class="record-transfer-block">
             <h3 class="record-transfer-subtitle">学習記録のインポート</h3>
-            <button type="button" class="secondary-button record-transfer-button">学習記録のインポート</button>
+            <button id="import-learning-record" type="button" class="secondary-button record-transfer-button">学習記録のインポート</button>
             <p class="record-transfer-text">書き出した学習記録ファイルを読み込み、現在の記録に追加できます。</p>
           </div>
+
+          <div id="record-transfer-status" class="record-transfer-status" aria-live="polite" hidden></div>
+          <input id="import-learning-record-file" type="file" accept="application/json,.json" hidden>
         </section>
       </div>
 

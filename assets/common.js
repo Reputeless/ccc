@@ -2,6 +2,8 @@
   const DEFAULT_CONFIG = {
     appName: "CCC",
     appSubtitle: "C プログラミングの自習と理解度確認のための演習環境です。",
+    courseId: "ccc-demo",
+    courseLabel: "CCC Demo Course",
     copyrightNotice: "© CCC",
     difficultyLabels: ["基礎", "中級", "発展"],
     understandingLabels: ["要復習", "ふつう", "自信あり"],

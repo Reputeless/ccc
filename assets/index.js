@@ -63,6 +63,7 @@ function setupStaticControls() {
   populateUnderstandingFilter();
   populateDifficultyOptions();
   restoreFilterState();
+  setupRecordTransferControls();
 
   [
     document.getElementById("lecture-min"),
@@ -73,6 +74,14 @@ function setupStaticControls() {
   ].forEach((element) => element.addEventListener("input", onFilterChanged));
 
   document.getElementById("difficulty-options").addEventListener("change", onFilterChanged);
+}
+
+function setupRecordTransferControls() {
+  document.getElementById("export-learning-record").addEventListener("click", exportLearningRecord);
+  document.getElementById("import-learning-record").addEventListener("click", () => {
+    document.getElementById("import-learning-record-file").click();
+  });
+  document.getElementById("import-learning-record-file").addEventListener("change", importLearningRecord);
 }
 
 function populateUnderstandingFilter() {
@@ -208,6 +217,158 @@ function renderRecordPanel() {
       <span class="record-problem-title">${escapeHtml(problem.title)}</span>
     </a>
   `;
+}
+
+function exportLearningRecord() {
+  const payload = {
+    app: appConfig.appName,
+    kind: "learning-record",
+    version: 1,
+    courseId: appConfig.courseId,
+    courseLabel: appConfig.courseLabel,
+    exportedAt: new Date().toISOString(),
+    records: buildLearningRecordExport(),
+  };
+
+  const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = buildLearningRecordFilename();
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+
+  showRecordTransferStatus("学習記録を書き出しました。");
+}
+
+function buildLearningRecordExport() {
+  const records = {};
+
+  allProblems.forEach((problem) => {
+    const entry = {};
+    if (isProblemSolved(problem.id)) {
+      entry.solved = true;
+    }
+
+    const understanding = getUnderstanding(problem.id);
+    if (understanding !== "") {
+      entry.understanding = understanding;
+    }
+
+    if (Object.keys(entry).length > 0) {
+      records[problem.id] = entry;
+    }
+  });
+
+  return records;
+}
+
+function buildLearningRecordFilename() {
+  const date = new Date();
+  const yyyy = String(date.getFullYear());
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const safeCourseId = String(appConfig.courseId ?? "ccc").replace(/[^a-zA-Z0-9_-]+/g, "-");
+  return `ccc-learning-record-${safeCourseId}-${yyyy}-${mm}-${dd}.json`;
+}
+
+async function importLearningRecord(event) {
+  const input = event.currentTarget;
+  const file = input.files?.[0];
+  if (!file) {
+    return;
+  }
+
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    const validationError = validateLearningRecordImport(payload);
+    if (validationError) {
+      showRecordTransferStatus(validationError, true);
+      return;
+    }
+
+    if (shouldConfirmCourseMismatch(payload)) {
+      const confirmed = window.confirm(
+        `このファイルは別の講義用に書き出された可能性があります。\n現在: ${appConfig.courseLabel}\nファイル: ${payload.courseLabel ?? payload.courseId}\n\n読み込みを続けますか？`
+      );
+      if (!confirmed) {
+        showRecordTransferStatus("インポートをキャンセルしました。");
+        return;
+      }
+    }
+
+    const importedCount = applyLearningRecordImport(payload.records);
+    renderRecordPanel();
+    renderProblemList();
+    showRecordTransferStatus(`学習記録を読み込みました。${importedCount} 件を反映しました。`);
+  } catch {
+    showRecordTransferStatus("学習記録ファイルの読み込みに失敗しました。JSON 形式を確認してください。", true);
+  } finally {
+    input.value = "";
+  }
+}
+
+function validateLearningRecordImport(payload) {
+  if (!payload || typeof payload !== "object") {
+    return "学習記録ファイルの形式が正しくありません。";
+  }
+  if (payload.kind !== "learning-record" || payload.version !== 1) {
+    return "学習記録ファイルの形式が正しくありません。";
+  }
+  if (!payload.records || typeof payload.records !== "object" || Array.isArray(payload.records)) {
+    return "学習記録ファイルの records が正しくありません。";
+  }
+  return "";
+}
+
+function shouldConfirmCourseMismatch(payload) {
+  if (!payload.courseId || !appConfig.courseId) {
+    return false;
+  }
+  return payload.courseId !== appConfig.courseId;
+}
+
+function applyLearningRecordImport(records) {
+  let count = 0;
+
+  Object.entries(records).forEach(([problemId, entry]) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      return;
+    }
+
+    let changed = false;
+
+    if (entry.solved === true) {
+      const wasSolved = isProblemSolved(problemId);
+      setManualSolved(problemId, true);
+      if (!wasSolved) {
+        changed = true;
+      }
+    }
+
+    if (entry.understanding === "1" || entry.understanding === "2" || entry.understanding === "3") {
+      if (getUnderstanding(problemId) !== entry.understanding) {
+        setUnderstanding(problemId, entry.understanding);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      count += 1;
+    }
+  });
+
+  return count;
+}
+
+function showRecordTransferStatus(message, isError = false) {
+  const status = document.getElementById("record-transfer-status");
+  status.hidden = !message;
+  status.textContent = message;
+  status.className = `record-transfer-status${isError ? " record-transfer-status-error" : ""}`;
 }
 
 function renderDifficultyBadge(difficulty) {

@@ -8,6 +8,8 @@ $config = ccc_load_app_config();
 ccc_send_json([
     'appName' => $config['appName'],
     'appSubtitle' => $config['appSubtitle'],
+    'courseId' => $config['courseId'],
+    'courseLabel' => $config['courseLabel'],
     'copyrightNotice' => $config['copyrightNotice'],
     'difficultyLabels' => $config['difficultyLabels'],
     'understandingLabels' => $config['understandingLabels'],

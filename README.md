@@ -614,6 +614,8 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 {
   "appName": "CCC",
   "appSubtitle": "C プログラミングの自習と理解度確認のための演習環境です。",
+  "courseId": "cpro-2026-a",
+  "courseLabel": "2026年度 CプログラミングA",
   "copyrightNotice": "© CCC",
   "difficultyLabels": ["基礎", "中級", "発展"],
   "understandingLabels": ["要復習", "ふつう", "自信あり"],
@@ -642,6 +644,12 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `appSubtitle`:
   - 一覧ページ上部ヒーローに表示する副題
   - 教員ごとにトーンを変えたい場合はここで差し替えられる
+- `courseId`:
+  - 学習記録エクスポート/インポート時に講義を識別するための機械用 ID
+  - 例: `cpro-2026-a`
+- `courseLabel`:
+  - 学習記録エクスポート/インポート時に表示する講義名
+  - 例: `2026年度 CプログラミングA`
 - `copyrightNotice`:
   - ページ下部に表示する著作権表記や提供者名
 - `difficultyLabels`:
@@ -688,6 +696,8 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 
 - `appName`
 - `appSubtitle`
+- `courseId`
+- `courseLabel`
 - `copyrightNotice`
 - `difficultyLabels`
 - `understandingLabels`
@@ -889,6 +899,17 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `ccc:v1:listScroll`
 
 `v1` を含めることで、将来保存形式を変えるときに移行しやすくする。
+
+### 学習記録のエクスポート / インポート
+
+- 一覧ページの `学習記録` パネルから、`解いた` 状態と `理解度` を JSON ファイルとして書き出せるようにする
+- エクスポート対象は、何かしら記録がある問題だけとする
+- `最後に開いた問題` はエクスポート対象に含めない
+- JSON には `courseId` と `courseLabel` を含め、複数講義での取り違えを減らす
+- ファイル名にも `courseId` と日付を含める
+- インポート時は現在の記録へ追加する
+- `solved` は `true` を加算的に反映し、`understanding` はファイル側の値で更新する
+- `courseId` が一致しないファイルを読み込む場合は、確認を挟む
 
 ## キャッシュ方針
 
