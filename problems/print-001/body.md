@@ -12,13 +12,13 @@
 
 ## ヒント
 
-まずは `printf` を使って、決まった文字列をそのまま表示してみましょう。
+まずは `puts` を使って、決まった文字列をそのまま表示してみましょう。
 
 ```c
 #include <stdio.h>
 
-int main(void) {
-	printf("CCC\n");
-	return 0;
+int main()
+{
+	puts("CCC");
 }
 ```
