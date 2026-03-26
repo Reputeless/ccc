@@ -15,7 +15,7 @@
       ...DEFAULT_OPTIONS,
       ...options,
     };
-    const history = createEditorHistoryState();
+    const history = createHistory();
     const applyValueChange = typeof settings.onValueChange === "function"
       ? settings.onValueChange
       : DEFAULT_OPTIONS.onValueChange;
@@ -25,49 +25,49 @@
         return;
       }
 
-      history.pendingBeforeState = captureEditorState(textarea);
+      history.pendingBeforeState = captureState(textarea);
       history.pendingInputType = event.inputType ?? "";
       history.pendingTimestamp = Date.now();
     });
 
     textarea.addEventListener("input", () => {
       applyValueChange(textarea.value);
-      recordEditorInput(textarea, history);
+      recordInput(textarea, history);
     });
 
     textarea.addEventListener("keydown", (event) => {
       if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "z") {
         event.preventDefault();
         if (event.shiftKey) {
-          applyCustomEditorRedo(textarea, history, applyValueChange);
+          applyRedo(textarea, history, applyValueChange);
         } else {
-          applyCustomEditorUndo(textarea, history, applyValueChange);
+          applyUndo(textarea, history, applyValueChange);
         }
         return;
       }
 
       if ((event.ctrlKey || event.metaKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "y") {
         event.preventDefault();
-        applyCustomEditorRedo(textarea, history, applyValueChange);
+        applyRedo(textarea, history, applyValueChange);
         return;
       }
 
       if ((event.ctrlKey || event.metaKey) && !event.altKey && event.code === "Slash") {
         event.preventDefault();
-        handleEditorCommentToggle(textarea, history);
+        handleCommentToggle(textarea, history);
         applyValueChange(textarea.value);
         return;
       }
 
       if (event.key === "Enter" && !event.altKey && !event.ctrlKey && !event.metaKey) {
         event.preventDefault();
-        handleEditorEnterKey(textarea, history, settings.getIndentSettings());
+        handleEnterKey(textarea, history, settings.getIndentSettings());
         applyValueChange(textarea.value);
         return;
       }
 
       if (event.key === "}" && !event.altKey && !event.ctrlKey && !event.metaKey) {
-        if (handleEditorClosingBraceKey(textarea, history, settings.getIndentSettings())) {
+        if (handleClosingBraceKey(textarea, history, settings.getIndentSettings())) {
           event.preventDefault();
           applyValueChange(textarea.value);
           return;
@@ -79,18 +79,18 @@
       }
 
       event.preventDefault();
-      handleEditorTabKey(textarea, history, settings.getIndentSettings(), event.shiftKey);
+      handleTabKey(textarea, history, settings.getIndentSettings(), event.shiftKey);
       applyValueChange(textarea.value);
     });
 
     return {
       resetHistory() {
-        resetEditorHistory(history);
+        resetHistoryState(history);
       },
     };
   }
 
-  function createEditorHistoryState() {
+  function createHistory() {
     return {
       undoStack: [],
       redoStack: [],
@@ -101,14 +101,14 @@
     };
   }
 
-  function handleEditorTabKey(editor, history, indentSettings, isShiftPressed) {
+  function handleTabKey(editor, history, indentSettings, isShiftPressed) {
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
     const selection = editor.value.slice(start, end);
     const hasMultiLineSelection = start !== end && selection.includes("\n");
 
     if (!isShiftPressed && !hasMultiLineSelection) {
-      applyEditorEdit(
+      applyEdit(
         editor,
         history,
         start,
@@ -120,16 +120,16 @@
       return;
     }
 
-    const currentLineStart = findLineStart(editor.value, start);
-    const lineStarts = collectAffectedLineStarts(editor.value, currentLineStart, end);
+    const currentLineStart = lineStart(editor.value, start);
+    const lineStarts = collectLineStarts(editor.value, currentLineStart, end);
     const lastLineStart = lineStarts[lineStarts.length - 1];
-    const affectedEnd = findLineEnd(editor.value, lastLineStart);
+    const affectedEnd = lineEnd(editor.value, lastLineStart);
     const affectedText = editor.value.slice(currentLineStart, affectedEnd);
     const lines = affectedText.split("\n");
 
     if (isShiftPressed) {
       const { text, removedCounts } = dedentLines(lines, indentSettings.width);
-      applyEditorEdit(
+      applyEdit(
         editor,
         history,
         currentLineStart,
@@ -142,7 +142,7 @@
     }
 
     const indentedText = lines.map((line) => `${indentSettings.unit}${line}`).join("\n");
-    applyEditorEdit(
+    applyEdit(
       editor,
       history,
       currentLineStart,
@@ -153,8 +153,8 @@
     );
   }
 
-  function handleEditorCommentToggle(editor, history) {
-    const block = getEditorSelectedLineBlock(editor.value, editor.selectionStart, editor.selectionEnd);
+  function handleCommentToggle(editor, history) {
+    const block = getSelectedLineBlock(editor.value, editor.selectionStart, editor.selectionEnd);
     const nonEmptyLines = block.lines.filter((line) => line.trim() !== "");
     if (nonEmptyLines.length === 0) {
       return;
@@ -188,10 +188,10 @@
     });
 
     const replacement = transformedLines.join("\n");
-    const selectionStart = block.blockStart + mapEditorOffsetThroughEdits(editor.selectionStart - block.blockStart, edits);
-    const selectionEnd = block.blockStart + mapEditorOffsetThroughEdits(editor.selectionEnd - block.blockStart, edits);
+    const selectionStart = block.blockStart + mapOffsetThroughEdits(editor.selectionStart - block.blockStart, edits);
+    const selectionEnd = block.blockStart + mapOffsetThroughEdits(editor.selectionEnd - block.blockStart, edits);
 
-    applyEditorEdit(
+    applyEdit(
       editor,
       history,
       block.blockStart,
@@ -203,17 +203,17 @@
     );
   }
 
-  function handleEditorEnterKey(editor, history, indentSettings) {
+  function handleEnterKey(editor, history, indentSettings) {
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
-    const currentLineStart = findLineStart(editor.value, start);
+    const currentLineStart = lineStart(editor.value, start);
     const currentLine = editor.value.slice(currentLineStart, start);
     const indent = currentLine.match(/^[\t ]*/)?.[0] ?? "";
     const nextIndent = shouldIncreaseIndentAfterEnter(currentLine)
       ? `${indent}${indentSettings.unit}`
       : indent;
 
-    applyEditorEdit(
+    applyEdit(
       editor,
       history,
       start,
@@ -230,7 +230,7 @@
     return codePortion.endsWith("{");
   }
 
-  function handleEditorClosingBraceKey(editor, history, indentSettings) {
+  function handleClosingBraceKey(editor, history, indentSettings) {
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
 
@@ -238,7 +238,7 @@
       return false;
     }
 
-    const currentLineStart = findLineStart(editor.value, start);
+    const currentLineStart = lineStart(editor.value, start);
     const beforeCursor = editor.value.slice(currentLineStart, start);
 
     if (beforeCursor.trim() !== "") {
@@ -255,7 +255,7 @@
       return false;
     }
 
-    applyEditorEdit(
+    applyEdit(
       editor,
       history,
       currentLineStart,
@@ -283,7 +283,7 @@
     return indentText.slice(0, -spacesToRemove);
   }
 
-  function applyEditorEdit(editor, history, replaceStart, replaceEnd, replacement, nextSelectionStart, nextSelectionEnd, inputType = "indentationChange") {
+  function applyEdit(editor, history, replaceStart, replaceEnd, replacement, nextSelectionStart, nextSelectionEnd, inputType = "indentationChange") {
     const beforeState = {
       value: editor.value,
       selectionStart: editor.selectionStart,
@@ -296,7 +296,7 @@
     editor.selectionStart = nextSelectionStart;
     editor.selectionEnd = nextSelectionEnd;
 
-    pushEditorHistoryEntry(history, {
+    pushHistoryEntry(history, {
       before: beforeState,
       after: {
         value: editor.value,
@@ -308,29 +308,29 @@
     });
   }
 
-  function applyCustomEditorUndo(editor, history, onValueChange) {
+  function applyUndo(editor, history, onValueChange) {
     const lastOperation = history.undoStack.pop();
     if (!lastOperation) {
       return false;
     }
 
     history.redoStack.push(lastOperation);
-    applyEditorHistoryState(editor, history, lastOperation.before, onValueChange);
+    applyHistoryState(editor, history, lastOperation.before, onValueChange);
     return true;
   }
 
-  function applyCustomEditorRedo(editor, history, onValueChange) {
+  function applyRedo(editor, history, onValueChange) {
     const nextOperation = history.redoStack.pop();
     if (!nextOperation) {
       return false;
     }
 
     history.undoStack.push(nextOperation);
-    applyEditorHistoryState(editor, history, nextOperation.after, onValueChange);
+    applyHistoryState(editor, history, nextOperation.after, onValueChange);
     return true;
   }
 
-  function applyEditorHistoryState(editor, history, state, onValueChange) {
+  function applyHistoryState(editor, history, state, onValueChange) {
     history.suppressRecording = true;
     editor.value = state.value;
     editor.selectionStart = state.selectionStart;
@@ -339,16 +339,16 @@
     onValueChange(editor.value);
   }
 
-  function recordEditorInput(editor, history) {
+  function recordInput(editor, history) {
     if (history.suppressRecording || !history.pendingBeforeState) {
       return;
     }
 
-    const afterState = captureEditorState(editor);
+    const afterState = captureState(editor);
     const beforeState = history.pendingBeforeState;
     const inputType = history.pendingInputType;
     const timestamp = history.pendingTimestamp;
-    clearPendingEditorInput(history);
+    clearPendingInput(history);
 
     if (
       beforeState.value === afterState.value &&
@@ -358,7 +358,7 @@
       return;
     }
 
-    pushEditorHistoryEntry(history, {
+    pushHistoryEntry(history, {
       before: beforeState,
       after: afterState,
       inputType,
@@ -366,10 +366,10 @@
     });
   }
 
-  function pushEditorHistoryEntry(history, entry) {
+  function pushHistoryEntry(history, entry) {
     const lastEntry = history.undoStack[history.undoStack.length - 1];
 
-    if (lastEntry && shouldMergeEditorHistoryEntries(lastEntry, entry)) {
+    if (lastEntry && shouldMergeHistoryEntries(lastEntry, entry)) {
       lastEntry.after = entry.after;
       lastEntry.timestamp = entry.timestamp;
     } else {
@@ -382,7 +382,7 @@
     history.redoStack = [];
   }
 
-  function shouldMergeEditorHistoryEntries(previousEntry, nextEntry) {
+  function shouldMergeHistoryEntries(previousEntry, nextEntry) {
     const mergeableTypes = new Set(["insertText", "deleteContentBackward", "deleteContentForward"]);
     if (!mergeableTypes.has(previousEntry.inputType) || previousEntry.inputType !== nextEntry.inputType) {
       return false;
@@ -399,7 +399,7 @@
     );
   }
 
-  function captureEditorState(editor) {
+  function captureState(editor) {
     return {
       value: editor.value,
       selectionStart: editor.selectionStart,
@@ -407,24 +407,24 @@
     };
   }
 
-  function clearPendingEditorInput(history) {
+  function clearPendingInput(history) {
     history.pendingBeforeState = null;
     history.pendingInputType = "";
     history.pendingTimestamp = 0;
   }
 
-  function resetEditorHistory(history) {
+  function resetHistoryState(history) {
     history.undoStack = [];
     history.redoStack = [];
-    clearPendingEditorInput(history);
+    clearPendingInput(history);
     history.suppressRecording = false;
   }
 
-  function getEditorSelectedLineBlock(text, selectionStart, selectionEnd) {
-    const blockStart = findLineStart(text, selectionStart);
-    const lineStarts = collectAffectedLineStarts(text, blockStart, selectionEnd);
+  function getSelectedLineBlock(text, selectionStart, selectionEnd) {
+    const blockStart = lineStart(text, selectionStart);
+    const lineStarts = collectLineStarts(text, blockStart, selectionEnd);
     const lastLineStart = lineStarts[lineStarts.length - 1];
-    const blockEnd = findLineEnd(text, lastLineStart);
+    const blockEnd = lineEnd(text, lastLineStart);
     const blockText = text.slice(blockStart, blockEnd);
 
     return {
@@ -435,7 +435,7 @@
     };
   }
 
-  function mapEditorOffsetThroughEdits(offset, edits) {
+  function mapOffsetThroughEdits(offset, edits) {
     let mappedOffset = offset;
 
     edits.forEach((edit) => {
@@ -456,17 +456,17 @@
     return mappedOffset;
   }
 
-  function findLineStart(text, position) {
+  function lineStart(text, position) {
     const previousBreak = text.lastIndexOf("\n", Math.max(0, position - 1));
     return previousBreak === -1 ? 0 : previousBreak + 1;
   }
 
-  function findLineEnd(text, lineStart) {
-    const nextBreak = text.indexOf("\n", lineStart);
+  function lineEnd(text, start) {
+    const nextBreak = text.indexOf("\n", start);
     return nextBreak === -1 ? text.length : nextBreak;
   }
 
-  function collectAffectedLineStarts(text, firstLineStart, selectionEnd) {
+  function collectLineStarts(text, firstLineStart, selectionEnd) {
     const starts = [firstLineStart];
     let searchFrom = firstLineStart;
 
