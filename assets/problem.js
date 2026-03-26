@@ -50,7 +50,7 @@ function getResultStatePresets() {
     idle: { kind: "muted", icon: "", text: uiText("resultIdle") },
     pending: { kind: "muted", icon: "", text: uiText("resultPending") },
     accepted: { kind: "success", icon: "✔" },
-    wrongAnswer: { kind: "warning", icon: "!", text: uiText("resultWrongAnswer") },
+    wrongAnswer: { kind: "error", icon: "!", text: uiText("resultWrongAnswer") },
     compileError: { kind: "error", icon: "!", text: uiText("resultCompileError") },
     runtimeError: { kind: "error", icon: "!", text: uiText("resultRuntimeError") },
     timeout: { kind: "error", icon: "!", text: uiText("resultTimeout") },

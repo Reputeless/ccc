@@ -72,6 +72,8 @@
   --status-muted-bg: #eee8dd;
   --status-muted-icon: #6f5e49;
   --status-success-bg: #ddf3e9;
+  --status-warning-bg: #fff0c9;
+  --status-error-bg: #f9e3dd;
   --status-success-icon: #12825a;
   --status-error-icon: #974f3d;
   --status-warning-icon: #8f6418;
@@ -155,6 +157,8 @@ html[data-theme="dark"] {
   --status-muted-bg: #232c34;
   --status-muted-icon: #bcccca;
   --status-success-bg: rgba(25, 93, 69, 0.36);
+  --status-warning-bg: rgba(122, 99, 45, 0.34);
+  --status-error-bg: rgba(124, 55, 66, 0.34);
   --spinner-track: rgba(102, 221, 209, 0.20);
   --accordion-arrow: rgba(220, 236, 234, 0.92);
   --syntax-comment-color: #8192a0;
@@ -649,7 +653,11 @@ button, input, select, textarea { font: inherit; }
   background: var(--surface-button-secondary-hover);
 }
 .primary-button[disabled] { opacity: 0.65; cursor: wait; }
-.status-banner { border-radius: 10px; padding: 12px 14px; background: var(--accent-soft); color: var(--text); }
+.status-banner { border-radius: 10px; padding: 12px 14px; color: var(--text); }
+.muted-banner { background: var(--status-muted-bg); }
+.success-banner { background: var(--status-success-bg); }
+.warning-banner { background: var(--status-warning-bg); }
+.error-banner { background: var(--status-error-bg); }
 .understanding-choice {
   display: inline-flex;
   align-items: center;
