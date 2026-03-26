@@ -43,6 +43,7 @@ $items = $report['items'];
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/app.css">
+  <link rel="stylesheet" href="assets/validate.css">
 </head>
 <body>
   <div class="page-shell">

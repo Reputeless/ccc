@@ -22,4 +22,4 @@ ccc_send_json([
     'resultPreviewMaxChars' => $config['resultPreviewMaxChars'],
     'resultMessagePreviewMaxLines' => $config['resultMessagePreviewMaxLines'],
     'maxCodeBytes' => $config['maxCodeBytes'],
-], 200, ['Cache-Control' => 'no-store']);
+], 200, ['Cache-Control' => 'public, max-age=60']);
