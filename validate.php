@@ -78,13 +78,13 @@ $items = $report['items'];
               <th>id</th>
               <th>number</th>
               <th>title</th>
-              <th>lecture</th>
-              <th>difficulty</th>
+              <th class="validate-cell-center">lecture</th>
+              <th class="validate-cell-center">difficulty</th>
               <th>profileId</th>
               <th>publishedAt</th>
               <th>examples</th>
-              <th>guide</th>
-              <th>結果</th>
+              <th class="validate-cell-center">guide</th>
+              <th class="validate-cell-center">結果</th>
               <th>詳細</th>
             </tr>
           </thead>
@@ -93,26 +93,24 @@ $items = $report['items'];
               <tr>
                 <td><code><?= h((string) $item['id']) ?></code></td>
                 <td><code><?= h((string) $item['number']) ?></code></td>
-                <td><?= h((string) $item['title']) ?></td>
-                <td><?= h((string) $item['lecture']) ?></td>
-                <td><?= h((string) $item['difficulty']) ?></td>
+                <td class="validate-title-cell"><?= h((string) $item['title']) ?></td>
+                <td class="validate-cell-center"><?= h((string) $item['lecture']) ?></td>
+                <td class="validate-cell-center"><?= h((string) $item['difficulty']) ?></td>
                 <td><code><?= h((string) $item['profileId']) ?></code></td>
                 <td><code><?= h((string) $item['publishedAt']) ?></code></td>
                 <td><code><?= h((string) $item['examples']) ?></code></td>
-                <td class="validate-guide-cell">
+                <td class="validate-guide-cell validate-cell-center">
                   <?php if (($item['guide'] ?? '') === 'あり'): ?>
                     <span class="validate-status validate-status-ok">あり</span>
                   <?php endif; ?>
                 </td>
-                <td>
+                <td class="validate-cell-center">
                   <span class="validate-status validate-status-<?= h($item['status']) ?>">
                     <?= $item['status'] === 'ok' ? 'OK' : ($item['status'] === 'warning' ? '警告' : 'エラー') ?>
                   </span>
                 </td>
-                <td>
-                  <?php if ($item['details'] === []): ?>
-                    <span class="validate-detail-ok">問題なし</span>
-                  <?php else: ?>
+                <td class="validate-detail-cell">
+                  <?php if ($item['details'] !== []): ?>
                     <ul class="validate-detail-list">
                       <?php foreach ($item['details'] as $detail): ?>
                         <li><?= h((string) $detail) ?></li>
@@ -126,6 +124,11 @@ $items = $report['items'];
         </table>
       </div>
     </section>
+    <footer class="site-footer">
+      <div class="site-footer-inner">
+        <p class="site-footer-copy"><?= h($config['copyrightNotice']) ?></p>
+      </div>
+    </footer>
   </div>
 </body>
 </html>

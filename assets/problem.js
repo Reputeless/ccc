@@ -279,7 +279,7 @@ function renderExampleBlock(title, content) {
 
 function enhanceCopyableCodeBlocks() {
   document.querySelectorAll("#problem-body pre, #guide-container pre, #examples-list pre, #result-details pre").forEach((pre) => {
-    if (pre.querySelector(".copy-code-button")) {
+    if (pre.parentElement?.classList.contains("copyable-code-wrapper")) {
       return;
     }
 
@@ -288,8 +288,12 @@ function enhanceCopyableCodeBlocks() {
       return;
     }
 
+    const wrapper = document.createElement("div");
+    wrapper.className = "copyable-code-wrapper";
     pre.classList.add("copyable-code-block");
-    pre.appendChild(createCopyButton(code));
+    pre.parentNode?.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+    wrapper.appendChild(createCopyButton(code));
   });
 }
 
