@@ -36,6 +36,16 @@ let animatedUnderstandingProblemId = null;
 let sidebarStickyFrame = 0;
 const UNDERSTANDING_SELECT_ORDER = ["3", "2", "1"];
 
+function uiText(key) {
+  return appConfig.uiText?.[key] ?? DEFAULT_CONFIG.uiText[key] ?? "";
+}
+
+function formatUiText(key, replacements = {}) {
+  return Object.entries(replacements).reduce((text, [name, value]) => {
+    return text.replaceAll(`{${name}}`, String(value));
+  }, uiText(key));
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("pagehide", saveScrollPosition);
   window.addEventListener("resize", scheduleSidebarStickyUpdate);
@@ -46,12 +56,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     appConfig = await fetchConfig();
   } catch {
-    showListMessage("設定の読み込みに失敗しました。既定値で表示します。", "warning");
+    showListMessage(uiText("configLoadWarning"), "warning");
   }
 
   document.getElementById("app-name").textContent = appConfig.appName;
   document.getElementById("app-subtitle").textContent = appConfig.appSubtitle;
   renderGlobalFooter(appConfig);
+  renderStaticUiText();
   setupStaticControls();
   await loadProblems();
   scheduleSidebarStickyUpdate();
@@ -64,7 +75,7 @@ async function loadProblems() {
   });
 
   if (!response.ok) {
-    showListMessage("問題一覧の読み込みに失敗しました。時間を置いて再読み込みしてください。", "error");
+    showListMessage(uiText("problemListLoadError"), "error");
     return;
   }
 
@@ -75,7 +86,9 @@ async function loadProblems() {
 }
 
 function setupStaticControls() {
+  populateSolvedFilter();
   populateUnderstandingFilter();
+  populateSortOrderSelect();
   populateDifficultyOptions();
   restoreFilterState();
   setupRecordTransferControls();
@@ -90,6 +103,65 @@ function setupStaticControls() {
   ].forEach((element) => element.addEventListener("input", onFilterChanged));
 
   document.getElementById("difficulty-options").addEventListener("change", onFilterChanged);
+}
+
+function renderStaticUiText() {
+  const textMap = {
+    "filters-kicker": "filtersKicker",
+    "filters-heading": "filtersTitle",
+    "reset-filters": "resetFiltersButton",
+    "lecture-range-label": "lectureRangeLabel",
+    "lecture-min-label": "lectureMinLabel",
+    "lecture-max-label": "lectureMaxLabel",
+    "solved-filter-label": "solvedFilterLabel",
+    "understanding-filter-label": "understandingFilterLabel",
+    "sort-order-label": "sortOrderLabel",
+    "difficulty-filter-label": "difficultyFilterLabel",
+    "active-filters-label": "activeFiltersLabel",
+    "learning-summary-heading": "learningSummaryTitle",
+    "summary-solved-label": "solvedCountLabel",
+    "summary-review-label": "reviewCountLabel",
+    "record-panel-kicker": "recordPanelKicker",
+    "record-panel-heading": "recordPanelTitle",
+    "recent-problem-title": "recentProblemTitle",
+    "record-transfer-summary": "recordTransferSummary",
+    "export-learning-record": "exportRecordButton",
+    "export-record-description": "exportRecordDescription",
+    "import-learning-record": "importRecordButton",
+    "import-record-description": "importRecordDescription",
+    "record-danger-summary": "recordDangerSummary",
+    "clear-stored-code": "clearCodeButton",
+    "clear-code-description": "clearCodeDescription",
+    "clear-learning-progress": "clearProgressButton",
+    "clear-progress-description": "clearProgressDescription",
+    "appearance-kicker": "appearanceKicker",
+    "appearance-panel-heading": "appearanceTitle",
+    "theme-summary": "themeSummary",
+    "problem-list-kicker": "problemListKicker",
+    "problems-heading": "problemListTitle",
+  };
+
+  Object.entries(textMap).forEach(([id, key]) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.textContent = uiText(key);
+    }
+  });
+
+  const themeLightOption = document.getElementById("theme-light-option");
+  if (themeLightOption) {
+    themeLightOption.textContent = uiText("themeLight");
+  }
+
+  const themeDarkOption = document.getElementById("theme-dark-option");
+  if (themeDarkOption) {
+    themeDarkOption.textContent = uiText("themeDark");
+  }
+
+  const themeSystemOption = document.getElementById("theme-system-option");
+  if (themeSystemOption) {
+    themeSystemOption.textContent = uiText("themeSystem");
+  }
 }
 
 function setupAppearanceControls() {
@@ -115,19 +187,46 @@ function setupRecordTransferControls() {
   document.getElementById("clear-learning-progress").addEventListener("click", clearLearningProgressWithConfirmation);
 }
 
+function populateSolvedFilter() {
+  const select = document.getElementById("solved-filter");
+  select.innerHTML = "";
+  [
+    { value: "all", label: uiText("solvedFilterAll") },
+    { value: "solved", label: uiText("solvedFilterSolvedOnly") },
+    { value: "unsolved", label: uiText("solvedFilterUnsolvedOnly") },
+  ].forEach((option) => {
+    select.appendChild(new Option(option.label, option.value));
+  });
+}
+
 function populateUnderstandingFilter() {
   populateLabelSelect(document.getElementById("understanding-filter"), appConfig.understandingLabels, {
-    emptyLabel: "未設定",
+    emptyLabel: uiText("unsetLabel"),
     emptyValue: "unset",
   });
-  document.getElementById("understanding-filter").insertAdjacentHTML("afterbegin", '<option value="all">すべて</option>');
+  document.getElementById("understanding-filter").insertAdjacentHTML("afterbegin", `<option value="all">${escapeHtml(uiText("understandingFilterAll"))}</option>`);
+}
+
+function populateSortOrderSelect() {
+  const select = document.getElementById("sort-order");
+  select.innerHTML = "";
+  [
+    { value: "lectureAsc", label: uiText("sortOrderLectureAsc") },
+    { value: "lectureDesc", label: uiText("sortOrderLectureDesc") },
+    { value: "numberAsc", label: uiText("sortOrderNumberAsc") },
+    { value: "numberDesc", label: uiText("sortOrderNumberDesc") },
+    { value: "understandingHigh", label: uiText("sortOrderUnderstandingHigh") },
+    { value: "understandingLow", label: uiText("sortOrderUnderstandingLow") },
+  ].forEach((option) => {
+    select.appendChild(new Option(option.label, option.value));
+  });
 }
 
 function populateDifficultyOptions() {
   const container = document.getElementById("difficulty-options");
   container.innerHTML = "";
 
-  [...appConfig.difficultyLabels, "未設定"].forEach((label, index) => {
+  [...appConfig.difficultyLabels, uiText("unsetLabel")].forEach((label, index) => {
     const value = index < appConfig.difficultyLabels.length ? String(index + 1) : "unset";
     const wrapper = document.createElement("label");
     wrapper.className = "chip-option";
@@ -166,12 +265,15 @@ function renderProblemList() {
     .filter((problem) => matchesFilters(problem, filterState))
     .sort((left, right) => compareProblems(left, right, filterState.sortOrder));
 
-  document.getElementById("problem-count").textContent = `${filtered.length} 問表示 / 全 ${allProblems.length} 問`;
+  document.getElementById("problem-count").textContent = formatUiText("problemCountTemplate", {
+    shown: filtered.length,
+    total: allProblems.length,
+  });
   renderActiveFilters(filterState);
   renderLearningSummary(filtered);
 
   if (filtered.length === 0) {
-    list.innerHTML = '<div class="status-banner muted-banner">条件に合う問題がありません。</div>';
+    list.innerHTML = `<div class="status-banner muted-banner">${escapeHtml(uiText("noMatchingProblems"))}</div>`;
     scheduleSidebarStickyUpdate();
     return;
   }
@@ -254,7 +356,7 @@ function renderRecordPanel() {
   const problem = allProblems.find((item) => item.id === lastOpenedId);
 
   if (!problem) {
-    container.innerHTML = '<p class="record-transfer-text record-transfer-text-compact">まだ記録がありません。</p>';
+    container.innerHTML = `<p class="record-transfer-text record-transfer-text-compact">${escapeHtml(uiText("noRecentProblem"))}</p>`;
     scheduleSidebarStickyUpdate();
     return;
   }
@@ -290,7 +392,7 @@ function exportLearningRecord() {
   link.remove();
   URL.revokeObjectURL(url);
 
-  showRecordTransferStatus("学習記録を書き出しました。");
+  showRecordTransferStatus(uiText("recordExportSuccess"));
 }
 
 function buildLearningRecordExport() {
@@ -342,10 +444,13 @@ async function importLearningRecord(event) {
 
     if (shouldConfirmCourseMismatch(payload)) {
       const confirmed = window.confirm(
-        `このファイルは別の講義用に書き出された可能性があります。\n現在: ${appConfig.courseLabel}\nファイル: ${payload.courseLabel ?? payload.courseId}\n\n読み込みを続けますか？`
+        formatUiText("recordImportCourseMismatchConfirm", {
+          current: appConfig.courseLabel,
+          file: payload.courseLabel ?? payload.courseId,
+        })
       );
       if (!confirmed) {
-        showRecordTransferStatus("インポートをキャンセルしました。");
+        showRecordTransferStatus(uiText("recordImportCancelled"));
         return;
       }
     }
@@ -353,9 +458,9 @@ async function importLearningRecord(event) {
     const importedCount = applyLearningRecordImport(payload.records);
     renderRecordPanel();
     renderProblemList();
-    showRecordTransferStatus(`学習記録を読み込みました。${importedCount} 件を反映しました。`);
+    showRecordTransferStatus(formatUiText("recordImportSuccess", { count: importedCount }));
   } catch {
-    showRecordTransferStatus("学習記録ファイルの読み込みに失敗しました。JSON 形式を確認してください。", true);
+    showRecordTransferStatus(uiText("recordImportReadError"), true);
   } finally {
     input.value = "";
   }
@@ -363,13 +468,13 @@ async function importLearningRecord(event) {
 
 function validateLearningRecordImport(payload) {
   if (!payload || typeof payload !== "object") {
-    return "学習記録ファイルの形式が正しくありません。";
+    return uiText("recordImportInvalidFile");
   }
   if (payload.kind !== "learning-record" || payload.version !== 1) {
-    return "学習記録ファイルの形式が正しくありません。";
+    return uiText("recordImportInvalidFile");
   }
   if (!payload.records || typeof payload.records !== "object" || Array.isArray(payload.records)) {
-    return "学習記録ファイルの records が正しくありません。";
+    return uiText("recordImportInvalidRecords");
   }
   return "";
 }
@@ -448,33 +553,33 @@ function updateSidebarStickyState() {
 
 function clearStoredCodeWithConfirmation() {
   const confirmed = window.confirm(
-    "このブラウザに保存されたコード入力内容を消去します。\n解いた記録と理解度は残ります。\n\nよろしいですか？"
+    uiText("clearCodeConfirm")
   );
 
   if (!confirmed) {
-    showRecordTransferStatus("消去をキャンセルしました。");
+    showRecordTransferStatus(uiText("clearCodeCancelled"));
     return;
   }
 
   clearStoredCode(allProblems.map((problem) => problem.id));
   renderProblemList();
-  showRecordTransferStatus("コード入力内容を消去しました。");
+  showRecordTransferStatus(uiText("clearCodeDone"));
 }
 
 function clearLearningProgressWithConfirmation() {
   const confirmed = window.confirm(
-    "このブラウザに保存された解いた記録と理解度を消去します。\nコード入力内容は残ります。\n\nよろしいですか？"
+    uiText("clearProgressConfirm")
   );
 
   if (!confirmed) {
-    showRecordTransferStatus("消去をキャンセルしました。");
+    showRecordTransferStatus(uiText("clearProgressCancelled"));
     return;
   }
 
   clearLearningProgress(allProblems.map((problem) => problem.id));
   renderRecordPanel();
   renderProblemList();
-  showRecordTransferStatus("解いた記録と理解度を消去しました。");
+  showRecordTransferStatus(uiText("clearProgressDone"));
 }
 
 function renderDifficultyBadge(difficulty) {
@@ -711,7 +816,7 @@ function renderActiveFilters(filters) {
   }
 
   if (pills.length === 0) {
-    pills.push({ text: "フィルタなし" });
+    pills.push({ text: uiText("noFilters") });
   }
 
   pills.forEach((pill) => {

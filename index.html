@@ -32,7 +32,7 @@
         <aside class="panel filter-panel" aria-labelledby="filters-heading">
           <div class="panel-heading">
             <div>
-              <p class="section-kicker">Filters</p>
+              <p id="filters-kicker" class="section-kicker">Filters</p>
               <h2 id="filters-heading">フィルタ</h2>
             </div>
             <button id="reset-filters" class="secondary-button" type="button">フィルタをクリア</button>
@@ -40,19 +40,19 @@
 
           <div class="filter-grid">
             <div class="filter-inline-row lecture-range-row">
-              <span class="lecture-range-label">講義回</span>
+              <span id="lecture-range-label" class="lecture-range-label">講義回</span>
               <label class="field">
-                <span>講義回の下限</span>
+                <span id="lecture-min-label">講義回の下限</span>
                 <input id="lecture-min" type="number" min="1" inputmode="numeric">
               </label>
               <span class="range-separator" aria-hidden="true">～</span>
               <label class="field">
-                <span>講義回の上限</span>
+                <span id="lecture-max-label">講義回の上限</span>
                 <input id="lecture-max" type="number" min="1" inputmode="numeric">
               </label>
             </div>
             <label class="field field-inline-mobile">
-              <span>解いた状態</span>
+              <span id="solved-filter-label">解いた状態</span>
               <select id="solved-filter">
                 <option value="all">すべて表示</option>
                 <option value="solved">解いた問題だけを表示</option>
@@ -60,13 +60,13 @@
               </select>
             </label>
             <label class="field field-inline-mobile">
-              <span>理解度</span>
+              <span id="understanding-filter-label">理解度</span>
               <select id="understanding-filter">
                 <option value="all">すべて</option>
               </select>
             </label>
             <label class="field field-wide field-inline-mobile">
-              <span>並び順</span>
+              <span id="sort-order-label">並び順</span>
               <select id="sort-order">
                 <option value="lectureAsc">講義回が小さい順</option>
                 <option value="lectureDesc">講義回が大きい順</option>
@@ -79,12 +79,12 @@
           </div>
 
           <fieldset class="field-group field-group-inline-mobile">
-            <legend>難易度</legend>
+            <legend id="difficulty-filter-label">難易度</legend>
             <div id="difficulty-options" class="chip-row"></div>
           </fieldset>
 
           <div class="active-filters">
-            <span class="active-filters-label">現在のフィルタ</span>
+            <span id="active-filters-label" class="active-filters-label">現在のフィルタ</span>
             <div id="active-filter-list" class="active-filter-list"></div>
           </div>
 
@@ -92,11 +92,11 @@
             <h3 id="learning-summary-heading" class="learning-summary-title">表示中の学習状況</h3>
             <dl class="learning-summary-list">
               <div class="learning-summary-row">
-                <dt>解いた数</dt>
+                <dt id="summary-solved-label">解いた数</dt>
                 <dd id="summary-solved-count">0 / 0</dd>
               </div>
               <div class="learning-summary-row">
-                <dt>要復習</dt>
+                <dt id="summary-review-label">要復習</dt>
                 <dd id="summary-review-count">0</dd>
               </div>
             </dl>
@@ -106,43 +106,43 @@
         <section class="panel record-panel" aria-labelledby="record-panel-heading">
           <div class="panel-heading panel-heading-compact">
             <div>
-              <p class="section-kicker">Learning Record</p>
+              <p id="record-panel-kicker" class="section-kicker">Learning Record</p>
               <h2 id="record-panel-heading">学習記録</h2>
             </div>
           </div>
 
           <div class="record-transfer-block">
-            <h3 class="record-transfer-subtitle">最近開いた問題</h3>
+            <h3 id="recent-problem-title" class="record-transfer-subtitle">最近開いた問題</h3>
             <div id="last-opened-problem" class="record-problem-slot">
               <p class="record-transfer-text record-transfer-text-compact">まだ記録がありません。</p>
             </div>
           </div>
 
           <details class="record-transfer-accordion">
-            <summary class="record-transfer-summary">エクスポート・インポート</summary>
+            <summary id="record-transfer-summary" class="record-transfer-summary">エクスポート・インポート</summary>
             <div class="record-transfer-content">
               <div class="record-transfer-block">
                 <button id="export-learning-record" type="button" class="secondary-button record-transfer-button">学習記録のエクスポート</button>
-                <p class="record-transfer-text">解いた記録と理解度の一覧をファイルに書き出し、別の PC やブラウザへ移せます。</p>
+                <p id="export-record-description" class="record-transfer-text">解いた記録と理解度の一覧をファイルに書き出し、別の PC やブラウザへ移せます。</p>
               </div>
 
               <div class="record-transfer-block">
                 <button id="import-learning-record" type="button" class="secondary-button record-transfer-button">学習記録のインポート</button>
-                <p class="record-transfer-text">書き出した学習記録ファイルを読み込み、現在の記録に追加できます。</p>
+                <p id="import-record-description" class="record-transfer-text">書き出した学習記録ファイルを読み込み、現在の記録に追加できます。</p>
               </div>
             </div>
           </details>
 
           <details class="record-danger">
-            <summary class="record-danger-summary">記録の消去</summary>
+            <summary id="record-danger-summary" class="record-danger-summary">記録の消去</summary>
             <div class="record-danger-content">
               <div class="record-transfer-block">
                 <button id="clear-stored-code" type="button" class="record-danger-button">コード入力内容を消去</button>
-                <p class="record-transfer-text">このブラウザに保存されたコード入力内容を消去します。解いた記録と理解度は残ります。</p>
+                <p id="clear-code-description" class="record-transfer-text">このブラウザに保存されたコード入力内容を消去します。解いた記録と理解度は残ります。</p>
               </div>
               <div class="record-transfer-block">
                 <button id="clear-learning-progress" type="button" class="record-danger-button">解いた記録と理解度を消去</button>
-                <p class="record-transfer-text">このブラウザに保存された解いた記録と理解度を消去します。コード入力内容は残ります。</p>
+                <p id="clear-progress-description" class="record-transfer-text">このブラウザに保存された解いた記録と理解度を消去します。コード入力内容は残ります。</p>
               </div>
             </div>
           </details>
@@ -154,20 +154,20 @@
         <section class="panel appearance-panel" aria-labelledby="appearance-panel-heading">
           <div class="panel-heading panel-heading-compact">
             <div>
-              <p class="section-kicker">Appearance</p>
+              <p id="appearance-kicker" class="section-kicker">Appearance</p>
               <h2 id="appearance-panel-heading">表示設定</h2>
             </div>
           </div>
 
           <details class="appearance-accordion">
-            <summary class="appearance-summary">テーマ</summary>
+            <summary id="theme-summary" class="appearance-summary">テーマ</summary>
             <div class="appearance-content">
               <label class="field">
                 <span class="sr-only">テーマ</span>
                 <select id="theme-preference">
-                  <option value="light">ライト</option>
-                  <option value="dark">ダーク</option>
-                  <option value="system">システム設定に合わせる</option>
+                  <option id="theme-light-option" value="light">ライト</option>
+                  <option id="theme-dark-option" value="dark">ダーク</option>
+                  <option id="theme-system-option" value="system">システム設定に合わせる</option>
                 </select>
               </label>
             </div>
@@ -178,7 +178,7 @@
       <section class="panel list-panel" aria-labelledby="problems-heading">
         <div class="panel-heading">
           <div>
-            <p class="section-kicker">Problem List</p>
+            <p id="problem-list-kicker" class="section-kicker">Problem List</p>
             <h2 id="problems-heading">問題一覧</h2>
           </div>
           <p id="problem-count" class="muted-text">読み込み中...</p>
