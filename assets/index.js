@@ -315,11 +315,11 @@ function renderProblemCard(problem) {
       <div class="problem-card-state-group">
         ${renderSolvedToggle(problem)}
         <label class="field select-inline compact-select">
-          <span class="sr-only">理解度</span>
+          <span class="sr-only">${escapeHtml(uiText("understandingSelectLabel"))}</span>
           <span class="understanding-select-wrap${understandingAnimationClass}">
             <span class="understanding-marker ${getUnderstandingMarkerClass(understandingValue)}" aria-hidden="true"></span>
             <span class="understanding-mobile-label">${escapeHtml(getUnderstandingDisplayLabel(understandingValue))}</span>
-            <select class="understanding-select" aria-label="理解度"></select>
+            <select class="understanding-select" aria-label="${escapeHtml(uiText("understandingSelectLabel"))}"></select>
           </span>
         </label>
       </div>
@@ -334,16 +334,16 @@ function renderLectureBadge(lecture) {
   if (lecture == null) {
     return "";
   }
-  return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" title="この講義回で絞り込む">${escapeHtml(formatLectureLabel(lecture, appConfig.lectureLabelTemplate))}</button>`;
+  return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" title="${escapeHtml(uiText("lectureBadgeTitle"))}">${escapeHtml(formatLectureLabel(lecture, appConfig.lectureLabelTemplate))}</button>`;
 }
 
 function getUnderstandingDisplayLabel(value) {
   if (value === "") {
-    return "未設定";
+    return uiText("unsetLabel");
   }
 
   const index = Number(value) - 1;
-  return appConfig.understandingLabels[index] ?? "未設定";
+  return appConfig.understandingLabels[index] ?? uiText("unsetLabel");
 }
 
 function renderRecordPanel() {
@@ -588,14 +588,14 @@ function renderDifficultyBadge(difficulty) {
   }
   const difficultyKey = String(difficulty);
   const difficultyLabel = getDifficultyLabel(appConfig, difficulty);
-  return `<button type="button" class="difficulty-badge difficulty-${escapeHtml(difficultyKey)} meta-filter-trigger" data-filter-type="difficulty" data-filter-value="${escapeHtml(difficultyKey)}" title="この難易度で絞り込む">${escapeHtml(difficultyLabel)}</button>`;
+  return `<button type="button" class="difficulty-badge difficulty-${escapeHtml(difficultyKey)} meta-filter-trigger" data-filter-type="difficulty" data-filter-value="${escapeHtml(difficultyKey)}" title="${escapeHtml(uiText("difficultyBadgeTitle"))}">${escapeHtml(difficultyLabel)}</button>`;
 }
 
 function renderSolvedToggle(problem) {
   const solvedAnimationClass = animatedSolvedProblemId === problem.id ? " solved-toggle-animate" : "";
   return `
-    <label class="solved-toggle solved-toggle-small${solvedAnimationClass}" title="解いた">
-      <input class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="解いた" ${isProblemSolved(problem.id) ? "checked" : ""}>
+    <label class="solved-toggle solved-toggle-small${solvedAnimationClass}" title="${escapeHtml(uiText("solvedToggleLabel"))}">
+      <input class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="${escapeHtml(uiText("solvedToggleLabel"))}" ${isProblemSolved(problem.id) ? "checked" : ""}>
       <span class="solved-toggle-icon" aria-hidden="true">
         <svg viewBox="0 0 20 20" focusable="false">
           <circle class="solved-toggle-circle" cx="10" cy="10" r="7.75"></circle>
@@ -785,34 +785,36 @@ function renderActiveFilters(filters) {
   const pills = [];
 
   if (filters.lectureMin !== "") {
-    pills.push({ text: `${filters.lectureMin} <= 講義回` });
+    pills.push({ text: formatUiText("lectureMinActiveFilter", { value: filters.lectureMin }) });
   }
   if (filters.lectureMax !== "") {
-    pills.push({ text: `講義回 <= ${filters.lectureMax}` });
+    pills.push({ text: formatUiText("lectureMaxActiveFilter", { value: filters.lectureMax }) });
   }
   if (filters.difficulties.length > 0) {
     filters.difficulties.forEach((value) => {
       if (value === "unset") {
-        pills.push({ text: "難易度: 未設定" });
+        pills.push({ text: uiText("difficultyActiveFilterUnset") });
         return;
       }
 
       pills.push({
-        text: `難易度: ${appConfig.difficultyLabels[Number(value) - 1] ?? value}`,
+        text: formatUiText("difficultyActiveFilter", {
+          value: appConfig.difficultyLabels[Number(value) - 1] ?? value,
+        }),
         className: `difficulty-badge difficulty-${value}`,
       });
     });
   }
   if (filters.solved === "solved") {
-    pills.push({ text: "解いた問題だけ" });
+    pills.push({ text: uiText("solvedOnlyActiveFilter") });
   } else if (filters.solved === "unsolved") {
-    pills.push({ text: "解いていない問題だけ" });
+    pills.push({ text: uiText("unsolvedOnlyActiveFilter") });
   }
   if (filters.understanding !== "all") {
     const understandingLabel = filters.understanding === "unset"
-      ? "未設定"
-      : appConfig.understandingLabels[Number(filters.understanding) - 1] ?? "未設定";
-    pills.push({ text: `理解度: ${understandingLabel}` });
+      ? uiText("unsetLabel")
+      : appConfig.understandingLabels[Number(filters.understanding) - 1] ?? uiText("unsetLabel");
+    pills.push({ text: formatUiText("understandingActiveFilter", { value: understandingLabel }) });
   }
 
   if (pills.length === 0) {
