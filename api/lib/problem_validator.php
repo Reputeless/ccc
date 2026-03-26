@@ -33,19 +33,19 @@ function ccc_validate_problem_directory(string $directory, array $config): array
     $row = ccc_create_problem_validation_row($directory);
 
     if (!is_file($manifestPath)) {
-        $row['errors'][] = 'problem.json がありません。';
+        $row['errors'][] = 'problem.json is missing.';
         return $row;
     }
 
     try {
         $decoded = ccc_read_problem_manifest_json($directory);
     } catch (Throwable) {
-        $row['errors'][] = 'problem.json が正しい JSON ではありません。';
+        $row['errors'][] = 'problem.json is not valid JSON.';
         return $row;
     }
 
     if (!is_array($decoded)) {
-        $row['errors'][] = 'problem.json がありません。';
+        $row['errors'][] = 'problem.json is missing.';
         return $row;
     }
 
@@ -53,7 +53,7 @@ function ccc_validate_problem_directory(string $directory, array $config): array
     ccc_validate_problem_manifest_fields($row, $decoded, $config);
 
     if (($row['id'] ?? '') !== '' && $row['id'] !== $directory) {
-        $row['warnings'][] = 'フォルダ名と id が一致していません。';
+        $row['warnings'][] = 'Directory name and id do not match.';
     }
 
     return $row;
@@ -100,17 +100,17 @@ function ccc_fill_problem_validation_row(array &$row, array $decoded): void
 function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array $config): void
 {
     if ($row['id'] === '') {
-        $row['errors'][] = 'id がありません。';
+        $row['errors'][] = 'id is required.';
     } elseif (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $row['id']) !== 1) {
-        $row['errors'][] = 'id の形式が不正です。';
+        $row['errors'][] = 'id has an invalid format.';
     }
 
     if ($row['number'] === '') {
-        $row['errors'][] = 'number がありません。';
+        $row['errors'][] = 'number is required.';
     }
 
     if ($row['title'] === '') {
-        $row['errors'][] = 'title がありません。';
+        $row['errors'][] = 'title is required.';
     }
 
     ccc_validate_problem_optional_integer($row, $decoded, 'lecture');
@@ -119,16 +119,16 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
     if ($row['difficulty'] !== '') {
         $difficultyValue = (int) $row['difficulty'];
         if ($difficultyValue < 1 || $difficultyValue > 3) {
-            $row['errors'][] = 'difficulty は 1 から 3 の整数である必要があります。';
+            $row['errors'][] = 'difficulty must be an integer from 1 to 3.';
         }
     }
 
     if ($row['profileId'] !== '') {
         $profileId = trim($row['profileId']);
         if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $profileId) !== 1) {
-            $row['errors'][] = 'profileId の形式が不正です。';
+            $row['errors'][] = 'profileId has an invalid format.';
         } elseif (!isset($config['languageProfiles'][$profileId])) {
-            $row['errors'][] = 'profileId が config/app.json に定義されていません。';
+            $row['errors'][] = 'profileId is not defined in config/app.json.';
         }
     }
 
@@ -136,26 +136,26 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
         try {
             new DateTimeImmutable($row['publishedAt']);
         } catch (Exception $exception) {
-            $row['errors'][] = 'publishedAt の形式が不正です。';
+            $row['errors'][] = 'publishedAt has an invalid format.';
         }
     }
 
     $examples = $decoded['examples'] ?? null;
     if (!is_array($examples)) {
-        $row['errors'][] = 'examples は配列である必要があります。';
+        $row['errors'][] = 'examples must be an array.';
     } else {
         $exampleNames = array_map(static fn (mixed $value): string => trim((string) $value), $examples);
         if (count($exampleNames) < 1 || count($exampleNames) > 6) {
-            $row['errors'][] = 'examples は 1 件以上 6 件以下である必要があります。';
+            $row['errors'][] = 'examples must contain between 1 and 6 items.';
         }
 
         if (count(array_unique($exampleNames)) !== count($exampleNames)) {
-            $row['errors'][] = 'examples に重複があります。';
+            $row['errors'][] = 'examples contains duplicates.';
         }
 
         foreach ($exampleNames as $name) {
             if ($name === '') {
-                $row['errors'][] = 'examples に空文字が含まれています。';
+                $row['errors'][] = 'examples contains an empty string.';
                 continue;
             }
 
@@ -163,20 +163,20 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
             $outputPath = ccc_problem_example_output_path($row['directory'], $name);
 
             if (!is_file($inputPath)) {
-                $row['errors'][] = $name . '.in.txt がありません。';
+                $row['errors'][] = $name . '.in.txt is missing.';
             }
             if (!is_file($outputPath)) {
-                $row['errors'][] = $name . '.out.txt がありません。';
+                $row['errors'][] = $name . '.out.txt is missing.';
             }
         }
     }
 
     $bodyPath = ccc_problem_body_path($row['directory']);
     if (!is_file($bodyPath)) {
-        $row['errors'][] = 'body.md がありません。';
+        $row['errors'][] = 'body.md is missing.';
     }
 
-    $row['guide'] = is_file(ccc_problem_guide_path($row['directory'])) ? 'あり' : 'なし';
+    $row['guide'] = is_file(ccc_problem_guide_path($row['directory'])) ? 'available' : '';
 }
 
 function ccc_validate_problem_optional_integer(array &$row, array $decoded, string $field): void
@@ -193,7 +193,7 @@ function ccc_validate_problem_optional_integer(array &$row, array $decoded, stri
 
     $text = is_string($value) ? trim($value) : (string) $value;
     if (preg_match('/^-?\d+$/', $text) !== 1) {
-        $row['errors'][] = $field . ' は整数である必要があります。';
+        $row['errors'][] = $field . ' must be an integer.';
         return;
     }
 
@@ -232,7 +232,7 @@ function ccc_apply_duplicate_problem_validation(array &$items, string $field, st
         }
 
         foreach ($indexes as $index) {
-            $message = $field . ' が重複しています。';
+            $message = $field . ' is duplicated.';
             if ($level === 'error') {
                 $items[$index]['errors'][] = $message;
             } else {

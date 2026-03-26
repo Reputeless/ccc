@@ -24,12 +24,23 @@
   margin-inline: auto;
 }
 
-.teacher-guide-header {
-  margin-bottom: 20px;
+.teacher-guide-toolbar {
+  margin-bottom: 14px;
 }
 
-.teacher-guide-header h1 {
+.teacher-guide-toolbar h1 {
   margin: 0;
+}
+
+.teacher-guide-toolbar .secondary-button {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .teacher-guide-toolbar > div:last-child {
+    margin-top: 8px;
+  }
 }
 
 .problem-header {

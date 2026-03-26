@@ -63,11 +63,11 @@ $items = $report['items'];
           <strong class="validate-summary-value"><?= (int) $summary['ok'] ?></strong>
         </div>
         <div class="validate-summary-card">
-          <span class="validate-summary-label">警告</span>
+          <span class="validate-summary-label">Warning</span>
           <strong class="validate-summary-value"><?= (int) $summary['warning'] ?></strong>
         </div>
         <div class="validate-summary-card">
-          <span class="validate-summary-label">エラー</span>
+          <span class="validate-summary-label">Error</span>
           <strong class="validate-summary-value"><?= (int) $summary['error'] ?></strong>
         </div>
       </div>
@@ -85,8 +85,8 @@ $items = $report['items'];
               <th>publishedAt</th>
               <th>examples</th>
               <th class="validate-cell-center">guide</th>
-              <th class="validate-cell-center">結果</th>
-              <th>詳細</th>
+              <th class="validate-cell-center">status</th>
+              <th>details</th>
             </tr>
           </thead>
           <tbody>
@@ -101,13 +101,13 @@ $items = $report['items'];
                 <td><code><?= h((string) $item['publishedAt']) ?></code></td>
                 <td><code><?= h((string) $item['examples']) ?></code></td>
                 <td class="validate-guide-cell validate-cell-center">
-                  <?php if (($item['guide'] ?? '') === 'あり'): ?>
-                    <span class="validate-status validate-status-ok">あり</span>
+                  <?php if (($item['guide'] ?? '') !== ''): ?>
+                    <span class="validate-status validate-status-ok">Available</span>
                   <?php endif; ?>
                 </td>
                 <td class="validate-cell-center">
                   <span class="validate-status validate-status-<?= h($item['status']) ?>">
-                    <?= $item['status'] === 'ok' ? 'OK' : ($item['status'] === 'warning' ? '警告' : 'エラー') ?>
+                    <?= $item['status'] === 'ok' ? 'OK' : ($item['status'] === 'warning' ? 'Warning' : 'Error') ?>
                   </span>
                 </td>
                 <td class="validate-detail-cell">

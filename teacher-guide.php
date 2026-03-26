@@ -55,23 +55,20 @@ try {
   <script defer src="assets/teacher-guide.js"></script>
 </head>
 <body class="page-shell">
-  <header class="site-header compact-header">
-    <div class="site-header-inner">
-      <a class="hero-card hero-card-compact hero-card-link hero-card-link-only" href="./">
-        <span class="back-link"><?= h((string) ($config['uiText']['backToList'] ?? '← 問題一覧へ戻る')) ?></span>
-      </a>
-    </div>
-  </header>
-
   <main class="content-stack">
-    <article class="panel content-panel teacher-guide-panel">
-      <header class="problem-header teacher-guide-header">
+    <section class="teacher-guide-panel">
+      <div class="panel-heading panel-heading-compact teacher-guide-toolbar">
         <div class="problem-header-main">
           <h1><?= h((string) ($config['uiText']['teacherGuideTitle'] ?? '教師用ガイド')) ?></h1>
         </div>
-      </header>
-      <div id="teacher-guide-body" class="problem-body"><?= $guideHtml ?></div>
-    </article>
+        <div>
+          <a class="secondary-button" href="./"><?= h((string) ($config['uiText']['backToList'] ?? '← 問題一覧へ戻る')) ?></a>
+        </div>
+      </div>
+      <article class="panel content-panel">
+        <div id="teacher-guide-body" class="problem-body"><?= $guideHtml ?></div>
+      </article>
+    </section>
   </main>
 
   <footer class="site-footer">
