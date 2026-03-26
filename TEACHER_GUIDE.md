@@ -32,7 +32,7 @@
   - `TEACHER_GUIDE.md`
 - `assets/`
 - `api/`
-- `config/app.json`
+- `config/`
 - `problems/`
 
 補足:

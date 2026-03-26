@@ -32,6 +32,56 @@
   margin: 0;
 }
 
+.teacher-guide-accordion {
+  margin-top: 18px;
+  border-top: 1px solid var(--footer-line);
+  padding-top: 14px;
+}
+
+.teacher-guide-accordion:first-of-type {
+  margin-top: 0;
+}
+
+.teacher-guide-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+}
+
+.teacher-guide-summary::-webkit-details-marker {
+  display: none;
+}
+
+.teacher-guide-summary::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
+  border-right: 2px solid var(--accordion-arrow);
+  border-bottom: 2px solid var(--accordion-arrow);
+  transform: rotate(-45deg) translateY(-1px);
+  transition: transform 0.18s ease;
+}
+
+.teacher-guide-accordion[open] .teacher-guide-summary::after {
+  transform: rotate(45deg);
+}
+
+.teacher-guide-accordion-content {
+  margin-top: 12px;
+}
+
+.teacher-guide-accordion-content > :first-child {
+  margin-top: 0;
+}
+
 .teacher-guide-toolbar .secondary-button {
   white-space: nowrap;
   flex-shrink: 0;
@@ -110,6 +160,10 @@
 
 .problem-body h3 {
   margin-bottom: 0.18em;
+}
+
+.teacher-guide-accordion .teacher-guide-summary {
+  margin: 0;
 }
 
 .problem-body h3 + p,
@@ -669,6 +723,10 @@
 
   .problem-body h3,
   .examples-section h2 {
+    font-size: 1.34rem;
+  }
+
+  .teacher-guide-summary {
     font-size: 1.34rem;
   }
 
