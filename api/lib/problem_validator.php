@@ -10,7 +10,6 @@ function ccc_validate_problem_set(?array $config = null): array
         $items[] = ccc_validate_problem_directory($directory, $config);
     }
 
-    ccc_apply_duplicate_problem_validation($items, 'id', 'error');
     ccc_apply_duplicate_problem_validation($items, 'number', 'warning');
 
     $summary = ['ok' => 0, 'warning' => 0, 'error' => 0];
@@ -52,10 +51,6 @@ function ccc_validate_problem_directory(string $directory, array $config): array
     ccc_fill_problem_validation_row($row, $decoded);
     ccc_validate_problem_manifest_fields($row, $decoded, $config);
 
-    if (($row['id'] ?? '') !== '' && $row['id'] !== $directory) {
-        $row['warnings'][] = 'Directory name and `id` do not match.';
-    }
-
     return $row;
 }
 
@@ -63,7 +58,7 @@ function ccc_create_problem_validation_row(string $directory): array
 {
     return [
         'directory' => $directory,
-        'id' => '',
+        'id' => $directory,
         'number' => '',
         'title' => '',
         'lecture' => '',
@@ -81,7 +76,6 @@ function ccc_create_problem_validation_row(string $directory): array
 
 function ccc_fill_problem_validation_row(array &$row, array $decoded): void
 {
-    $row['id'] = trim((string) ($decoded['id'] ?? ''));
     $row['number'] = trim((string) ($decoded['number'] ?? ''));
     $row['title'] = trim((string) ($decoded['title'] ?? ''));
     $row['lecture'] = ccc_problem_validation_scalar_display($decoded['lecture'] ?? null);
@@ -99,12 +93,6 @@ function ccc_fill_problem_validation_row(array &$row, array $decoded): void
 
 function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array $config): void
 {
-    if ($row['id'] === '') {
-        $row['errors'][] = '`id` is required.';
-    } elseif (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $row['id']) !== 1) {
-        $row['errors'][] = '`id` has an invalid format.';
-    }
-
     if ($row['number'] === '') {
         $row['errors'][] = '`number` is required.';
     }

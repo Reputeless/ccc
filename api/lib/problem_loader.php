@@ -132,14 +132,11 @@ function ccc_load_problem_manifest(string $problemId): ?array
         return null;
     }
 
-    $id = isset($decoded['id']) ? trim((string) $decoded['id']) : '';
+    $id = $problemId;
     $number = array_key_exists('number', $decoded) ? trim((string) $decoded['number']) : null;
     $title = isset($decoded['title']) ? trim((string) $decoded['title']) : '';
     $examples = $decoded['examples'] ?? null;
 
-    if ($id === '') {
-        throw new RuntimeException($problemId . '/problem.json requires id.');
-    }
     if ($number === null || $number === '') {
         throw new RuntimeException($problemId . '/problem.json requires number.');
     }

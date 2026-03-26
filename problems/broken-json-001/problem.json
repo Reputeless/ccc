@@ -1,7 +1,5 @@
 {
-  "id": "broken-json-001",
   "number": "99-1",
   "title": "壊れた JSON のテスト",
   "profileId": "c23",
   "examples": ["01"]
-
