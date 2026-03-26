@@ -383,10 +383,7 @@ problems/
   "lecture": 1,
   "difficulty": 1,
   "profileId": "c23",
-  "publishedAt": "2026-04-01T09:00:00+09:00",
-  "examples": [
-    "01"
-  ]
+  "publishedAt": "2026-04-01T09:00:00+09:00"
 }
 ```
 
@@ -399,7 +396,6 @@ problems/
 - `difficulty`: 任意
 - `profileId`: 任意
 - `publishedAt`: 任意
-- `examples`: 必須、1 から 6 組
 
 問題本文ファイル名は固定で `body.md` とする。  
 解説ファイルは任意で `guide.md` とする。  
@@ -409,8 +405,8 @@ problems/
 `guide.md` がある場合は、個別問題ページの `解説` パネルから読めるようにする。  
 `guide.md` がない場合でも `解説` パネル自体は表示し、`この問題の解説はありません。` と案内する。
 
-`examples` には、拡張子なしのベース名だけを列挙する。  
-たとえば `"01"` と書いた場合、システムは `01.in.txt` と `01.out.txt` を組として読む。
+入出力例は `01.in.txt` / `01.out.txt` から `06.in.txt` / `06.out.txt` までの固定連番で置く。  
+使う場合は `01` から順に詰めて置き、途中を飛ばさない。  
 
 ### 問題追加テンプレート
 
@@ -433,8 +429,7 @@ problems/
 {
   "number": "1-1",
   "title": "2つの整数の和",
-  "profileId": "c23",
-  "examples": ["01"]
+  "profileId": "c23"
 }
 ```
 
@@ -465,8 +460,7 @@ problems/
   "title": "2つの整数の和",
   "lecture": 1,
   "difficulty": 1,
-  "profileId": "c23",
-  "examples": ["01", "02"]
+  "profileId": "c23"
 }
 ```
 
@@ -510,8 +504,7 @@ a b
   "lecture": 1,
   "difficulty": 1,
   "profileId": "c23",
-  "publishedAt": "2026-04-01T09:00:00+09:00",
-  "examples": ["01", "02"]
+  "publishedAt": "2026-04-01T09:00:00+09:00"
 }
 ```
 
@@ -569,7 +562,7 @@ problems/
 
 - `## 制約` と `## ヒント` は不要なら省略してよい
 - 初期コード例を示したい場合は、本文中にコードブロックで書く
-- 入出力例は `examples` から自動表示するため、`body.md` に重複して書かなくてよい
+- 入出力例は例ファイルから自動表示するため、`body.md` に重複して書かなくてよい
 
 ### `problem.json` のバリデーション方針
 
@@ -582,9 +575,10 @@ problems/
 - `difficulty`: 任意、指定時は 1 から 3 の整数
 - `profileId`: 任意、指定時は `config/app.json` 内の `languageProfiles` に存在すること
 - `publishedAt`: 任意、指定時はタイムゾーン付きの ISO 8601 文字列を推奨
-- `examples`: 必須、1 件以上 6 件以下
-- `examples[]`: 文字列
-- 各 `examples[]` に対して `<name>.in.txt` と `<name>.out.txt` が両方存在すること
+- 入出力例ファイル: `01` から `06` までの固定連番を使うこと
+- 入出力例ファイル: 少なくとも 1 組存在すること
+- 入出力例ファイル: 途中の番号を飛ばさず、連続していること
+- 入出力例ファイル: 各番号について `<nn>.in.txt` と `<nn>.out.txt` が両方存在すること
 - `body.md` が存在すること
 
 バリデーションエラー時は、教員が原因をすぐ直せるメッセージを返すことを目指す。
@@ -592,12 +586,13 @@ problems/
 ### `validate.php`
 
 - `validate.php` にアクセスすると、全問題のメタ情報と検査結果を表形式で確認できる
-- 列は `problem.json` の主要項目に寄せ、`id / number / title / lecture / difficulty / profileId / publishedAt / examples / guide / 結果 / 詳細` を表示する
+- 列は `problem.json` の主要項目に寄せ、`id / number / title / lecture / difficulty / profileId / publishedAt / examples / guide / status / details` を表示する
 - `publishedAt` 未設定、`lecture` 未設定、`difficulty` 未設定は `OK` 扱いとする
 - `number` 未設定は `エラー` とする
 - `profileId` 未指定は既定プロファイルを使えるため `OK` 扱いとする
 - `number` の重複は運用上の注意として `警告` にする
 - `guide.md` の有無は表に出すが、警告やエラーにはしない
+- `examples` 列は `01, 02` のように、自動検出された入出力例ファイルの連番を表示する
 - 将来的に CLI バリデータを追加する場合も、この検査ロジックを流用する
 - 学生向けの問題一覧では、壊れた問題が 1 つあっても一覧全体を止めず、その問題だけを除外する
 - 壊れた問題の詳細確認は `validate.php` で行う
@@ -944,10 +939,24 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 /
   index.html
   problem.html
+  validate.php
+  teacher-guide.php
+  robots.txt
+  TEACHER_GUIDE.md
   assets/
     app.css
+    index-page.css
+    problem-page.css
+    validate.css
+    common.js
+    theme-init.js
     index.js
+    code-editor.js
     problem.js
+    teacher-guide.js
+    prism-init.js
+    vendor/
+      prism/
   api/
     config.php
     problems.php
@@ -957,6 +966,8 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
     lib/
       config_loader.php
       problem_loader.php
+      problem_manifest.php
+      problem_validator.php
       markdown_renderer.php
       judge_service.php
       response.php
@@ -976,16 +987,42 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   - 問題一覧ページ
 - `problem.html`:
   - 個別問題ページ
+- `validate.php`:
+  - 問題ステータスページ
+- `teacher-guide.php`:
+  - 教師用ガイドページ
+- `assets/app.css`:
+  - 全ページ共通の基盤スタイル
+- `assets/index-page.css`:
+  - 一覧ページ専用スタイル
+- `assets/problem-page.css`:
+  - 問題ページと教師用ガイドの本文系スタイル
+- `assets/validate.css`:
+  - 問題ステータスページ専用スタイル
+- `assets/common.js`:
+  - 共通設定取得、共通 UI 文言、ローカル保存補助
+- `assets/theme-init.js`:
+  - 初期テーマ適用
 - `assets/index.js`:
   - 一覧取得、フィルタ、一覧のローカル状態保持
+- `assets/code-editor.js`:
+  - textarea ベースの軽量コードエディタ拡張
 - `assets/problem.js`:
   - 個別問題取得、コード保存、判定実行、結果表示
+- `assets/teacher-guide.js`:
+  - 教師用ガイドページの初期化
+- `assets/prism-init.js`:
+  - 問題本文や解説の syntax highlight 初期化
 - `api/bootstrap.php`:
   - 共通初期化
 - `api/lib/config_loader.php`:
   - `config/app.json` の読み込み
+- `api/lib/problem_manifest.php`:
+  - 問題フォルダ内の固定ファイルパスや例ファイル走査の共通処理
 - `api/lib/problem_loader.php`:
-  - `problems/` 以下の読み込みとバリデーション
+  - `problems/` 以下の読み込みと問題ページ / judge 用データ生成
+- `api/lib/problem_validator.php`:
+  - `validate.php` 用の問題データ検査
 - `api/lib/markdown_renderer.php`:
   - `body.md` を安全な HTML に変換
 - `api/lib/judge_service.php`:
@@ -1327,7 +1364,7 @@ HTTP ステータスの方針:
 4. 対象問題が存在するか確認する
 5. 対象問題が公開対象か確認する
 6. 問題ディレクトリから `body.md` と入出力例を読み込む
-7. `examples` の整合性を検証する
+7. 入出力例ファイルの連番と整合性を検証する
 8. 先頭の例から順に、Wandbox へコンパイル・実行を依頼する
 9. コンパイルエラーならその時点で `compile_error` を返す
 10. 実行失敗なら `runtime_error` または `timeout` を返す

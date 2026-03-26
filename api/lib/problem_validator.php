@@ -82,13 +82,6 @@ function ccc_fill_problem_validation_row(array &$row, array $decoded): void
     $row['difficulty'] = ccc_problem_validation_scalar_display($decoded['difficulty'] ?? null);
     $row['profileId'] = trim((string) ($decoded['profileId'] ?? ''));
     $row['publishedAt'] = trim((string) ($decoded['publishedAt'] ?? ''));
-
-    $examples = $decoded['examples'] ?? null;
-    if (is_array($examples)) {
-        $row['examples'] = json_encode(array_values($examples), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '[invalid]';
-    } elseif ($examples !== null) {
-        $row['examples'] = ccc_problem_validation_scalar_display($examples);
-    }
 }
 
 function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array $config): void
@@ -128,36 +121,7 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
         }
     }
 
-    $examples = $decoded['examples'] ?? null;
-    if (!is_array($examples)) {
-        $row['errors'][] = '`examples` must be an array.';
-    } else {
-        $exampleNames = array_map(static fn (mixed $value): string => trim((string) $value), $examples);
-        if (count($exampleNames) < 1 || count($exampleNames) > 6) {
-            $row['errors'][] = '`examples` must contain between 1 and 6 items.';
-        }
-
-        if (count(array_unique($exampleNames)) !== count($exampleNames)) {
-            $row['errors'][] = '`examples` contains duplicates.';
-        }
-
-        foreach ($exampleNames as $name) {
-            if ($name === '') {
-                $row['errors'][] = '`examples` contains an empty string.';
-                continue;
-            }
-
-            $inputPath = ccc_problem_example_input_path($row['directory'], $name);
-            $outputPath = ccc_problem_example_output_path($row['directory'], $name);
-
-            if (!is_file($inputPath)) {
-                $row['errors'][] = sprintf('`%s.in.txt` is missing.', $name);
-            }
-            if (!is_file($outputPath)) {
-                $row['errors'][] = sprintf('`%s.out.txt` is missing.', $name);
-            }
-        }
-    }
+    ccc_validate_problem_example_files($row);
 
     $bodyPath = ccc_problem_body_path($row['directory']);
     if (!is_file($bodyPath)) {
@@ -165,6 +129,43 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
     }
 
     $row['guide'] = is_file(ccc_problem_guide_path($row['directory'])) ? 'available' : '';
+}
+
+function ccc_validate_problem_example_files(array &$row): void
+{
+    $exampleFiles = ccc_scan_problem_example_files($row['directory']);
+    $detectedNames = [];
+    $hasMissingEarlierSlot = false;
+
+    foreach ($exampleFiles as $exampleFile) {
+        $name = $exampleFile['name'];
+        if (!$exampleFile['hasAny']) {
+            $hasMissingEarlierSlot = true;
+            continue;
+        }
+
+        if ($hasMissingEarlierSlot) {
+            $row['errors'][] = 'Example files must use consecutive names from `01`.';
+            break;
+        }
+
+        if (!$exampleFile['inputExists']) {
+            $row['errors'][] = sprintf('`%s.in.txt` is missing.', $name);
+        }
+        if (!$exampleFile['outputExists']) {
+            $row['errors'][] = sprintf('`%s.out.txt` is missing.', $name);
+        }
+
+        $detectedNames[] = $name;
+    }
+
+    if ($detectedNames === []) {
+        $row['errors'][] = 'At least one example file pair is required.';
+        $row['examples'] = '';
+        return;
+    }
+
+    $row['examples'] = implode(', ', $detectedNames);
 }
 
 function ccc_validate_problem_optional_integer(array &$row, array $decoded, string $field): void

@@ -31,6 +31,27 @@ function ccc_problem_example_output_path(string $problemId, string $exampleName)
     return ccc_problem_directory_path($problemId) . DIRECTORY_SEPARATOR . $exampleName . '.out.txt';
 }
 
+function ccc_scan_problem_example_files(string $problemId): array
+{
+    $items = [];
+    for ($index = 1; $index <= 6; $index++) {
+        $name = sprintf('%02d', $index);
+        $inputPath = ccc_problem_example_input_path($problemId, $name);
+        $outputPath = ccc_problem_example_output_path($problemId, $name);
+        $inputExists = is_file($inputPath);
+        $outputExists = is_file($outputPath);
+
+        $items[] = [
+            'name' => $name,
+            'inputExists' => $inputExists,
+            'outputExists' => $outputExists,
+            'hasAny' => $inputExists || $outputExists,
+        ];
+    }
+
+    return $items;
+}
+
 function ccc_read_problem_manifest_json(string $problemId): ?array
 {
     if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $problemId) !== 1) {

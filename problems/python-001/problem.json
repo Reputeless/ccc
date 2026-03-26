@@ -3,6 +3,5 @@
   "title": "Python で Hello, Python!",
   "lecture": 12,
   "difficulty": 1,
-  "profileId": "python3.14",
-  "examples": ["01"]
+  "profileId": "python3.14"
 }

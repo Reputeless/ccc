@@ -3,6 +3,5 @@
   "title": "C++23 で Hello, C++!",
   "lecture": 12,
   "difficulty": 1,
-  "profileId": "cpp23",
-  "examples": ["01"]
+  "profileId": "cpp23"
 }

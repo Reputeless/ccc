@@ -135,24 +135,11 @@ function ccc_load_problem_manifest(string $problemId): ?array
     $id = $problemId;
     $number = array_key_exists('number', $decoded) ? trim((string) $decoded['number']) : null;
     $title = isset($decoded['title']) ? trim((string) $decoded['title']) : '';
-    $examples = $decoded['examples'] ?? null;
-
     if ($number === null || $number === '') {
         throw new RuntimeException($problemId . '/problem.json requires number.');
     }
     if ($title === '') {
         throw new RuntimeException($problemId . '/problem.json requires title.');
-    }
-    if (!is_array($examples) || count($examples) < 1 || count($examples) > 6) {
-        throw new RuntimeException($problemId . '/problem.json requires 1 to 6 examples.');
-    }
-
-    $exampleNames = array_map(static fn ($item): string => trim((string) $item), $examples);
-    if (in_array('', $exampleNames, true)) {
-        throw new RuntimeException($problemId . '/problem.json contains an empty example name.');
-    }
-    if (count($exampleNames) !== count(array_unique($exampleNames))) {
-        throw new RuntimeException($problemId . '/problem.json contains duplicate example names.');
     }
 
     $lecture = array_key_exists('lecture', $decoded) ? ccc_optional_int($decoded['lecture'], 'lecture') : null;
@@ -180,7 +167,6 @@ function ccc_load_problem_manifest(string $problemId): ?array
         'difficulty' => $difficulty,
         'publishedAt' => $publishedAt,
         'profileId' => $profileId,
-        'examples' => $exampleNames,
     ];
 }
 
@@ -237,18 +223,27 @@ function ccc_load_problem_guide_html(array $manifest, CccMarkdownRenderer $rende
 
 function ccc_load_problem_examples(array $manifest): array
 {
+    $exampleFiles = ccc_scan_problem_example_files($manifest['id']);
     $examples = [];
-    foreach ($manifest['examples'] as $name) {
-        if ($name === '') {
-            throw new RuntimeException($manifest['id'] . '/problem.json contains an empty example name.');
+    $hasMissingEarlierSlot = false;
+
+    foreach ($exampleFiles as $exampleFile) {
+        $name = $exampleFile['name'];
+        if (!$exampleFile['hasAny']) {
+            $hasMissingEarlierSlot = true;
+            continue;
+        }
+
+        if ($hasMissingEarlierSlot) {
+            throw new RuntimeException($manifest['id'] . ' example files must use consecutive names from `01`.');
+        }
+
+        if (!$exampleFile['inputExists'] || !$exampleFile['outputExists']) {
+            throw new RuntimeException($manifest['id'] . ' example files are missing for "' . $name . '".');
         }
 
         $inputPath = ccc_problem_example_input_path($manifest['id'], $name);
         $outputPath = ccc_problem_example_output_path($manifest['id'], $name);
-        if (!is_file($inputPath) || !is_file($outputPath)) {
-            throw new RuntimeException($manifest['id'] . ' example files are missing for "' . $name . '".');
-        }
-
         $stdin = file_get_contents($inputPath);
         $stdout = file_get_contents($outputPath);
         if ($stdin === false || $stdout === false) {
@@ -260,6 +255,10 @@ function ccc_load_problem_examples(array $manifest): array
             'stdin' => ccc_normalize_file_newlines($stdin),
             'stdout' => ccc_normalize_file_newlines($stdout),
         ];
+    }
+
+    if ($examples === []) {
+        throw new RuntimeException($manifest['id'] . ' requires at least one example file pair.');
     }
 
     return $examples;

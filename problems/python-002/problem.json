@@ -3,6 +3,5 @@
   "title": "Python で 1 行だけ字下げして表示する",
   "lecture": 12,
   "difficulty": 1,
-  "profileId": "python3.14",
-  "examples": ["01"]
+  "profileId": "python3.14"
 }
