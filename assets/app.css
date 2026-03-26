@@ -28,6 +28,7 @@
   --surface-result-section: rgba(255, 255, 255, 0.52);
   --surface-result-card: #fff;
   --surface-example-card: rgba(255, 255, 255, 0.88);
+  --example-card-border: rgba(131, 103, 75, 0.18);
   --surface-problem-card: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 239, 0.96));
   --surface-problem-card-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(249, 244, 236, 0.98));
   --surface-chip-option: rgba(255, 255, 255, 0.72);
@@ -54,6 +55,32 @@
   --shadow-problem-card: 0 3px 10px rgba(48, 33, 22, 0.03);
   --shadow-problem-card-hover: 0 5px 12px rgba(48, 33, 22, 0.04);
   --focus-ring: rgba(13, 95, 88, 0.10);
+  --image-shadow: 0 6px 14px rgba(48, 33, 22, 0.08);
+  --copy-button-border: rgba(223, 229, 236, 0.20);
+  --copy-button-bg: rgba(223, 229, 236, 0.08);
+  --copy-button-hover-border: rgba(223, 229, 236, 0.42);
+  --copy-button-hover-bg: rgba(223, 229, 236, 0.18);
+  --copy-button-copied-border: rgba(153, 230, 196, 0.48);
+  --copy-button-copied-bg: rgba(153, 230, 196, 0.20);
+  --solved-circle-bg: rgba(255, 255, 255, 0.68);
+  --solved-circle-stroke: rgba(131, 103, 75, 0.42);
+  --solved-hover-fill: rgba(13, 95, 88, 0.08);
+  --solved-hover-stroke: rgba(13, 95, 88, 0.55);
+  --solved-checked-fill: #1ea672;
+  --understanding-select-active-border: rgba(13, 95, 88, 0.34);
+  --understanding-select-active-bg: rgba(245, 255, 252, 0.94);
+  --understanding-choice-border: rgba(131, 103, 75, 0.22);
+  --understanding-choice-bg: rgba(255, 255, 255, 0.86);
+  --understanding-choice-hover-border: rgba(13, 95, 88, 0.26);
+  --understanding-choice-1-bg: #f4dfda;
+  --understanding-choice-1-border: rgba(145, 78, 69, 0.28);
+  --understanding-choice-1-text: #7f473c;
+  --understanding-choice-2-bg: #f2ead0;
+  --understanding-choice-2-border: rgba(137, 118, 52, 0.26);
+  --understanding-choice-2-text: #745d1f;
+  --understanding-choice-3-bg: #dff0e6;
+  --understanding-choice-3-border: rgba(54, 111, 79, 0.28);
+  --understanding-choice-3-text: #215f3c;
   --difficulty-1-bg: #e5f2ea;
   --difficulty-1-text: var(--text);
   --difficulty-2-bg: #fff0d9;
@@ -63,6 +90,14 @@
   --difficulty-unset-bg: #ece7dd;
   --lecture-unset-bg: #ece7dd;
   --lecture-badge-bg: var(--panel-muted);
+  --understanding-marker-unset-bg: #e7e1d7;
+  --understanding-marker-unset-border: rgba(131, 103, 75, 0.28);
+  --understanding-marker-1-bg: #e1a39a;
+  --understanding-marker-1-border: rgba(145, 78, 69, 0.35);
+  --understanding-marker-2-bg: #decf9a;
+  --understanding-marker-2-border: rgba(137, 118, 52, 0.35);
+  --understanding-marker-3-bg: #9ecfb1;
+  --understanding-marker-3-border: rgba(54, 111, 79, 0.35);
   --problem-number-color: rgba(114, 95, 74, 0.72);
   --problem-number-meta-color: rgba(114, 95, 74, 0.82);
   --compiler-error-color: #cc4b37;
@@ -91,15 +126,15 @@
 
 html[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0e1319;
-  --panel: rgba(19, 25, 31, 0.94);
-  --panel-strong: #1c2630;
-  --panel-muted: #162028;
+  --bg: #0f141a;
+  --panel: rgba(23, 30, 37, 0.94);
+  --panel-strong: #24313d;
+  --panel-muted: #1b252e;
   --text: #edf5f4;
   --muted: #a0b3b1;
   --line: rgba(131, 171, 166, 0.20);
   --accent: #66ddd1;
-  --accent-soft: rgba(39, 88, 84, 0.52);
+  --accent-soft: rgba(48, 105, 100, 0.54);
   --accent-strong: #d7f3ef;
   --danger-soft: rgba(124, 55, 66, 0.34);
   --warn-soft: rgba(122, 99, 45, 0.34);
@@ -109,49 +144,88 @@ html[data-theme="dark"] {
   --page-glow-right: rgba(64, 94, 136, 0.16);
   --page-bg-top: #10161d;
   --footer-line: rgba(131, 171, 166, 0.14);
-  --surface-filter-panel: linear-gradient(180deg, rgba(18, 24, 30, 0.98), rgba(14, 19, 24, 0.94));
-  --surface-list-panel: linear-gradient(180deg, rgba(18, 24, 30, 0.98), rgba(14, 19, 24, 0.95));
-  --surface-content-panel: linear-gradient(180deg, rgba(20, 26, 32, 0.98), rgba(16, 21, 27, 0.96));
-  --surface-editor-panel: linear-gradient(180deg, rgba(18, 24, 30, 0.98), rgba(14, 19, 24, 0.95));
-  --surface-code-editor: #11161c;
+  --surface-filter-panel: linear-gradient(180deg, rgba(25, 33, 40, 0.98), rgba(20, 27, 34, 0.95));
+  --surface-list-panel: linear-gradient(180deg, rgba(25, 33, 40, 0.98), rgba(20, 27, 34, 0.95));
+  --surface-content-panel: linear-gradient(180deg, rgba(27, 35, 42, 0.98), rgba(21, 28, 35, 0.96));
+  --surface-editor-panel: linear-gradient(180deg, rgba(25, 33, 40, 0.98), rgba(20, 27, 34, 0.95));
+  --surface-code-editor: #171f27;
   --surface-result-section: rgba(16, 21, 27, 0.56);
-  --surface-result-card: rgba(20, 26, 32, 0.92);
-  --surface-example-card: rgba(19, 25, 31, 0.88);
-  --surface-problem-card: linear-gradient(180deg, rgba(22, 28, 35, 0.98), rgba(17, 23, 29, 0.96));
-  --surface-problem-card-hover: linear-gradient(180deg, rgba(24, 31, 38, 0.99), rgba(18, 24, 30, 0.98));
-  --surface-chip-option: rgba(20, 27, 34, 0.84);
-  --surface-field: rgba(14, 19, 24, 0.92);
-  --surface-field-focus: rgba(17, 23, 29, 0.98);
+  --surface-result-card: rgba(27, 35, 42, 0.92);
+  --surface-example-card: rgba(25, 33, 40, 0.88);
+  --example-card-border: rgba(131, 171, 166, 0.18);
+  --surface-problem-card: linear-gradient(180deg, rgba(29, 37, 45, 0.98), rgba(22, 29, 36, 0.96));
+  --surface-problem-card-hover: linear-gradient(180deg, rgba(32, 41, 49, 0.99), rgba(24, 32, 39, 0.98));
+  --surface-chip-option: rgba(28, 37, 45, 0.88);
+  --surface-field: rgba(25, 33, 40, 0.96);
+  --surface-field-focus: rgba(30, 39, 47, 0.98);
+  --surface-code-block: #232427;
+  --surface-code-block-text: #f5f6f8;
   --surface-button-primary: #1d3f3c;
   --surface-button-primary-hover: #25625c;
-  --surface-button-secondary: #1a232b;
-  --surface-button-secondary-hover: #212c35;
+  --surface-button-secondary: #23303b;
+  --surface-button-secondary-hover: #2b3945;
   --button-primary-border: rgba(102, 221, 209, 0.28);
   --button-primary-text: #dcf6f2;
   --button-primary-hover-border: rgba(102, 221, 209, 0.44);
   --button-primary-hover-text: #f3fffd;
-  --button-secondary-border: rgba(131, 171, 166, 0.18);
+  --button-secondary-border: rgba(131, 171, 166, 0.24);
   --button-secondary-hover-border: rgba(102, 221, 209, 0.22);
-  --border-panel-accent: rgba(102, 221, 209, 0.16);
-  --border-field: rgba(131, 171, 166, 0.20);
-  --border-field-focus: rgba(102, 221, 209, 0.34);
-  --border-problem-card: rgba(131, 171, 166, 0.16);
-  --border-problem-card-hover: rgba(102, 221, 209, 0.22);
-  --border-chip-option: rgba(131, 171, 166, 0.18);
+  --border-panel-accent: rgba(102, 221, 209, 0.22);
+  --border-field: rgba(131, 171, 166, 0.32);
+  --border-field-focus: rgba(102, 221, 209, 0.46);
+  --border-problem-card: rgba(131, 171, 166, 0.22);
+  --border-problem-card-hover: rgba(102, 221, 209, 0.28);
+  --border-chip-option: rgba(131, 171, 166, 0.24);
   --shadow-problem-card: 0 4px 12px rgba(0, 0, 0, 0.15);
   --shadow-problem-card-hover: 0 6px 14px rgba(0, 0, 0, 0.19);
   --focus-ring: rgba(102, 221, 209, 0.12);
-  --difficulty-1-bg: rgba(79, 130, 104, 0.34);
-  --difficulty-1-text: #dff4e7;
-  --difficulty-2-bg: rgba(155, 124, 54, 0.34);
-  --difficulty-2-text: #fff0cb;
-  --difficulty-3-bg: rgba(142, 82, 95, 0.34);
-  --difficulty-3-text: #f6e1e5;
-  --difficulty-unset-bg: #1b232b;
-  --lecture-unset-bg: #1b232b;
-  --lecture-badge-bg: #1d2831;
+  --image-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
+  --copy-button-border: rgba(223, 229, 236, 0.20);
+  --copy-button-bg: rgba(223, 229, 236, 0.08);
+  --copy-button-hover-border: rgba(223, 229, 236, 0.42);
+  --copy-button-hover-bg: rgba(223, 229, 236, 0.18);
+  --copy-button-copied-border: rgba(153, 230, 196, 0.48);
+  --copy-button-copied-bg: rgba(153, 230, 196, 0.20);
+  --solved-circle-bg: rgba(42, 53, 64, 0.92);
+  --solved-circle-stroke: rgba(188, 204, 202, 0.52);
+  --solved-hover-fill: rgba(60, 95, 91, 0.42);
+  --solved-hover-stroke: rgba(119, 224, 214, 0.72);
+  --solved-checked-fill: #29b07d;
+  --understanding-select-active-border: rgba(102, 221, 209, 0.42);
+  --understanding-select-active-bg: rgba(34, 46, 55, 0.98);
+  --understanding-choice-border: rgba(131, 171, 166, 0.28);
+  --understanding-choice-bg: rgba(25, 33, 40, 0.96);
+  --understanding-choice-hover-border: rgba(102, 221, 209, 0.34);
+  --understanding-choice-1-bg: rgba(123, 56, 67, 0.54);
+  --understanding-choice-1-border: rgba(235, 171, 181, 0.28);
+  --understanding-choice-1-text: #ffe5e8;
+  --understanding-choice-2-bg: rgba(129, 103, 37, 0.54);
+  --understanding-choice-2-border: rgba(243, 221, 149, 0.26);
+  --understanding-choice-2-text: #fff6db;
+  --understanding-choice-3-bg: rgba(42, 110, 78, 0.56);
+  --understanding-choice-3-border: rgba(178, 236, 208, 0.24);
+  --understanding-choice-3-text: #eafff4;
+  --difficulty-1-bg: rgba(54, 124, 87, 0.52);
+  --difficulty-1-text: #effdf4;
+  --difficulty-2-bg: rgba(168, 128, 32, 0.52);
+  --difficulty-2-text: #fff6dc;
+  --difficulty-3-bg: rgba(160, 72, 88, 0.52);
+  --difficulty-3-text: #fff0f3;
+  --difficulty-unset-bg: #24303a;
+  --lecture-unset-bg: #24303a;
+  --lecture-badge-bg: #253440;
+  --understanding-marker-unset-bg: #33424e;
+  --understanding-marker-unset-border: rgba(188, 204, 202, 0.34);
+  --understanding-marker-1-bg: #c66f73;
+  --understanding-marker-1-border: rgba(255, 210, 214, 0.28);
+  --understanding-marker-2-bg: #d1b24f;
+  --understanding-marker-2-border: rgba(255, 238, 179, 0.28);
+  --understanding-marker-3-bg: #4faa7f;
+  --understanding-marker-3-border: rgba(203, 245, 224, 0.24);
   --problem-number-color: rgba(160, 179, 177, 0.78);
   --problem-number-meta-color: rgba(160, 179, 177, 0.78);
+  --compiler-error-color: #cc4b37;
+  --compiler-warning-color: #d2a13f;
   --result-section-border: rgba(131, 171, 166, 0.16);
   --status-border: rgba(131, 171, 166, 0.12);
   --status-muted-bg: #232c34;
@@ -159,6 +233,9 @@ html[data-theme="dark"] {
   --status-success-bg: rgba(25, 93, 69, 0.36);
   --status-warning-bg: rgba(122, 99, 45, 0.34);
   --status-error-bg: rgba(124, 55, 66, 0.34);
+  --status-success-icon: #57d19e;
+  --status-error-icon: #f09b8f;
+  --status-warning-icon: #e2bb63;
   --spinner-track: rgba(102, 221, 209, 0.20);
   --accordion-arrow: rgba(220, 236, 234, 0.92);
   --syntax-comment-color: #8192a0;
@@ -523,8 +600,8 @@ button, input, select, textarea { font: inherit; }
   overflow: visible;
 }
 .solved-toggle-circle {
-  fill: var(--solved-circle-bg, rgba(255, 255, 255, 0.68));
-  stroke: var(--solved-circle-stroke, rgba(131, 103, 75, 0.42));
+  fill: var(--solved-circle-bg);
+  stroke: var(--solved-circle-stroke);
   stroke-width: 1.6;
   transform-origin: center;
   transition: fill 0.18s ease, stroke 0.18s ease;
@@ -541,12 +618,12 @@ button, input, select, textarea { font: inherit; }
 }
 .solved-toggle:hover .solved-toggle-circle,
 .solved-toggle-input:focus-visible + .solved-toggle-icon .solved-toggle-circle {
-  fill: var(--solved-hover-fill, rgba(13, 95, 88, 0.08));
-  stroke: var(--solved-hover-stroke, rgba(13, 95, 88, 0.55));
+  fill: var(--solved-hover-fill);
+  stroke: var(--solved-hover-stroke);
 }
 .solved-toggle-input:checked + .solved-toggle-icon .solved-toggle-circle {
-  fill: var(--solved-checked-fill, #1ea672);
-  stroke: var(--solved-checked-fill, #1ea672);
+  fill: var(--solved-checked-fill);
+  stroke: var(--solved-checked-fill);
 }
 .solved-toggle-input:checked + .solved-toggle-icon .solved-toggle-check {
   stroke-dashoffset: 0;
@@ -585,31 +662,32 @@ button, input, select, textarea { font: inherit; }
   animation: understanding-marker-pop 0.5s ease-out;
 }
 .understanding-select-wrap-animate .understanding-select {
-  border-color: var(--understanding-select-active-border, rgba(13, 95, 88, 0.34));
-  background: var(--understanding-select-active-bg, rgba(245, 255, 252, 0.94));
+  border-color: var(--understanding-select-active-border);
+  background: var(--understanding-select-active-bg);
 }
 .understanding-marker {
   width: 14px;
   height: 14px;
   border-radius: 999px;
   flex: 0 0 auto;
-  border: 1px solid var(--understanding-marker-border, rgba(131, 103, 75, 0.28));
-  background: var(--understanding-marker-unset-bg, #e7e1d7);
+  border: 1px solid var(--understanding-marker-unset-border);
+  background: var(--understanding-marker-unset-bg);
 }
 .understanding-marker-understanding-unset {
-  background: var(--understanding-marker-unset-bg, #e7e1d7);
+  background: var(--understanding-marker-unset-bg);
+  border-color: var(--understanding-marker-unset-border);
 }
 .understanding-marker-understanding-1 {
-  background: var(--understanding-marker-1-bg, #e1a39a);
-  border-color: var(--understanding-marker-1-border, rgba(145, 78, 69, 0.35));
+  background: var(--understanding-marker-1-bg);
+  border-color: var(--understanding-marker-1-border);
 }
 .understanding-marker-understanding-2 {
-  background: var(--understanding-marker-2-bg, #decf9a);
-  border-color: var(--understanding-marker-2-border, rgba(137, 118, 52, 0.35));
+  background: var(--understanding-marker-2-bg);
+  border-color: var(--understanding-marker-2-border);
 }
 .understanding-marker-understanding-3 {
-  background: var(--understanding-marker-3-bg, #9ecfb1);
-  border-color: var(--understanding-marker-3-border, rgba(54, 111, 79, 0.35));
+  background: var(--understanding-marker-3-bg);
+  border-color: var(--understanding-marker-3-border);
 }
 .sr-only {
   position: absolute;
@@ -632,7 +710,7 @@ button, input, select, textarea { font: inherit; }
 .primary-button {
   border: 1px solid var(--button-primary-border);
   background: var(--surface-button-primary);
-  color: var(--button-primary-text, var(--accent-strong));
+  color: var(--button-primary-text);
   font-weight: 700;
   font-size: 1.15rem;
   display: inline-flex;
@@ -641,7 +719,7 @@ button, input, select, textarea { font: inherit; }
 .primary-button:hover {
   border-color: var(--button-primary-hover-border);
   background: var(--surface-button-primary-hover);
-  color: var(--button-primary-hover-text, #d9f0eb);
+  color: var(--button-primary-hover-text);
 }
 .secondary-button {
   border: 1px solid var(--button-secondary-border);
@@ -668,9 +746,9 @@ button, input, select, textarea { font: inherit; }
   align-items: center;
   min-height: 38px;
   padding: 8px 12px;
-  border: 1px solid var(--understanding-choice-border, rgba(131, 103, 75, 0.22));
+  border: 1px solid var(--understanding-choice-border);
   border-radius: 10px;
-  background: var(--understanding-choice-bg, rgba(255, 255, 255, 0.86));
+  background: var(--understanding-choice-bg);
   color: var(--text);
   font-weight: 600;
   transition: border-color 0.18s ease, background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
@@ -678,22 +756,22 @@ button, input, select, textarea { font: inherit; }
 .understanding-choice:hover .understanding-choice-label,
 .understanding-choice input:focus-visible + .understanding-choice-label {
   outline: none;
-  border-color: var(--understanding-choice-hover-border, rgba(13, 95, 88, 0.26));
+  border-color: var(--understanding-choice-hover-border);
 }
 .understanding-choice-1 input:checked + .understanding-choice-label {
-  background: var(--understanding-choice-1-bg, #f4dfda);
-  border-color: var(--understanding-choice-1-border, rgba(145, 78, 69, 0.28));
-  color: var(--understanding-choice-1-text, #7f473c);
+  background: var(--understanding-choice-1-bg);
+  border-color: var(--understanding-choice-1-border);
+  color: var(--understanding-choice-1-text);
 }
 .understanding-choice-2 input:checked + .understanding-choice-label {
-  background: var(--understanding-choice-2-bg, #f2ead0);
-  border-color: var(--understanding-choice-2-border, rgba(137, 118, 52, 0.26));
-  color: var(--understanding-choice-2-text, #745d1f);
+  background: var(--understanding-choice-2-bg);
+  border-color: var(--understanding-choice-2-border);
+  color: var(--understanding-choice-2-text);
 }
 .understanding-choice-3 input:checked + .understanding-choice-label {
-  background: var(--understanding-choice-3-bg, #dff0e6);
-  border-color: var(--understanding-choice-3-border, rgba(54, 111, 79, 0.28));
-  color: var(--understanding-choice-3-text, #215f3c);
+  background: var(--understanding-choice-3-bg);
+  border-color: var(--understanding-choice-3-border);
+  color: var(--understanding-choice-3-text);
 }
 .understanding-choice input:checked + .understanding-choice-label {
   transform: translateY(-1px);

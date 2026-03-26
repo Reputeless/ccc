@@ -95,7 +95,7 @@
 
 .validate-status-warning {
   background: var(--warn-soft);
-  color: var(--status-warning-icon, #8f6418);
+  color: var(--status-warning-icon);
 }
 
 .validate-status-error {
@@ -148,7 +148,7 @@
 
 .validate-problem-link:hover,
 .validate-problem-link:focus-visible {
-  color: var(--heading);
+  color: var(--accent);
   border-bottom-color: currentColor;
 }
 

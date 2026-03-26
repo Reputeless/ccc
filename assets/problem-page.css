@@ -153,9 +153,9 @@
   right: 8px;
   width: 28px;
   height: 28px;
-  border: 1px solid var(--copy-button-border, rgba(223, 229, 236, 0.20));
+  border: 1px solid var(--copy-button-border);
   border-radius: 6px;
-  background: var(--copy-button-bg, rgba(223, 229, 236, 0.08));
+  background: var(--copy-button-bg);
   color: transparent;
   cursor: pointer;
   transition: background-color 0.18s ease, border-color 0.18s ease;
@@ -176,13 +176,13 @@
 .copy-code-button:hover,
 .copy-code-button:focus-visible {
   outline: none;
-  border-color: var(--copy-button-hover-border, rgba(223, 229, 236, 0.42));
-  background: var(--copy-button-hover-bg, rgba(223, 229, 236, 0.18));
+  border-color: var(--copy-button-hover-border);
+  background: var(--copy-button-hover-bg);
 }
 
 .copy-code-button.is-copied {
-  border-color: var(--copy-button-copied-border, rgba(153, 230, 196, 0.48));
-  background: var(--copy-button-copied-bg, rgba(153, 230, 196, 0.20));
+  border-color: var(--copy-button-copied-border);
+  background: var(--copy-button-copied-bg);
 }
 
 .copy-code-button.is-copied::before {
@@ -269,7 +269,7 @@
 .problem-body img {
   max-width: 100%;
   border-radius: 0;
-  box-shadow: var(--image-shadow, 0 6px 14px rgba(48, 33, 22, 0.08));
+  box-shadow: var(--image-shadow);
 }
 
 .examples-section {
@@ -462,7 +462,7 @@
 .result-status-banner {
   display: flex;
   align-items: center;
-  border: 1px solid var(--status-border, rgba(131, 103, 75, 0.12));
+  border: 1px solid var(--status-border);
 }
 
 .result-status-banner.has-icon {
@@ -485,21 +485,21 @@
 }
 
 .muted-banner .result-status-icon {
-  color: var(--status-muted-icon, #6f5e49);
+  color: var(--status-muted-icon);
 }
 
 .success-banner .result-status-icon {
-  color: var(--status-success-icon, #12825a);
+  color: var(--status-success-icon);
   font-size: 1.35rem;
   font-weight: 900;
 }
 
 .error-banner .result-status-icon {
-  color: var(--status-error-icon, #974f3d);
+  color: var(--status-error-icon);
 }
 
 .warning-banner .result-status-icon {
-  color: var(--status-warning-icon, #8f6418);
+  color: var(--status-warning-icon);
 }
 
 .loading-indicator {
@@ -512,7 +512,7 @@
 .spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid var(--spinner-track, rgba(23, 89, 74, 0.25));
+  border: 2px solid var(--spinner-track);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
