@@ -18,7 +18,7 @@
 
 .validate-summary-card {
   border: 1px solid var(--border-problem-card);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--surface-problem-card);
   box-shadow: var(--shadow-problem-card);
   padding: 12px 14px;
@@ -42,7 +42,7 @@
   margin-top: 16px;
   overflow-x: auto;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--surface-content-panel);
 }
 

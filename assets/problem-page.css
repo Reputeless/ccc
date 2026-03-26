@@ -60,6 +60,7 @@
 
 .problem-header-main h1 {
   margin: 0;
+  line-height: 1.22;
 }
 
 .problem-meta-row {
@@ -284,7 +285,7 @@
 
 .example-card {
   border: 1px solid var(--example-card-border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--surface-example-card);
   overflow: hidden;
 }
@@ -396,7 +397,7 @@
   margin-top: 22px;
   padding: 16px 16px 0;
   border: 1px solid var(--result-section-border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--surface-result-section);
 }
 
@@ -404,7 +405,7 @@
   margin-top: 18px;
   padding: 16px;
   border: 1px solid var(--result-section-border);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--surface-result-section);
 }
 

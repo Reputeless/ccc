@@ -12,8 +12,8 @@
   --danger-soft: #f9e3dd;
   --warn-soft: #fff0c9;
   --shadow: 0 14px 34px rgba(48, 33, 22, 0.08);
-  --shadow-soft: 0 8px 18px rgba(48, 33, 22, 0.045);
-  --radius: 14px;
+  --shadow-soft: 0 6px 14px rgba(48, 33, 22, 0.038);
+  --radius: 12px;
   --font-body: "BIZ UDPGothic", "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
   --font-code: "Cascadia Mono", Consolas, monospace;
   --page-glow-left: rgba(13, 95, 88, 0.14);
@@ -51,8 +51,8 @@
   --border-problem-card: rgba(131, 103, 75, 0.18);
   --border-problem-card-hover: rgba(13, 95, 88, 0.24);
   --border-chip-option: rgba(131, 103, 75, 0.20);
-  --shadow-problem-card: 0 4px 12px rgba(48, 33, 22, 0.035);
-  --shadow-problem-card-hover: 0 6px 14px rgba(48, 33, 22, 0.045);
+  --shadow-problem-card: 0 3px 10px rgba(48, 33, 22, 0.03);
+  --shadow-problem-card-hover: 0 5px 12px rgba(48, 33, 22, 0.04);
   --focus-ring: rgba(13, 95, 88, 0.10);
   --difficulty-1-bg: #e5f2ea;
   --difficulty-1-text: var(--text);
@@ -102,7 +102,7 @@ html[data-theme="dark"] {
   --danger-soft: rgba(124, 55, 66, 0.34);
   --warn-soft: rgba(122, 99, 45, 0.34);
   --shadow: 0 18px 40px rgba(0, 0, 0, 0.34);
-  --shadow-soft: 0 10px 20px rgba(0, 0, 0, 0.26);
+  --shadow-soft: 0 8px 16px rgba(0, 0, 0, 0.22);
   --page-glow-left: rgba(67, 146, 138, 0.22);
   --page-glow-right: rgba(64, 94, 136, 0.16);
   --page-bg-top: #10161d;
@@ -136,8 +136,8 @@ html[data-theme="dark"] {
   --border-problem-card: rgba(131, 171, 166, 0.16);
   --border-problem-card-hover: rgba(102, 221, 209, 0.22);
   --border-chip-option: rgba(131, 171, 166, 0.18);
-  --shadow-problem-card: 0 6px 14px rgba(0, 0, 0, 0.18);
-  --shadow-problem-card-hover: 0 8px 16px rgba(0, 0, 0, 0.22);
+  --shadow-problem-card: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --shadow-problem-card-hover: 0 6px 14px rgba(0, 0, 0, 0.19);
   --focus-ring: rgba(102, 221, 209, 0.12);
   --difficulty-1-bg: rgba(79, 130, 104, 0.34);
   --difficulty-1-text: #dff4e7;

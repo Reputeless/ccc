@@ -241,7 +241,7 @@
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--border-problem-card);
-  border-radius: 13px;
+  border-radius: 11px;
   background: var(--surface-problem-card);
   box-shadow: var(--shadow-problem-card);
   transition: box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
@@ -293,7 +293,7 @@
 
 .problem-card {
   border: 1px solid var(--border-problem-card);
-  border-radius: 13px;
+  border-radius: 11px;
   background: var(--surface-problem-card);
   padding: 12px 14px;
   display: grid;
@@ -619,6 +619,10 @@
 
   .learning-summary {
     display: none;
+  }
+
+  .record-panel .panel-heading h2 {
+    margin-bottom: 8px;
   }
 
   .problem-main-link {
