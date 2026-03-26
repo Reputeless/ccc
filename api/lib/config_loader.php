@@ -18,6 +18,7 @@ function ccc_load_app_config(): array
         'difficultyLabels' => ['基礎', '中級', '発展'],
         'understandingLabels' => ['要復習', 'ふつう', '自信あり'],
         'uiText' => [
+            'heroEyebrow' => 'C Code Checker',
             'backToList' => '← 問題一覧へ戻る',
             'validationLink' => '問題ステータス',
             'teacherGuideLink' => '教師用ガイド',
@@ -101,6 +102,42 @@ function ccc_load_app_config(): array
             'clearProgressConfirm' => "このブラウザに保存された解いた記録と理解度を消去します。\nコード入力内容は残ります。\n\nよろしいですか？",
             'clearProgressCancelled' => '消去をキャンセルしました。',
             'clearProgressDone' => '解いた記録と理解度を消去しました。',
+            'problemErrorTitle' => '問題を表示できません',
+            'problemUnavailableTitle' => 'Problem Not Available',
+            'problemLoadError' => '問題の読み込みに失敗しました。',
+            'judgeUnavailable' => '判定サーバーとの通信に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。',
+            'invalidRequest' => '送信内容に問題があります。入力内容を確認してください。',
+            'problemUnavailable' => '問題が見つからないか、まだ公開されていません。',
+            'codeEditorTitle' => 'コード入力',
+            'judgeButtonLabel' => '判定する',
+            'resultPanelTitle' => '判定結果',
+            'judgeLoadingLabel' => '判定中...',
+            'resultIdle' => 'まだ判定していません',
+            'resultPending' => '判定中...',
+            'resultAccepted' => '合格！',
+            'resultAcceptedWithWarning' => '合格！ ただしコンパイラ警告を確認してください',
+            'resultWrongAnswer' => '失敗ケースあり',
+            'resultWrongAnswerExample' => '失敗ケースあり（例 {example}）',
+            'resultCompileError' => 'コンパイルエラー',
+            'resultRuntimeError' => '実行時エラー',
+            'resultTimeout' => '時間切れ',
+            'understandingPromptTitle' => 'この問題の理解度はどうでしたか？',
+            'understandingPromptLead' => '理解度を記録したら、次の問題に進みましょう。',
+            'examplesSectionTitle' => '入出力例',
+            'exampleLabelTemplate' => '例 {value}',
+            'inputLabel' => '入力',
+            'outputLabel' => '出力',
+            'expectedOutputLabel' => '正しい出力',
+            'actualOutputLabel' => '実際の出力',
+            'warningLabel' => '警告',
+            'compilerMessageLabel' => 'コンパイルメッセージ',
+            'messageLabel' => 'メッセージ',
+            'emptyContentLabel' => '(空)',
+            'copyCodeLabel' => 'コードをコピー',
+            'copiedCodeLabel' => 'コピーしました',
+            'codeTooLongMessage' => 'コードが長すぎます。{maxBytes} バイト以内にしてください。',
+            'resultPreviewNote' => '表示が長いため、先頭 {lines} 行・{chars} 文字までを表示しています。',
+            'languageProfileMetaTemplate' => '言語: {value}',
         ],
         'tabWidth' => 4,
         'editorRows' => 20,
@@ -175,6 +212,7 @@ function ccc_normalize_ui_text(mixed $value): array
 {
     $defaults = [
         'backToList' => '← 問題一覧へ戻る',
+        'heroEyebrow' => 'C Code Checker',
         'validationLink' => '問題ステータス',
         'teacherGuideLink' => '教師用ガイド',
         'teacherGuideTitle' => '教師用ガイド',
@@ -257,6 +295,42 @@ function ccc_normalize_ui_text(mixed $value): array
         'clearProgressConfirm' => "このブラウザに保存された解いた記録と理解度を消去します。\nコード入力内容は残ります。\n\nよろしいですか？",
         'clearProgressCancelled' => '消去をキャンセルしました。',
         'clearProgressDone' => '解いた記録と理解度を消去しました。',
+        'problemErrorTitle' => '問題を表示できません',
+        'problemUnavailableTitle' => 'Problem Not Available',
+        'problemLoadError' => '問題の読み込みに失敗しました。',
+        'judgeUnavailable' => '判定サーバーとの通信に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。',
+        'invalidRequest' => '送信内容に問題があります。入力内容を確認してください。',
+        'problemUnavailable' => '問題が見つからないか、まだ公開されていません。',
+        'codeEditorTitle' => 'コード入力',
+        'judgeButtonLabel' => '判定する',
+        'resultPanelTitle' => '判定結果',
+        'judgeLoadingLabel' => '判定中...',
+        'resultIdle' => 'まだ判定していません',
+        'resultPending' => '判定中...',
+        'resultAccepted' => '合格！',
+        'resultAcceptedWithWarning' => '合格！ ただしコンパイラ警告を確認してください',
+        'resultWrongAnswer' => '失敗ケースあり',
+        'resultWrongAnswerExample' => '失敗ケースあり（例 {example}）',
+        'resultCompileError' => 'コンパイルエラー',
+        'resultRuntimeError' => '実行時エラー',
+        'resultTimeout' => '時間切れ',
+        'understandingPromptTitle' => 'この問題の理解度はどうでしたか？',
+        'understandingPromptLead' => '理解度を記録したら、次の問題に進みましょう。',
+        'examplesSectionTitle' => '入出力例',
+        'exampleLabelTemplate' => '例 {value}',
+        'inputLabel' => '入力',
+        'outputLabel' => '出力',
+        'expectedOutputLabel' => '正しい出力',
+        'actualOutputLabel' => '実際の出力',
+        'warningLabel' => '警告',
+        'compilerMessageLabel' => 'コンパイルメッセージ',
+        'messageLabel' => 'メッセージ',
+        'emptyContentLabel' => '(空)',
+        'copyCodeLabel' => 'コードをコピー',
+        'copiedCodeLabel' => 'コピーしました',
+        'codeTooLongMessage' => 'コードが長すぎます。{maxBytes} バイト以内にしてください。',
+        'resultPreviewNote' => '表示が長いため、先頭 {lines} 行・{chars} 文字までを表示しています。',
+        'languageProfileMetaTemplate' => '言語: {value}',
     ];
 
     if (!is_array($value)) {
@@ -293,21 +367,28 @@ function ccc_built_in_language_profiles(): array
     return [
         'c17' => [
             ...ccc_language_profile_defaults_for_language('c'),
+            'label' => 'C17',
             'standard' => 'c17',
         ],
         'c23' => [
             ...ccc_language_profile_defaults_for_language('c'),
+            'label' => 'C23',
             'standard' => 'c23',
         ],
         'cpp20' => [
             ...ccc_language_profile_defaults_for_language('cpp'),
+            'label' => 'C++20',
             'standard' => 'c++20',
         ],
         'cpp23' => [
             ...ccc_language_profile_defaults_for_language('cpp'),
+            'label' => 'C++23',
             'standard' => 'c++23',
         ],
-        'python3.14' => ccc_language_profile_defaults_for_language('python'),
+        'python3.14' => [
+            ...ccc_language_profile_defaults_for_language('python'),
+            'label' => 'Python 3.14',
+        ],
     ];
 }
 
@@ -389,15 +470,21 @@ function ccc_normalize_language_profile(mixed $profile): array
     $compiler = trim((string) ($merged['compiler'] ?? ''));
     $standard = trim((string) ($merged['standard'] ?? ''));
     $extraFlags = is_array($merged['extraFlags'] ?? null) ? $merged['extraFlags'] : [];
+    $label = trim((string) ($merged['label'] ?? ''));
 
     if ($language === '' || $compiler === '') {
         throw new RuntimeException('Language profile requires language and compiler.');
+    }
+
+    if ($label === '') {
+        throw new RuntimeException('Language profile requires label.');
     }
 
     return [
         'language' => $language,
         'compiler' => $compiler,
         'standard' => $standard === '' ? null : $standard,
+        'label' => $label,
         'gnuExtensions' => (bool) ($merged['gnuExtensions'] ?? false),
         'editorIndentStyle' => ccc_normalize_indent_style((string) ($merged['editorIndentStyle'] ?? 'tab')),
         'editorIndentWidth' => ccc_normalize_indent_width($merged['editorIndentWidth'] ?? 4),
@@ -448,6 +535,7 @@ function ccc_build_language_profile_summary(array $profile): array
         'language' => (string) ($profile['language'] ?? ''),
         'compiler' => (string) ($profile['compiler'] ?? ''),
         'standard' => $profile['standard'] ?? null,
+        'label' => (string) ($profile['label'] ?? ''),
         'gnuExtensions' => (bool) ($profile['gnuExtensions'] ?? false),
         'editorIndentStyle' => (string) ($profile['editorIndentStyle'] ?? 'tab'),
         'editorIndentWidth' => (int) ($profile['editorIndentWidth'] ?? 4),

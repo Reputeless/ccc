@@ -21,36 +21,51 @@ const {
   renderGlobalFooter,
 } = window.CCC;
 
-const ERROR_MESSAGES = {
-  loadProblem: "問題の読み込みに失敗しました。",
-  judgeUnavailable: "判定サーバーとの通信に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。",
-  invalidRequest: "送信内容に問題があります。入力内容を確認してください。",
-  problemUnavailable: "問題が見つからないか、まだ公開されていません。",
-};
-
-const RESULT_STATE_PRESETS = {
-  idle: { kind: "muted", icon: "", text: "まだ判定していません" },
-  pending: { kind: "muted", icon: "", text: "判定中..." },
-  accepted: { kind: "success", icon: "✔" },
-  wrongAnswer: { kind: "warning", icon: "!" , text: "失敗ケースあり" },
-  compileError: { kind: "error", icon: "!" , text: "コンパイルエラー" },
-  runtimeError: { kind: "error", icon: "!" , text: "実行時エラー" },
-  timeout: { kind: "error", icon: "!" , text: "時間切れ" },
-  requestError: { kind: "error", icon: "!" },
-};
-
 let appConfig = { ...DEFAULT_CONFIG };
 let currentProblem = null;
 let understandingControls = null;
 const UNDERSTANDING_SELECT_ORDER = ["3", "2", "1"];
 
+function uiText(key) {
+  return appConfig.uiText?.[key] ?? DEFAULT_CONFIG.uiText[key] ?? "";
+}
+
+function formatUiText(key, replacements = {}) {
+  return Object.entries(replacements).reduce((text, [name, value]) => {
+    return text.replaceAll(`{${name}}`, String(value));
+  }, uiText(key));
+}
+
+function getErrorMessages() {
+  return {
+    loadProblem: uiText("problemLoadError"),
+    judgeUnavailable: uiText("judgeUnavailable"),
+    invalidRequest: uiText("invalidRequest"),
+    problemUnavailable: uiText("problemUnavailable"),
+  };
+}
+
+function getResultStatePresets() {
+  return {
+    idle: { kind: "muted", icon: "", text: uiText("resultIdle") },
+    pending: { kind: "muted", icon: "", text: uiText("resultPending") },
+    accepted: { kind: "success", icon: "✔" },
+    wrongAnswer: { kind: "warning", icon: "!", text: uiText("resultWrongAnswer") },
+    compileError: { kind: "error", icon: "!", text: uiText("resultCompileError") },
+    runtimeError: { kind: "error", icon: "!", text: uiText("resultRuntimeError") },
+    timeout: { kind: "error", icon: "!", text: uiText("resultTimeout") },
+    requestError: { kind: "error", icon: "!" },
+  };
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   applyThemePreference();
   bindThemePreferenceListener();
+  const errorMessages = getErrorMessages();
 
   const problemId = new URLSearchParams(window.location.search).get("id");
   if (!problemId) {
-    showProblemError(ERROR_MESSAGES.problemUnavailable);
+    showProblemError(errorMessages.problemUnavailable);
     return;
   }
 
@@ -65,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     currentProblem = await fetchProblem(problemId);
   } catch (error) {
-    const message = error.status === 404 ? ERROR_MESSAGES.problemUnavailable : ERROR_MESSAGES.loadProblem;
+    const message = error.status === 404 ? errorMessages.problemUnavailable : errorMessages.loadProblem;
     showProblemError(message);
     return;
   }
@@ -129,6 +144,73 @@ function renderStaticUiText() {
   if (guideHeading) {
     guideHeading.textContent = guideTitle;
   }
+
+  const errorTitle = document.getElementById("problem-error-title");
+  if (errorTitle) {
+    errorTitle.textContent = uiText.problemErrorTitle ?? DEFAULT_CONFIG.uiText.problemErrorTitle;
+  }
+
+  const solvedToggleLabel = document.getElementById("solved-toggle-label");
+  if (solvedToggleLabel) {
+    const label = uiText.solvedToggleLabel ?? DEFAULT_CONFIG.uiText.solvedToggleLabel;
+    solvedToggleLabel.title = label;
+  }
+
+  const solvedToggle = document.getElementById("solved-toggle");
+  if (solvedToggle) {
+    solvedToggle.setAttribute("aria-label", uiText.solvedToggleLabel ?? DEFAULT_CONFIG.uiText.solvedToggleLabel);
+  }
+
+  const understandingLabel = uiText.understandingSelectLabel ?? DEFAULT_CONFIG.uiText.understandingSelectLabel;
+  const understandingSelectLabel = document.getElementById("understanding-select-label");
+  if (understandingSelectLabel) {
+    understandingSelectLabel.textContent = understandingLabel;
+  }
+
+  const understandingSelect = document.getElementById("understanding-select");
+  if (understandingSelect) {
+    understandingSelect.setAttribute("aria-label", understandingLabel);
+  }
+
+  const examplesTitle = document.getElementById("examples-section-title");
+  if (examplesTitle) {
+    examplesTitle.textContent = uiText.examplesSectionTitle ?? DEFAULT_CONFIG.uiText.examplesSectionTitle;
+  }
+
+  const codeEditorTitle = document.getElementById("code-editor-title");
+  if (codeEditorTitle) {
+    codeEditorTitle.textContent = uiText.codeEditorTitle ?? DEFAULT_CONFIG.uiText.codeEditorTitle;
+  }
+
+  const judgeButton = document.getElementById("judge-button");
+  if (judgeButton) {
+    judgeButton.textContent = uiText.judgeButtonLabel ?? DEFAULT_CONFIG.uiText.judgeButtonLabel;
+  }
+
+  const resultPanelTitle = document.getElementById("result-panel-title");
+  if (resultPanelTitle) {
+    resultPanelTitle.textContent = uiText.resultPanelTitle ?? DEFAULT_CONFIG.uiText.resultPanelTitle;
+  }
+
+  const judgeLoadingLabel = document.getElementById("judge-loading-label");
+  if (judgeLoadingLabel) {
+    judgeLoadingLabel.textContent = uiText.judgeLoadingLabel ?? DEFAULT_CONFIG.uiText.judgeLoadingLabel;
+  }
+
+  const understandingPromptTitle = document.getElementById("understanding-prompt-title");
+  if (understandingPromptTitle) {
+    understandingPromptTitle.textContent = uiText.understandingPromptTitle ?? DEFAULT_CONFIG.uiText.understandingPromptTitle;
+  }
+
+  const understandingPromptLead = document.getElementById("understanding-prompt-lead");
+  if (understandingPromptLead) {
+    understandingPromptLead.textContent = uiText.understandingPromptLead ?? DEFAULT_CONFIG.uiText.understandingPromptLead;
+  }
+
+  const idleMessage = document.querySelector("#result-message .result-status-text");
+  if (idleMessage) {
+    idleMessage.textContent = uiText.resultIdle ?? DEFAULT_CONFIG.uiText.resultIdle;
+  }
 }
 
 function highlightProblemBodyCode() {
@@ -180,7 +262,7 @@ function renderProblemMeta(problem) {
       formatLectureLabel(problem.lecture, appConfig.lectureLabelTemplate),
       "lecture",
       String(problem.lecture),
-      "この講義回で絞り込む"
+      uiText("lectureBadgeTitle")
     ));
   }
 
@@ -190,12 +272,12 @@ function renderProblemMeta(problem) {
       getDifficultyLabel(appConfig, problem.difficulty),
       "difficulty",
       String(problem.difficulty),
-      "この難易度で絞り込む"
+      uiText("difficultyBadgeTitle")
     ));
   }
 
   if (profileLabel) {
-    container.appendChild(createMetaBadge("problem-profile-meta", `言語: ${profileLabel}`));
+    container.appendChild(createMetaBadge("problem-profile-meta", formatUiText("languageProfileMetaTemplate", { value: profileLabel })));
   }
 }
 
@@ -210,38 +292,7 @@ function formatLanguageProfileLabel(profile) {
   if (!profile || typeof profile !== "object") {
     return "";
   }
-
-  const language = String(profile.language ?? "").toLowerCase();
-  const standard = String(profile.standard ?? "").trim();
-
-  if (language === "c") {
-    if (standard) {
-      return standard.toUpperCase();
-    }
-    return "C";
-  }
-
-  if (language === "cpp") {
-    if (standard) {
-      return standard.replace(/^c\+\+/i, "C++");
-    }
-    return "C++";
-  }
-
-  if (language === "python") {
-    const compiler = String(profile.compiler ?? "");
-    const match = compiler.match(/cpython-(\d+\.\d+)/i);
-    if (match) {
-      return `Python ${match[1]}`;
-    }
-    return "Python";
-  }
-
-  if (standard) {
-    return standard;
-  }
-
-  return String(profile.id ?? "").trim();
+  return String(profile.label ?? "").trim();
 }
 
 function createMetaFilterLink(className, text, filterType, filterValue, title) {
@@ -267,7 +318,7 @@ function renderExamples() {
 
     const header = document.createElement("summary");
     header.className = "example-header";
-    header.innerHTML = `<span>例 ${escapeHtml(example.name)}</span>`;
+    header.innerHTML = `<span>${escapeHtml(formatUiText("exampleLabelTemplate", { value: example.name }))}</span>`;
 
     const wrapper = document.createElement("div");
     wrapper.className = "example-content";
@@ -275,8 +326,8 @@ function renderExamples() {
     const grid = document.createElement("div");
     grid.className = "example-grid";
     grid.append(
-      renderExampleBlock("入力", example.stdin),
-      renderExampleBlock("出力", example.stdout)
+      renderExampleBlock(uiText("inputLabel"), example.stdin),
+      renderExampleBlock(uiText("outputLabel"), example.stdout)
     );
     wrapper.appendChild(grid);
 
@@ -288,7 +339,7 @@ function renderExamples() {
 function renderExampleBlock(title, content) {
   const block = document.createElement("section");
   block.className = "example-block";
-  const safeContent = content === "" ? "(空)" : content;
+  const safeContent = content === "" ? uiText("emptyContentLabel") : content;
   block.innerHTML = `
     <h4>${escapeHtml(title)}</h4>
     <pre><code>${escapeHtml(safeContent)}</code></pre>
@@ -320,8 +371,8 @@ function createCopyButton(codeElement) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "copy-code-button";
-  button.setAttribute("aria-label", "コードをコピー");
-  button.title = "コードをコピー";
+  button.setAttribute("aria-label", uiText("copyCodeLabel"));
+  button.title = uiText("copyCodeLabel");
 
   button.addEventListener("click", async () => {
     const copied = await copyText(codeElement.textContent ?? "");
@@ -330,13 +381,13 @@ function createCopyButton(codeElement) {
     }
 
     button.classList.add("is-copied");
-    button.setAttribute("aria-label", "コピーしました");
-    button.title = "コピーしました";
+    button.setAttribute("aria-label", uiText("copiedCodeLabel"));
+    button.title = uiText("copiedCodeLabel");
 
     window.setTimeout(() => {
       button.classList.remove("is-copied");
-      button.setAttribute("aria-label", "コードをコピー");
-      button.title = "コードをコピー";
+      button.setAttribute("aria-label", uiText("copyCodeLabel"));
+      button.title = uiText("copyCodeLabel");
     }, 1200);
   });
 
@@ -457,9 +508,10 @@ function setupJudgeButton() {
 async function judgeCurrentCode() {
   const editor = document.getElementById("code-editor");
   const code = editor.value;
+  const errorMessages = getErrorMessages();
 
   if (new TextEncoder().encode(code).length > appConfig.maxCodeBytes) {
-    renderResultState("requestError", `コードが長すぎます。${appConfig.maxCodeBytes} バイト以内にしてください。`);
+    renderResultState("requestError", formatUiText("codeTooLongMessage", { maxBytes: appConfig.maxCodeBytes }));
     renderResultDetails([]);
     return;
   }
@@ -484,25 +536,25 @@ async function judgeCurrentCode() {
     const payload = await response.json().catch(() => ({}));
 
     if (response.status === 400) {
-      renderResultState("requestError", payload.message ?? ERROR_MESSAGES.invalidRequest);
+      renderResultState("requestError", payload.message ?? errorMessages.invalidRequest);
       renderResultDetails([]);
       return;
     }
 
     if (response.status === 404) {
-      showProblemError(ERROR_MESSAGES.problemUnavailable);
+      showProblemError(errorMessages.problemUnavailable);
       return;
     }
 
     if (!response.ok) {
-      renderResultState("requestError", payload.message ?? ERROR_MESSAGES.judgeUnavailable);
+      renderResultState("requestError", payload.message ?? errorMessages.judgeUnavailable);
       renderResultDetails([]);
       return;
     }
 
     renderJudgePayload(payload);
   } catch {
-    renderResultState("requestError", ERROR_MESSAGES.judgeUnavailable);
+    renderResultState("requestError", errorMessages.judgeUnavailable);
     renderResultDetails([]);
   } finally {
     setJudgeLoading(false);
@@ -511,18 +563,19 @@ async function judgeCurrentCode() {
 
 function renderJudgePayload(payload) {
   const details = [];
+  const errorMessages = getErrorMessages();
 
   switch (payload.status) {
     case "accepted":
       renderResultState(
         "accepted",
         payload.warning
-          ? "合格！ ただしコンパイラ警告を確認してください"
-          : "合格！"
+          ? uiText("resultAcceptedWithWarning")
+          : uiText("resultAccepted")
       );
       toggleResultUnderstandingPrompt(true);
       if (payload.warning) {
-        details.push(renderPreCard("警告", payload.warning, { previewMode: "message", highlightCompilerTerms: true }));
+        details.push(renderPreCard(uiText("warningLabel"), payload.warning, { previewMode: "message", highlightCompilerTerms: true }));
       }
       markAccepted(currentProblem.id);
       document.getElementById("solved-toggle").checked = true;
@@ -530,35 +583,35 @@ function renderJudgePayload(payload) {
     case "wrong_answer":
       renderResultState(
         "wrongAnswer",
-        payload.failedExample?.name ? `失敗ケースあり（例 ${payload.failedExample.name}）` : undefined
+        payload.failedExample?.name ? formatUiText("resultWrongAnswerExample", { example: payload.failedExample.name }) : undefined
       );
       toggleResultUnderstandingPrompt(false);
       if (payload.failedExample) {
-        details.push(renderPreCard("入力", payload.failedExample.stdin ?? ""));
-        details.push(renderPreCard("正しい出力", payload.failedExample.expectedStdout ?? ""));
-        details.push(renderPreCard("実際の出力", payload.failedExample.actualStdout ?? ""));
+        details.push(renderPreCard(uiText("inputLabel"), payload.failedExample.stdin ?? ""));
+        details.push(renderPreCard(uiText("expectedOutputLabel"), payload.failedExample.expectedStdout ?? ""));
+        details.push(renderPreCard(uiText("actualOutputLabel"), payload.failedExample.actualStdout ?? ""));
       }
       if (payload.warning) {
-        details.push(renderPreCard("警告", payload.warning, { previewMode: "message", highlightCompilerTerms: true }));
+        details.push(renderPreCard(uiText("warningLabel"), payload.warning, { previewMode: "message", highlightCompilerTerms: true }));
       }
       break;
     case "compile_error":
       renderResultState("compileError");
       toggleResultUnderstandingPrompt(false);
-      details.push(renderPreCard("コンパイルメッセージ", payload.compilerMessage ?? "", { previewMode: "message", highlightCompilerTerms: true }));
+      details.push(renderPreCard(uiText("compilerMessageLabel"), payload.compilerMessage ?? "", { previewMode: "message", highlightCompilerTerms: true }));
       break;
     case "runtime_error":
       renderResultState("runtimeError");
       toggleResultUnderstandingPrompt(false);
-      details.push(renderPreCard("メッセージ", payload.message ?? "", { previewMode: "message" }));
+      details.push(renderPreCard(uiText("messageLabel"), payload.message ?? "", { previewMode: "message" }));
       break;
     case "timeout":
       renderResultState("timeout");
       toggleResultUnderstandingPrompt(false);
-      details.push(renderPreCard("メッセージ", payload.message ?? "", { previewMode: "message" }));
+      details.push(renderPreCard(uiText("messageLabel"), payload.message ?? "", { previewMode: "message" }));
       break;
     default:
-      renderResultState("requestError", payload.message ?? ERROR_MESSAGES.judgeUnavailable);
+      renderResultState("requestError", payload.message ?? errorMessages.judgeUnavailable);
       toggleResultUnderstandingPrompt(false);
       break;
   }
@@ -575,7 +628,7 @@ function renderPreCard(title, content, options = {}) {
     ? (Number(appConfig.resultMessagePreviewMaxLines) || DEFAULT_CONFIG.resultMessagePreviewMaxLines)
     : (Number(appConfig.resultPreviewMaxLines) || DEFAULT_CONFIG.resultPreviewMaxLines);
   const noteHtml = display.truncated
-    ? `<p class="result-note">表示が長いため、先頭 ${previewLines} 行・${appConfig.resultPreviewMaxChars} 文字までを表示しています。</p>`
+    ? `<p class="result-note">${escapeHtml(formatUiText("resultPreviewNote", { lines: previewLines, chars: appConfig.resultPreviewMaxChars }))}</p>`
     : "";
   const renderedText = options.highlightCompilerTerms
     ? highlightCompilerTerms(display.text)
@@ -589,7 +642,8 @@ function renderPreCard(title, content, options = {}) {
 }
 
 function renderResultState(state, message = null) {
-  const preset = RESULT_STATE_PRESETS[state] ?? RESULT_STATE_PRESETS.requestError;
+  const resultStatePresets = getResultStatePresets();
+  const preset = resultStatePresets[state] ?? resultStatePresets.requestError;
   renderResultBanner(message ?? preset.text ?? "", preset.kind, preset.icon);
 }
 
@@ -649,7 +703,7 @@ function syncResultUnderstandingPrompt(value) {
 }
 
 function showProblemError(message) {
-  document.title = `Problem Not Available | ${appConfig.appName}`;
+  document.title = `${uiText("problemUnavailableTitle")} | ${appConfig.appName}`;
   document.getElementById("problem-view").hidden = true;
   document.getElementById("problem-error").hidden = false;
   document.getElementById("problem-error-message").textContent = message;
@@ -657,7 +711,7 @@ function showProblemError(message) {
 
 function buildResultDisplayContent(content, previewMode = "output") {
   if (content === "") {
-    return { text: "(空)", truncated: false };
+    return { text: uiText("emptyContentLabel"), truncated: false };
   }
 
   const normalized = content.replaceAll("\r\n", "\n");

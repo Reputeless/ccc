@@ -107,6 +107,7 @@ function setupStaticControls() {
 
 function renderStaticUiText() {
   const textMap = {
+    "hero-eyebrow": "heroEyebrow",
     "filters-kicker": "filtersKicker",
     "filters-heading": "filtersTitle",
     "reset-filters": "resetFiltersButton",

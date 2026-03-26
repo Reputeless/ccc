@@ -8,6 +8,7 @@
   "difficultyLabels": ["基礎", "中級", "発展"],
   "understandingLabels": ["要復習", "ふつう", "自信あり"],
   "uiText": {
+    "heroEyebrow": "C Code Checker",
     "backToList": "← 問題一覧へ戻る",
     "validationLink": "問題ステータス",
     "teacherGuideLink": "教師用ガイド",
@@ -90,7 +91,44 @@
     "clearCodeDone": "コード入力内容を消去しました。",
     "clearProgressConfirm": "このブラウザに保存された解いた記録と理解度を消去します。\nコード入力内容は残ります。\n\nよろしいですか？",
     "clearProgressCancelled": "消去をキャンセルしました。",
-    "clearProgressDone": "解いた記録と理解度を消去しました。"
+    "clearProgressDone": "解いた記録と理解度を消去しました。",
+    "problemErrorTitle": "問題を表示できません",
+    "problemUnavailableTitle": "Problem Not Available",
+    "problemLoadError": "問題の読み込みに失敗しました。",
+    "judgeUnavailable": "判定サーバーとの通信に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。",
+    "invalidRequest": "送信内容に問題があります。入力内容を確認してください。",
+    "problemUnavailable": "問題が見つからないか、まだ公開されていません。",
+    "codeEditorTitle": "コード入力",
+    "judgeButtonLabel": "判定する",
+    "resultPanelTitle": "判定結果",
+    "judgeLoadingLabel": "判定中...",
+    "resultIdle": "まだ判定していません",
+    "resultPending": "判定中...",
+    "resultAccepted": "合格！",
+    "resultAcceptedWithWarning": "合格！ ただしコンパイラ警告を確認してください",
+    "resultWrongAnswer": "失敗ケースあり",
+    "resultWrongAnswerExample": "失敗ケースあり（例 {example}）",
+    "resultCompileError": "コンパイルエラー",
+    "resultRuntimeError": "実行時エラー",
+    "resultTimeout": "時間切れ",
+    "understandingPromptTitle": "この問題の理解度はどうでしたか？",
+    "understandingPromptLead": "理解度を記録したら、次の問題に進みましょう。",
+    "examplesSectionTitle": "入出力例",
+    "exampleLabelTemplate": "例 {value}",
+    "inputLabel": "入力",
+    "outputLabel": "出力",
+    "expectedOutputLabel": "正しい出力",
+    "actualOutputLabel": "実際の出力",
+    "warningLabel": "警告",
+    "compilerMessageLabel": "コンパイルメッセージ",
+    "messageLabel": "メッセージ",
+    "emptyContentLabel": "(空)",
+    "copyCodeLabel": "コードをコピー",
+    "copiedCodeLabel": "コピーしました",
+    "codeTooLongMessage": "コードが長すぎます。{maxBytes} バイト以内にしてください。",
+    "resultPreviewNote": "表示が長いため、先頭 {lines} 行・{chars} 文字までを表示しています。"
+    ,
+    "languageProfileMetaTemplate": "言語: {value}"
   },
   "tabWidth": 4,
   "editorRows": 20,
@@ -103,6 +141,7 @@
   "defaultProfileId": "c23",
   "languageProfiles": {
     "c17": {
+      "label": "C17",
       "language": "c",
       "compiler": "gcc-head-c",
       "standard": "c17",
@@ -112,6 +151,7 @@
       "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
     },
     "c23": {
+      "label": "C23",
       "language": "c",
       "compiler": "gcc-head-c",
       "standard": "c23",
@@ -121,6 +161,7 @@
       "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
     },
     "cpp20": {
+      "label": "C++20",
       "language": "cpp",
       "compiler": "gcc-head",
       "standard": "c++20",
@@ -130,6 +171,7 @@
       "extraFlags": ["-Wall", "-Wextra", "-Wconversion", "-Wshadow", "-pedantic"]
     },
     "cpp23": {
+      "label": "C++23",
       "language": "cpp",
       "compiler": "gcc-head",
       "standard": "c++23",
@@ -139,6 +181,7 @@
       "extraFlags": ["-Wall", "-Wextra", "-Wconversion", "-Wshadow", "-pedantic"]
     },
     "python3.14": {
+      "label": "Python 3.14",
       "language": "python",
       "compiler": "cpython-3.14.0",
       "standard": null,

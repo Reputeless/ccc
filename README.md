@@ -762,7 +762,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   - 理解度 1, 2, 3 に対応する表示名
 - `uiText`:
   - 共通 UI 文言の一部をまとめて上書きするための連想配列
-  - 初期版では `一覧へ戻る`, `問題ステータス`, `教師用ガイド`, `解説` まわりの文言を差し替えられる
+  - 初期版では `一覧ページ`, `問題ページ`, `一覧へ戻る`, `問題ステータス`, `教師用ガイド`, `解説` まわりの文言を差し替えられる
 - `tabWidth`:
   - コード入力欄でタブ文字を何文字幅で表示するか
 - `editorRows`:
@@ -790,6 +790,10 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `languageProfiles.<profileId>.language`:
   - 言語識別子
   - 例: `c`
+- `languageProfiles.<profileId>.label`:
+  - 問題ページなどに表示する人間向けの表示名
+  - 例: `C23`, `C++23`, `Python 3.14`
+  - 必須
 - `languageProfiles.<profileId>.compiler`:
   - Wandbox で使うコンパイラ識別子
 - `languageProfiles.<profileId>.standard`:

@@ -33,7 +33,7 @@
 
   <main class="content-stack">
     <section id="problem-error" class="panel error-panel" hidden>
-      <h1>問題を表示できません</h1>
+      <h1 id="problem-error-title">問題を表示できません</h1>
       <p id="problem-error-message">問題が見つかりません。</p>
       <a id="problem-error-back-link" class="primary-link" href="./">問題一覧へ戻る</a>
     </section>
@@ -47,7 +47,7 @@
               <div class="problem-meta-row">
                 <div id="problem-meta" class="problem-meta-badges"></div>
                 <div class="meta-actions">
-                  <label class="solved-toggle solved-toggle-large" title="解いた">
+                  <label id="solved-toggle-label" class="solved-toggle solved-toggle-large" title="解いた">
                     <input id="solved-toggle" class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="解いた">
                     <span class="solved-toggle-icon" aria-hidden="true">
                       <svg viewBox="0 0 20 20" focusable="false">
@@ -57,7 +57,7 @@
                     </span>
                   </label>
                   <label class="field select-inline compact-select problem-understanding-field">
-                    <span class="sr-only">理解度</span>
+                    <span id="understanding-select-label" class="sr-only">理解度</span>
                     <span id="problem-understanding-wrap" class="understanding-select-wrap">
                       <span id="problem-understanding-marker" class="understanding-marker understanding-marker-understanding-unset" aria-hidden="true"></span>
                       <select id="understanding-select" class="understanding-select" aria-label="理解度"></select>
@@ -69,14 +69,14 @@
           </header>
           <div id="problem-body" class="problem-body"></div>
           <section class="examples-section">
-            <h2>入出力例</h2>
+            <h2 id="examples-section-title">入出力例</h2>
             <div id="examples-list" class="examples-list"></div>
           </section>
         </article>
 
         <aside class="panel editor-panel">
           <div class="panel-heading">
-            <h2>コード入力</h2>
+            <h2 id="code-editor-title">コード入力</h2>
           </div>
 
           <textarea id="code-editor" class="code-editor" spellcheck="false" wrap="off"></textarea>
@@ -87,20 +87,20 @@
 
           <section class="result-section" aria-live="polite">
             <div class="panel-heading">
-              <h2>判定結果</h2>
+              <h2 id="result-panel-title">判定結果</h2>
               <div id="judge-loading" class="loading-indicator" hidden>
                 <span class="spinner" aria-hidden="true"></span>
-                <span>判定中...</span>
+                <span id="judge-loading-label">判定中...</span>
               </div>
             </div>
             <div id="result-message" class="status-banner result-status-banner no-icon muted-banner">
               <span class="result-status-text">まだ判定していません</span>
             </div>
             <fieldset id="result-understanding-prompt" class="result-understanding-prompt" hidden>
-              <legend>この問題の理解度はどうでしたか？</legend>
+              <legend id="understanding-prompt-title">この問題の理解度はどうでしたか？</legend>
               <div id="result-understanding-options" class="result-understanding-options"></div>
               <div class="result-understanding-actions">
-                <p class="result-understanding-actions-label">理解度を記録したら、次の問題に進みましょう。</p>
+                <p id="understanding-prompt-lead" class="result-understanding-actions-label">理解度を記録したら、次の問題に進みましょう。</p>
                 <a id="problem-result-back-link" class="result-back-link" href="./">← 問題一覧へ戻る</a>
               </div>
             </fieldset>
