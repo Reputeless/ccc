@@ -107,6 +107,27 @@
   white-space: nowrap;
 }
 
+.validate-guide-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(159, 214, 187, 0.16);
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.validate-guide-badge::before {
+  content: "";
+  width: 6px;
+  height: 10px;
+  border-right: 2px solid #72b08f;
+  border-bottom: 2px solid #72b08f;
+  transform: translateY(-1px) rotate(45deg);
+}
+
 .validate-table td.validate-cell-center,
 .validate-table th.validate-cell-center {
   text-align: center;
@@ -117,6 +138,18 @@
 .validate-detail-cell {
   font-size: 0.88rem;
   line-height: 1.45;
+}
+
+.validate-problem-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.validate-problem-link:hover,
+.validate-problem-link:focus-visible {
+  color: var(--heading);
+  border-bottom-color: currentColor;
 }
 
 .validate-table code {

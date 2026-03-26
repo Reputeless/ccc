@@ -8,6 +8,30 @@ function h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+function render_validate_detail(string $detail): string
+{
+    $parts = preg_split('/(`[^`]+`)/', $detail, -1, PREG_SPLIT_DELIM_CAPTURE);
+    if ($parts === false) {
+        return h($detail);
+    }
+
+    $html = '';
+    foreach ($parts as $part) {
+        if ($part === '') {
+            continue;
+        }
+
+        if ($part[0] === '`' && substr($part, -1) === '`') {
+            $html .= '<code>' . h(substr($part, 1, -1)) . '</code>';
+            continue;
+        }
+
+        $html .= h($part);
+    }
+
+    return $html;
+}
+
 try {
     $config = ccc_load_app_config();
     $report = ccc_validate_problem_set($config);
@@ -94,15 +118,21 @@ $items = $report['items'];
               <tr>
                 <td><code><?= h((string) $item['id']) ?></code></td>
                 <td><code><?= h((string) $item['number']) ?></code></td>
-                <td class="validate-title-cell"><?= h((string) $item['title']) ?></td>
-                <td class="validate-cell-center"><?= h((string) $item['lecture']) ?></td>
-                <td class="validate-cell-center"><?= h((string) $item['difficulty']) ?></td>
+                <td class="validate-title-cell">
+                  <?php if (($item['id'] ?? '') !== ''): ?>
+                    <a class="validate-problem-link" href="problem.html?id=<?= rawurlencode((string) $item['id']) ?>"><?= h((string) $item['title']) ?></a>
+                  <?php else: ?>
+                    <?= h((string) $item['title']) ?>
+                  <?php endif; ?>
+                </td>
+                <td class="validate-cell-center"><code><?= h((string) $item['lecture']) ?></code></td>
+                <td class="validate-cell-center"><code><?= h((string) $item['difficulty']) ?></code></td>
                 <td><code><?= h((string) $item['profileId']) ?></code></td>
                 <td><code><?= h((string) $item['publishedAt']) ?></code></td>
                 <td><code><?= h((string) $item['examples']) ?></code></td>
                 <td class="validate-guide-cell validate-cell-center">
                   <?php if (($item['guide'] ?? '') !== ''): ?>
-                    <span class="validate-status validate-status-ok">Available</span>
+                    <span class="validate-guide-badge" title="Guide available" aria-label="Guide available"></span>
                   <?php endif; ?>
                 </td>
                 <td class="validate-cell-center">
@@ -114,7 +144,7 @@ $items = $report['items'];
                   <?php if ($item['details'] !== []): ?>
                     <ul class="validate-detail-list">
                       <?php foreach ($item['details'] as $detail): ?>
-                        <li><?= h((string) $detail) ?></li>
+                        <li><?= render_validate_detail((string) $detail) ?></li>
                       <?php endforeach; ?>
                     </ul>
                   <?php endif; ?>

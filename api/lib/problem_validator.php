@@ -33,19 +33,19 @@ function ccc_validate_problem_directory(string $directory, array $config): array
     $row = ccc_create_problem_validation_row($directory);
 
     if (!is_file($manifestPath)) {
-        $row['errors'][] = 'problem.json is missing.';
+        $row['errors'][] = '`problem.json` is missing.';
         return $row;
     }
 
     try {
         $decoded = ccc_read_problem_manifest_json($directory);
     } catch (Throwable) {
-        $row['errors'][] = 'problem.json is not valid JSON.';
+        $row['errors'][] = '`problem.json` is not valid JSON.';
         return $row;
     }
 
     if (!is_array($decoded)) {
-        $row['errors'][] = 'problem.json is missing.';
+        $row['errors'][] = '`problem.json` is missing.';
         return $row;
     }
 
@@ -53,7 +53,7 @@ function ccc_validate_problem_directory(string $directory, array $config): array
     ccc_validate_problem_manifest_fields($row, $decoded, $config);
 
     if (($row['id'] ?? '') !== '' && $row['id'] !== $directory) {
-        $row['warnings'][] = 'Directory name and id do not match.';
+        $row['warnings'][] = 'Directory name and `id` do not match.';
     }
 
     return $row;
@@ -100,17 +100,17 @@ function ccc_fill_problem_validation_row(array &$row, array $decoded): void
 function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array $config): void
 {
     if ($row['id'] === '') {
-        $row['errors'][] = 'id is required.';
+        $row['errors'][] = '`id` is required.';
     } elseif (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $row['id']) !== 1) {
-        $row['errors'][] = 'id has an invalid format.';
+        $row['errors'][] = '`id` has an invalid format.';
     }
 
     if ($row['number'] === '') {
-        $row['errors'][] = 'number is required.';
+        $row['errors'][] = '`number` is required.';
     }
 
     if ($row['title'] === '') {
-        $row['errors'][] = 'title is required.';
+        $row['errors'][] = '`title` is required.';
     }
 
     ccc_validate_problem_optional_integer($row, $decoded, 'lecture');
@@ -119,16 +119,16 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
     if ($row['difficulty'] !== '') {
         $difficultyValue = (int) $row['difficulty'];
         if ($difficultyValue < 1 || $difficultyValue > 3) {
-            $row['errors'][] = 'difficulty must be an integer from 1 to 3.';
+            $row['errors'][] = '`difficulty` must be an integer from 1 to 3.';
         }
     }
 
     if ($row['profileId'] !== '') {
         $profileId = trim($row['profileId']);
         if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $profileId) !== 1) {
-            $row['errors'][] = 'profileId has an invalid format.';
+            $row['errors'][] = '`profileId` has an invalid format.';
         } elseif (!isset($config['languageProfiles'][$profileId])) {
-            $row['errors'][] = 'profileId is not defined in config/app.json.';
+            $row['errors'][] = '`profileId` is not defined in `config/app.json`.';
         }
     }
 
@@ -136,26 +136,26 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
         try {
             new DateTimeImmutable($row['publishedAt']);
         } catch (Exception $exception) {
-            $row['errors'][] = 'publishedAt has an invalid format.';
+            $row['errors'][] = '`publishedAt` has an invalid format.';
         }
     }
 
     $examples = $decoded['examples'] ?? null;
     if (!is_array($examples)) {
-        $row['errors'][] = 'examples must be an array.';
+        $row['errors'][] = '`examples` must be an array.';
     } else {
         $exampleNames = array_map(static fn (mixed $value): string => trim((string) $value), $examples);
         if (count($exampleNames) < 1 || count($exampleNames) > 6) {
-            $row['errors'][] = 'examples must contain between 1 and 6 items.';
+            $row['errors'][] = '`examples` must contain between 1 and 6 items.';
         }
 
         if (count(array_unique($exampleNames)) !== count($exampleNames)) {
-            $row['errors'][] = 'examples contains duplicates.';
+            $row['errors'][] = '`examples` contains duplicates.';
         }
 
         foreach ($exampleNames as $name) {
             if ($name === '') {
-                $row['errors'][] = 'examples contains an empty string.';
+                $row['errors'][] = '`examples` contains an empty string.';
                 continue;
             }
 
@@ -163,17 +163,17 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
             $outputPath = ccc_problem_example_output_path($row['directory'], $name);
 
             if (!is_file($inputPath)) {
-                $row['errors'][] = $name . '.in.txt is missing.';
+                $row['errors'][] = sprintf('`%s.in.txt` is missing.', $name);
             }
             if (!is_file($outputPath)) {
-                $row['errors'][] = $name . '.out.txt is missing.';
+                $row['errors'][] = sprintf('`%s.out.txt` is missing.', $name);
             }
         }
     }
 
     $bodyPath = ccc_problem_body_path($row['directory']);
     if (!is_file($bodyPath)) {
-        $row['errors'][] = 'body.md is missing.';
+        $row['errors'][] = '`body.md` is missing.';
     }
 
     $row['guide'] = is_file(ccc_problem_guide_path($row['directory'])) ? 'available' : '';
@@ -193,7 +193,7 @@ function ccc_validate_problem_optional_integer(array &$row, array $decoded, stri
 
     $text = is_string($value) ? trim($value) : (string) $value;
     if (preg_match('/^-?\d+$/', $text) !== 1) {
-        $row['errors'][] = $field . ' must be an integer.';
+        $row['errors'][] = sprintf('`%s` must be an integer.', $field);
         return;
     }
 
@@ -232,7 +232,7 @@ function ccc_apply_duplicate_problem_validation(array &$items, string $field, st
         }
 
         foreach ($indexes as $index) {
-            $message = $field . ' is duplicated.';
+            $message = sprintf('`%s` is duplicated.', $field);
             if ($level === 'error') {
                 $items[$index]['errors'][] = $message;
             } else {
