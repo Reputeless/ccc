@@ -68,6 +68,7 @@ $items = $report['items'];
   <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/app.css">
   <link rel="stylesheet" href="assets/validate.css">
+  <script defer src="assets/tooltip.js"></script>
 </head>
 <body>
   <div class="page-shell">
@@ -132,7 +133,7 @@ $items = $report['items'];
                 <td><code><?= h((string) $item['examples']) ?></code></td>
                 <td class="validate-guide-cell validate-cell-center">
                   <?php if (($item['guide'] ?? '') !== ''): ?>
-                    <span class="validate-guide-badge" title="Guide available" aria-label="Guide available"></span>
+                    <span class="validate-guide-badge" data-tooltip="Guide available" aria-label="Guide available"></span>
                   <?php endif; ?>
                 </td>
                 <td class="validate-cell-center">

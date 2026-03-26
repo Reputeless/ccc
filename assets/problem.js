@@ -153,7 +153,7 @@ function renderStaticUiText() {
   const solvedToggleLabel = document.getElementById("solved-toggle-label");
   if (solvedToggleLabel) {
     const label = uiText.solvedToggleLabel ?? DEFAULT_CONFIG.uiText.solvedToggleLabel;
-    solvedToggleLabel.title = label;
+    window.CCCTooltip?.setTooltip(solvedToggleLabel, label);
   }
 
   const solvedToggle = document.getElementById("solved-toggle");
@@ -300,7 +300,7 @@ function createMetaFilterLink(className, text, filterType, filterValue, title) {
   link.className = className;
   link.href = "./";
   link.textContent = text;
-  link.title = title;
+  window.CCCTooltip?.setTooltip(link, title);
   link.addEventListener("click", () => {
     applyListQuickFilter(filterType, filterValue);
   });
@@ -372,7 +372,7 @@ function createCopyButton(codeElement) {
   button.type = "button";
   button.className = "copy-code-button";
   button.setAttribute("aria-label", uiText("copyCodeLabel"));
-  button.title = uiText("copyCodeLabel");
+  window.CCCTooltip?.setTooltip(button, uiText("copyCodeLabel"));
 
   button.addEventListener("click", async () => {
     const copied = await copyText(codeElement.textContent ?? "");
@@ -382,12 +382,12 @@ function createCopyButton(codeElement) {
 
     button.classList.add("is-copied");
     button.setAttribute("aria-label", uiText("copiedCodeLabel"));
-    button.title = uiText("copiedCodeLabel");
+    window.CCCTooltip?.setTooltip(button, uiText("copiedCodeLabel"));
 
     window.setTimeout(() => {
       button.classList.remove("is-copied");
       button.setAttribute("aria-label", uiText("copyCodeLabel"));
-      button.title = uiText("copyCodeLabel");
+      window.CCCTooltip?.setTooltip(button, uiText("copyCodeLabel"));
     }, 1200);
   });
 

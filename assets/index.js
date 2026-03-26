@@ -335,7 +335,7 @@ function renderLectureBadge(lecture) {
   if (lecture == null) {
     return "";
   }
-  return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" title="${escapeHtml(uiText("lectureBadgeTitle"))}">${escapeHtml(formatLectureLabel(lecture, appConfig.lectureLabelTemplate))}</button>`;
+  return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" data-tooltip="${escapeHtml(uiText("lectureBadgeTitle"))}">${escapeHtml(formatLectureLabel(lecture, appConfig.lectureLabelTemplate))}</button>`;
 }
 
 function getUnderstandingDisplayLabel(value) {
@@ -589,13 +589,13 @@ function renderDifficultyBadge(difficulty) {
   }
   const difficultyKey = String(difficulty);
   const difficultyLabel = getDifficultyLabel(appConfig, difficulty);
-  return `<button type="button" class="difficulty-badge difficulty-${escapeHtml(difficultyKey)} meta-filter-trigger" data-filter-type="difficulty" data-filter-value="${escapeHtml(difficultyKey)}" title="${escapeHtml(uiText("difficultyBadgeTitle"))}">${escapeHtml(difficultyLabel)}</button>`;
+  return `<button type="button" class="difficulty-badge difficulty-${escapeHtml(difficultyKey)} meta-filter-trigger" data-filter-type="difficulty" data-filter-value="${escapeHtml(difficultyKey)}" data-tooltip="${escapeHtml(uiText("difficultyBadgeTitle"))}">${escapeHtml(difficultyLabel)}</button>`;
 }
 
 function renderSolvedToggle(problem) {
   const solvedAnimationClass = animatedSolvedProblemId === problem.id ? " solved-toggle-animate" : "";
   return `
-    <label class="solved-toggle solved-toggle-small${solvedAnimationClass}" title="${escapeHtml(uiText("solvedToggleLabel"))}">
+    <label class="solved-toggle solved-toggle-small${solvedAnimationClass}" data-tooltip="${escapeHtml(uiText("solvedToggleLabel"))}">
       <input class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="${escapeHtml(uiText("solvedToggleLabel"))}" ${isProblemSolved(problem.id) ? "checked" : ""}>
       <span class="solved-toggle-icon" aria-hidden="true">
         <svg viewBox="0 0 20 20" focusable="false">
