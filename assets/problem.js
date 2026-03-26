@@ -172,6 +172,11 @@ function renderStaticUiText() {
     understandingSelect.setAttribute("aria-label", understandingLabel);
   }
 
+  const understandingWrap = document.getElementById("problem-understanding-wrap");
+  if (understandingWrap) {
+    window.CCCTooltip?.setTooltip(understandingWrap, understandingLabel);
+  }
+
   const examplesTitle = document.getElementById("examples-section-title");
   if (examplesTitle) {
     examplesTitle.textContent = uiText.examplesSectionTitle ?? DEFAULT_CONFIG.uiText.examplesSectionTitle;

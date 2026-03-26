@@ -317,7 +317,7 @@ function renderProblemCard(problem) {
         ${renderSolvedToggle(problem)}
         <label class="field select-inline compact-select">
           <span class="sr-only">${escapeHtml(uiText("understandingSelectLabel"))}</span>
-          <span class="understanding-select-wrap${understandingAnimationClass}">
+          <span class="understanding-select-wrap${understandingAnimationClass}" data-tooltip="${escapeHtml(uiText("understandingSelectLabel"))}">
             <span class="understanding-marker ${getUnderstandingMarkerClass(understandingValue)}" aria-hidden="true"></span>
             <span class="understanding-mobile-label">${escapeHtml(getUnderstandingDisplayLabel(understandingValue))}</span>
             <select class="understanding-select" aria-label="${escapeHtml(uiText("understandingSelectLabel"))}"></select>

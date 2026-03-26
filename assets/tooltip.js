@@ -2,6 +2,7 @@
   let tooltipElement = null;
   let activeTarget = null;
   let bound = false;
+  let hideTimer = 0;
 
   function ensureTooltipElement() {
     if (tooltipElement) {
@@ -10,7 +11,7 @@
 
     tooltipElement = document.createElement("div");
     tooltipElement.className = "ccc-tooltip";
-    tooltipElement.hidden = true;
+    tooltipElement.setAttribute("aria-hidden", "true");
     tooltipElement.setAttribute("role", "tooltip");
     document.body.appendChild(tooltipElement);
     return tooltipElement;
@@ -45,27 +46,50 @@
       return;
     }
 
+    if (hideTimer) {
+      window.clearTimeout(hideTimer);
+      hideTimer = 0;
+    }
+
     const tooltip = ensureTooltipElement();
     tooltip.textContent = text;
-    tooltip.hidden = false;
+    tooltip.setAttribute("aria-hidden", "false");
     activeTarget = target;
     positionTooltip();
+    window.requestAnimationFrame(() => {
+      tooltip.classList.add("is-visible");
+      positionTooltip();
+    });
   }
 
   function hideTooltip() {
-    if (tooltipElement) {
-      tooltipElement.hidden = true;
-      tooltipElement.textContent = "";
-    }
-    activeTarget = null;
-  }
-
-  function positionTooltip() {
-    if (!activeTarget || !tooltipElement || tooltipElement.hidden) {
+    if (!tooltipElement) {
+      activeTarget = null;
       return;
     }
 
-    const gap = 10;
+    tooltipElement.classList.remove("is-visible");
+    tooltipElement.setAttribute("aria-hidden", "true");
+    activeTarget = null;
+
+    if (hideTimer) {
+      window.clearTimeout(hideTimer);
+    }
+    hideTimer = window.setTimeout(() => {
+      if (tooltipElement && tooltipElement.getAttribute("aria-hidden") === "true") {
+        tooltipElement.textContent = "";
+      }
+      hideTimer = 0;
+    }, 140);
+  }
+
+  function positionTooltip() {
+    if (!activeTarget || !tooltipElement || tooltipElement.getAttribute("aria-hidden") === "true") {
+      return;
+    }
+
+    const gapAbove = 4;
+    const gapBelow = 12;
     const margin = 8;
     const targetRect = activeTarget.getBoundingClientRect();
 
@@ -77,9 +101,9 @@
     const centeredLeft = targetRect.left + (targetRect.width - tooltipRect.width) / 2;
     const left = Math.min(Math.max(margin, centeredLeft), Math.max(margin, maxLeft));
 
-    let top = targetRect.top - tooltipRect.height - gap;
+    let top = targetRect.top - tooltipRect.height - gapAbove;
     if (top < margin) {
-      top = targetRect.bottom + gap;
+      top = targetRect.bottom + gapBelow;
     }
     if (top + tooltipRect.height > window.innerHeight - margin) {
       top = Math.max(margin, window.innerHeight - tooltipRect.height - margin);
