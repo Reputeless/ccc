@@ -36,10 +36,7 @@ final class CccMarkdownRenderer
             if ($listItems === []) {
                 return;
             }
-            $html[] = '<ul>' . implode('', array_map(
-                fn (string $item): string => '<li>' . $this->renderInline($item) . '</li>',
-                $listItems
-            )) . '</ul>';
+            $html[] = $this->renderList($listItems);
             $listItems = [];
         };
 
@@ -111,10 +108,14 @@ final class CccMarkdownRenderer
                 continue;
             }
 
-            if (preg_match('/^- (.+)$/', $line, $matches)) {
+            if (preg_match('/^(\s*)- (.+)$/', $line, $matches)) {
                 $flushParagraph();
                 $flushTable();
-                $listItems[] = $matches[1];
+                $indentWidth = strlen(str_replace("\t", '  ', $matches[1]));
+                $listItems[] = [
+                    'level' => intdiv($indentWidth, 2),
+                    'text' => $matches[2],
+                ];
                 continue;
             }
 
@@ -161,6 +162,44 @@ final class CccMarkdownRenderer
         $escaped = preg_replace('/`([^`]+)`/', '<code>$1</code>', $escaped) ?? $escaped;
 
         return $escaped;
+    }
+
+    private function renderList(array $items): string
+    {
+        $index = 0;
+        return $this->renderListLevel($items, $index, 0);
+    }
+
+    private function renderListLevel(array $items, int &$index, int $level): string
+    {
+        $html = '<ul>';
+
+        while ($index < count($items)) {
+            $itemLevel = (int) ($items[$index]['level'] ?? 0);
+            if ($itemLevel < $level) {
+                break;
+            }
+
+            if ($itemLevel > $level) {
+                $itemLevel = $level;
+            }
+
+            $text = (string) ($items[$index]['text'] ?? '');
+            $index++;
+
+            $childHtml = '';
+            if ($index < count($items)) {
+                $nextLevel = (int) ($items[$index]['level'] ?? 0);
+                if ($nextLevel > $itemLevel) {
+                    $childHtml = $this->renderListLevel($items, $index, $nextLevel);
+                }
+            }
+
+            $html .= '<li>' . $this->renderInline($text) . $childHtml . '</li>';
+        }
+
+        $html .= '</ul>';
+        return $html;
     }
 
     private function resolveUrl(string $url): string
