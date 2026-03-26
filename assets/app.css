@@ -514,6 +514,16 @@ button, input, select, textarea { font: inherit; }
   box-shadow: 0 0 0 4px var(--focus-ring);
   background: var(--surface-field-focus);
 }
+select option,
+select optgroup {
+  background: var(--surface-field);
+  color: var(--text);
+}
+html[data-theme="dark"] select,
+html[data-theme="dark"] option,
+html[data-theme="dark"] optgroup {
+  color-scheme: dark;
+}
 .field-group { border: 0; padding: 0; margin: 18px 0 0; }
 .difficulty-badge, .understanding-pill {
   display: inline-flex;
