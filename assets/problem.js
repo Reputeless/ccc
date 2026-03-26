@@ -68,6 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     appConfig = { ...DEFAULT_CONFIG };
   }
   renderGlobalFooter(appConfig);
+  renderStaticUiText();
 
   try {
     currentProblem = await fetchProblem(problemId);
@@ -112,6 +113,32 @@ function renderProblem() {
   enhanceCopyableCodeBlocks();
 }
 
+function renderStaticUiText() {
+  const uiText = appConfig.uiText ?? DEFAULT_CONFIG.uiText;
+  const backText = uiText.backToList ?? DEFAULT_CONFIG.uiText.backToList;
+  const guideTitle = uiText.guidePanelTitle ?? DEFAULT_CONFIG.uiText.guidePanelTitle;
+
+  const headerBack = document.getElementById("problem-back-link-text");
+  if (headerBack) {
+    headerBack.textContent = backText;
+  }
+
+  const errorBack = document.getElementById("problem-error-back-link");
+  if (errorBack) {
+    errorBack.textContent = backText.replace(/^←\s*/, "");
+  }
+
+  const resultBack = document.getElementById("problem-result-back-link");
+  if (resultBack) {
+    resultBack.textContent = backText;
+  }
+
+  const guideHeading = document.getElementById("guide-title");
+  if (guideHeading) {
+    guideHeading.textContent = guideTitle;
+  }
+}
+
 function highlightProblemBodyCode() {
   if (!window.Prism?.highlightAllUnder) {
     return;
@@ -132,13 +159,13 @@ function renderGuide() {
   const guideHtml = typeof currentProblem.guideHtml === "string" ? currentProblem.guideHtml.trim() : "";
 
   if (guideHtml === "") {
-    container.innerHTML = `<p class="guide-empty-text">この問題の解説はありません。</p>`;
+    container.innerHTML = `<p class="guide-empty-text">${escapeHtml(appConfig.uiText?.guideEmptyMessage ?? DEFAULT_CONFIG.uiText.guideEmptyMessage)}</p>`;
     return;
   }
 
   container.innerHTML = `
     <details class="guide-accordion">
-      <summary class="guide-summary">解説を読む</summary>
+      <summary class="guide-summary">${escapeHtml(appConfig.uiText?.guideReadLabel ?? DEFAULT_CONFIG.uiText.guideReadLabel)}</summary>
       <div class="guide-content problem-body">
         ${guideHtml}
       </div>
@@ -158,7 +185,7 @@ function renderProblemMeta(problem) {
   if (problem.lecture != null) {
     container.appendChild(createMetaFilterLink(
       "lecture-badge meta-filter-trigger",
-      formatLectureLabel(problem.lecture),
+      formatLectureLabel(problem.lecture, appConfig.lectureLabelTemplate),
       "lecture",
       String(problem.lecture),
       "この講義回で絞り込む"

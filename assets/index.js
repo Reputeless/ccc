@@ -232,7 +232,7 @@ function renderLectureBadge(lecture) {
   if (lecture == null) {
     return "";
   }
-  return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" title="この講義回で絞り込む">${escapeHtml(formatLectureLabel(lecture))}</button>`;
+  return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" title="この講義回で絞り込む">${escapeHtml(formatLectureLabel(lecture, appConfig.lectureLabelTemplate))}</button>`;
 }
 
 function getUnderstandingDisplayLabel(value) {

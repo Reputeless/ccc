@@ -665,8 +665,18 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   "courseId": "cpro-2026-a",
   "courseLabel": "2026年度 CプログラミングA",
   "copyrightNotice": "© CCC",
+  "lectureLabelTemplate": "第 {value} 回",
   "difficultyLabels": ["基礎", "中級", "発展"],
   "understandingLabels": ["要復習", "ふつう", "自信あり"],
+  "uiText": {
+    "backToList": "← 問題一覧へ戻る",
+    "validationLink": "問題ステータス",
+    "teacherGuideLink": "教師用ガイド",
+    "teacherGuideTitle": "教師用ガイド",
+    "guidePanelTitle": "解説",
+    "guideReadLabel": "解説を読む",
+    "guideEmptyMessage": "この問題の解説はありません。"
+  },
   "tabWidth": 4,
   "editorRows": 20,
   "longExampleLineThreshold": 30,
@@ -741,10 +751,17 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   - 例: `2026年度 CプログラミングA`
 - `copyrightNotice`:
   - ページ下部に表示する著作権表記や提供者名
+- `lectureLabelTemplate`:
+  - 講義回の表示テンプレート
+  - `{value}` の部分に数値を埋め込む
+  - 例: `第 {value} 回`, `第 {value} 章`
 - `difficultyLabels`:
   - 難易度 1, 2, 3 に対応する表示名
 - `understandingLabels`:
   - 理解度 1, 2, 3 に対応する表示名
+- `uiText`:
+  - 共通 UI 文言の一部をまとめて上書きするための連想配列
+  - 初期版では `一覧へ戻る`, `問題ステータス`, `教師用ガイド`, `解説` まわりの文言を差し替えられる
 - `tabWidth`:
   - コード入力欄でタブ文字を何文字幅で表示するか
 - `editorRows`:
@@ -812,8 +829,10 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `courseId`
 - `courseLabel`
 - `copyrightNotice`
+- `lectureLabelTemplate`
 - `difficultyLabels`
 - `understandingLabels`
+- `uiText`
 - `tabWidth`
 - `editorRows`
 - `longExampleLineThreshold`
@@ -1029,7 +1048,7 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
 - `solved` は `true` を加算的に反映し、`understanding` はファイル側の値で更新する
 - `courseId` が一致しないファイルを読み込む場合は、確認を挟む
 - `学習記録` パネルからは、最近開いた問題への復帰や、ローカルに保存された学習記録の消去も行える
-- `記録の消去` では、`コード入力内容だけを消去` と `解いた記録・理解度だけを消去` を分けて扱う
+- `記録の消去` では、`コード入力内容を消去` と `解いた記録・理解度を消去` を分けて扱う
 
 ### テーマ切り替え
 
@@ -1139,8 +1158,18 @@ Wandbox の GitHub リポジトリ README の FAQ では、講義や商業での
   "appName": "CCC",
   "appSubtitle": "C プログラミングの自習と理解度確認のための演習環境です。",
   "copyrightNotice": "© CCC",
+  "lectureLabelTemplate": "第 {value} 回",
   "difficultyLabels": ["基礎", "中級", "発展"],
   "understandingLabels": ["要復習", "ふつう", "自信あり"],
+  "uiText": {
+    "backToList": "← 問題一覧へ戻る",
+    "validationLink": "問題ステータス",
+    "teacherGuideLink": "教師用ガイド",
+    "teacherGuideTitle": "教師用ガイド",
+    "guidePanelTitle": "解説",
+    "guideReadLabel": "解説を読む",
+    "guideEmptyMessage": "この問題の解説はありません。"
+  },
   "tabWidth": 4,
   "editorRows": 20,
   "longExampleLineThreshold": 30,

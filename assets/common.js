@@ -5,8 +5,18 @@
     courseId: "ccc-demo",
     courseLabel: "CCC Demo Course",
     copyrightNotice: "© CCC",
+    lectureLabelTemplate: "第 {value} 回",
     difficultyLabels: ["基礎", "中級", "発展"],
     understandingLabels: ["要復習", "ふつう", "自信あり"],
+    uiText: {
+      backToList: "← 問題一覧へ戻る",
+      validationLink: "問題ステータス",
+      teacherGuideLink: "教師用ガイド",
+      teacherGuideTitle: "教師用ガイド",
+      guidePanelTitle: "解説",
+      guideReadLabel: "解説を読む",
+      guideEmptyMessage: "この問題の解説はありません。",
+    },
     tabWidth: 4,
     editorRows: 20,
     longExampleLineThreshold: 30,
@@ -183,11 +193,12 @@
     return config.difficultyLabels[difficulty - 1] ?? `難易度 ${difficulty}`;
   }
 
-  function formatLectureLabel(lecture, suffix = "回") {
+  function formatLectureLabel(lecture, template = DEFAULT_CONFIG.lectureLabelTemplate) {
     if (lecture == null) {
       return null;
     }
-    return `第 ${lecture} ${suffix}`;
+    const lectureText = String(lecture);
+    return String(template ?? DEFAULT_CONFIG.lectureLabelTemplate).replaceAll("{value}", lectureText);
   }
 
   function getUnderstandingMarkerClass(value) {
@@ -276,6 +287,16 @@
     const copyright = document.getElementById("global-footer-copyright");
     if (copyright) {
       copyright.textContent = config.copyrightNotice ?? DEFAULT_CONFIG.copyrightNotice;
+    }
+
+    const validationLink = document.getElementById("global-footer-validation-link");
+    if (validationLink) {
+      validationLink.textContent = config.uiText?.validationLink ?? DEFAULT_CONFIG.uiText.validationLink;
+    }
+
+    const teacherGuideLink = document.getElementById("global-footer-teacher-guide-link");
+    if (teacherGuideLink) {
+      teacherGuideLink.textContent = config.uiText?.teacherGuideLink ?? DEFAULT_CONFIG.uiText.teacherGuideLink;
     }
   }
 

@@ -39,7 +39,7 @@ try {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#0d2e3a">
-  <title><?= h($config['appName']) ?> | 教師用ガイド</title>
+  <title><?= h($config['appName']) ?> | <?= h((string) ($config['uiText']['teacherGuideTitle'] ?? '教師用ガイド')) ?></title>
   <script src="assets/theme-init.js"></script>
   <script src="assets/prism-init.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,7 +54,7 @@ try {
   <header class="site-header compact-header">
     <div class="site-header-inner">
       <a class="hero-card hero-card-compact hero-card-link hero-card-link-only" href="./">
-        <span class="back-link">← 問題一覧へ戻る</span>
+        <span class="back-link"><?= h((string) ($config['uiText']['backToList'] ?? '← 問題一覧へ戻る')) ?></span>
       </a>
     </div>
   </header>
@@ -63,7 +63,7 @@ try {
     <article class="panel content-panel teacher-guide-panel">
       <header class="problem-header teacher-guide-header">
         <div class="problem-header-main">
-          <h1>教師用ガイド</h1>
+          <h1><?= h((string) ($config['uiText']['teacherGuideTitle'] ?? '教師用ガイド')) ?></h1>
         </div>
       </header>
       <div id="teacher-guide-body" class="problem-body"><?= $guideHtml ?></div>

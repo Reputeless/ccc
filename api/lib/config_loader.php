@@ -14,8 +14,18 @@ function ccc_load_app_config(): array
         'courseId' => 'ccc-demo',
         'courseLabel' => 'CCC Demo Course',
         'copyrightNotice' => '© CCC',
+        'lectureLabelTemplate' => '第 {value} 回',
         'difficultyLabels' => ['基礎', '中級', '発展'],
         'understandingLabels' => ['要復習', 'ふつう', '自信あり'],
+        'uiText' => [
+            'backToList' => '← 問題一覧へ戻る',
+            'validationLink' => '問題ステータス',
+            'teacherGuideLink' => '教師用ガイド',
+            'teacherGuideTitle' => '教師用ガイド',
+            'guidePanelTitle' => '解説',
+            'guideReadLabel' => '解説を読む',
+            'guideEmptyMessage' => 'この問題の解説はありません。',
+        ],
         'tabWidth' => 4,
         'editorRows' => 20,
         'longExampleLineThreshold' => 30,
@@ -76,11 +86,43 @@ function ccc_normalize_app_config(array $config): array
         }
     }
 
+    $config['lectureLabelTemplate'] = ccc_normalize_text_setting($config['lectureLabelTemplate'] ?? '第 {value} 回', '第 {value} 回');
+    $config['uiText'] = ccc_normalize_ui_text($config['uiText'] ?? []);
     $config['defaultProfileId'] = $defaultProfileId;
     $config['languageProfiles'] = $normalizedProfiles;
     $config['languageProfile'] = $normalizedProfiles[$defaultProfileId];
 
     return $config;
+}
+
+function ccc_normalize_ui_text(mixed $value): array
+{
+    $defaults = [
+        'backToList' => '← 問題一覧へ戻る',
+        'validationLink' => '問題ステータス',
+        'teacherGuideLink' => '教師用ガイド',
+        'teacherGuideTitle' => '教師用ガイド',
+        'guidePanelTitle' => '解説',
+        'guideReadLabel' => '解説を読む',
+        'guideEmptyMessage' => 'この問題の解説はありません。',
+    ];
+
+    if (!is_array($value)) {
+        return $defaults;
+    }
+
+    $normalized = [];
+    foreach ($defaults as $key => $fallback) {
+        $normalized[$key] = ccc_normalize_text_setting($value[$key] ?? $fallback, $fallback);
+    }
+
+    return $normalized;
+}
+
+function ccc_normalize_text_setting(mixed $value, string $fallback): string
+{
+    $text = trim((string) $value);
+    return $text !== '' ? $text : $fallback;
 }
 
 function ccc_default_language_profile(): array

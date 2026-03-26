@@ -37,7 +37,7 @@ $items = $report['items'];
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#0d2e3a">
-  <title><?= h($config['appName']) ?> | 問題ステータス</title>
+  <title><?= h($config['appName']) ?> | <?= h((string) ($config['uiText']['validationLink'] ?? '問題ステータス')) ?></title>
   <script src="assets/theme-init.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,10 +49,10 @@ $items = $report['items'];
     <section class="validate-panel">
       <div class="panel-heading panel-heading-compact">
         <div>
-          <h1>問題ステータス</h1>
+          <h1><?= h((string) ($config['uiText']['validationLink'] ?? '問題ステータス')) ?></h1>
         </div>
         <div>
-          <a class="secondary-button validate-back-link" href="./">問題一覧へ戻る</a>
+          <a class="secondary-button validate-back-link" href="./"><?= h((string) ($config['uiText']['backToList'] ?? '← 問題一覧へ戻る')) ?></a>
         </div>
       </div>
 
