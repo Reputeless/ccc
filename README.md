@@ -1475,6 +1475,10 @@ HTTP ステータスの方針:
 - Wandbox compile endpoint: https://wandbox.org/api/compile.json
 - Wandbox GitHub README FAQ: https://github.com/melpon/wandbox
 
+## License
+
+This project is licensed under `MIT-0`. See [LICENSE](./LICENSE).
+
 ## 今後の検討候補
 
 - モバイル時の一覧 UI をどこまで最適化するか
