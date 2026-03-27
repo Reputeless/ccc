@@ -631,11 +631,6 @@
     font-size: 0.99rem;
   }
 
-  .problem-card .meta-filter-trigger {
-    pointer-events: none;
-    cursor: default;
-  }
-
   .problem-card-state-group {
     grid-template-columns: 40px 88px;
     column-gap: 8px;
