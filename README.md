@@ -1,973 +1,42 @@
 # CCC
 
-`CCC` は `C Code Checker` の略です。  
-学生が自習として C プログラミングの理解度確認を行うための Web アプリを目指します。  
-コンパイルと実行には Wandbox API の利用を想定します。
+`CCC` は、学生がブラウザから C / C++ / Python の小さな演習問題を解き、理解度を記録できる学習支援 Web アプリです。  
+判定には Wandbox API を使い、学生の学習記録やコード入力内容は各ブラウザの `localStorage` に保存します。
 
-教員向けの運用メモや導入手順は、今後 [TEACHER_GUIDE.md](./TEACHER_GUIDE.md) に整理していきます。アプリ内からは `教師用ガイド` ページとして参照できます。
+教員向けの導入手順や運用方法は、[TEACHER_GUIDE.md](./TEACHER_GUIDE.md) を参照してください。
 
 ## 目的
 
-- 学生がブラウザから気軽に C のコードを判定できる
-- 教員はシンプルな手順で問題を追加・修正できる
-- アカウントや成績管理なしで運用できる
-- 初めての Web 開発でも破綻しない規模に保つ
-
-## このプロジェクトでやること
-
-- 学生向けの問題一覧ページを提供する
-- 学生向けの個別問題ページを提供する
-- C コードを入力して `判定する` ボタンで実行・判定できる
-- 判定結果に応じて学習支援に役立つ情報を表示する
-- 問題データを JSON ベースで追加・修正・削除できる
-- 学生ごとのローカル状態をブラウザに保存する
-- 講義回、難易度、解いた状態、理解度で問題一覧を絞り込める
-- 将来の言語追加やコンパイル設定変更に耐えられる内部構成にする
-
-## このプロジェクトでやらないこと
-
-- アカウント作成
-- ログイン
-- 教員による提出回収
-- 成績管理
-- LMS 連携
-- ランキング
-- 他学生との比較
-- 隠しテスト
-- 正式提出という概念
-- plagiarism checker
-- 管理画面からの問題編集
-- 問題のキーワード検索
-
-## 基本方針
-
-### 学習支援ツールとして割り切る
-
-`CCC` は厳密なオンラインジャッジではなく、自習用の理解確認ツールです。  
-学生が自力で原因を調べやすいことを重視します。
-
-### バックエンドを挟む
-
-ブラウザから Wandbox を直接呼ばず、アプリのバックエンド経由で利用します。
-
-理由:
-
-- 問題データ配信を一元化できる
-- キャッシュ制御をしやすい
-- コンパイラ設定を固定しやすい
-- 将来の拡張がしやすい
-
-### 複雑な状態同期は行わない
-
-学生のコード、解いた状態、理解度はブラウザローカルに保存します。  
-別端末や別ブラウザとの同期は行いません。
-
-## 画面構成
-
-### 1. 問題一覧ページ
-
-一覧の各行には次を表示します。
-
-- 問題番号
-- タイトル
-- 講義回
-- 難易度
-- 解いた状態のトグル
-- 理解度 3 択
-
-タイトルはリンクで、クリックすると個別問題ページへ遷移します。
-
-一覧では、`講義回 / 難易度 / 解いた / 理解度` を横方向の固定列として扱う。  
-`lecture` や `difficulty` が未設定の問題は、その列を詰めずに空欄として表示する。
-
-#### 一覧ページでできること
-
-- 講義回で絞り込む
-- 難易度で絞り込む
-- 解いた状態で絞り込む
-- 理解度で絞り込む
-- 解いた状態を手動で変更する
-- 理解度を手動で変更する
-- 並び順を切り替える
-
-#### 一覧フィルタ
-
-- 講義回:
-  - `下限`
-  - `上限`
-  - 両方指定による範囲指定
-- 難易度:
-  - `基礎`
-  - `中級`
-  - `発展`
-  - `未設定`
-  - 複数同時フィルタ可能
-- 解いた状態:
-  - すべて表示
-  - 解いた問題だけを表示
-  - 解いていない問題だけを表示
-- 理解度:
-  - すべて
-  - 未設定
-  - 要復習
-  - ふつう
-  - 自信あり
-
-現在どのフィルタが有効かは、画面上で明確に表示します。
-
-一覧ページの左カラムには、`フィルタ` に加えて、次の独立パネルを置く。
-
-- `学習記録`
-- `表示設定`
-
-`lecture` が未設定の問題は、講義回フィルタ未使用時には表示する。  
-講義回フィルタ使用時には、比較できないため一覧から外す。
-
-`difficulty` が未設定の問題は、難易度フィルタで `未設定` を選んだときに表示できるようにする。
-
-#### 並び順
-
-- 現在の実装:
-  - 講義回が小さい順
-  - 講義回が大きい順
-  - 問題番号が小さい順
-  - 問題番号が大きい順
-  - 理解度が高い順
-  - 理解度が低い順
-  - 講義回ソート時は、同じ講義回の中を `number`、未設定時は `id` で比較する
-  - 問題番号ソート時は、`number` を優先し、未設定時は `id` で比較する
-  - 理解度ソート時は、`自信あり / ふつう / 要復習` または `要復習 / ふつう / 自信あり` の順に並べ、`未設定` は常に最後へ寄せる
-  - 理解度が同じ問題は、講義回、`number`、`id` の順で安定比較する
-
-#### 一覧ページの UX
-
-- 一覧ページを開くたびに `GET /api/problems.php` で最新の問題一覧を取得する
-- 個別問題ページから戻ったとき、フィルタ状態を復元する
-- 個別問題ページから戻ったとき、スクロール位置を復元する
-- 一覧フィルタ状態は `localStorage` に保存する
-- 一覧スクロール位置は `sessionStorage` に保存する
-- 左カラム全体は、画面の縦幅に収まるときだけ sticky にし、収まらないときは通常配置に戻す
-- 講義回タグや難易度タグをクリックすると、その条件で一覧を素早く絞り込めるようにする
-- すでに同じ単独条件で絞り込まれているときに同じタグを再度押すと、そのフィルタを解除できるようにする
-
-### 2. 個別問題ページ
-
-個別問題ページには次を置きます。
-
-- 一覧へ戻る導線
-- タイトル
-- 使用言語 / 規格
-- 講義回
-- 難易度
-- 解いた状態の操作
-- 理解度 3 択
-- 問題文
-- 入出力例
-- コード入力欄
-- `判定する` ボタン
-- 判定結果表示欄
-
-講義回、難易度、`解いた`、理解度は、タイトル直下の 1 行にまとめて表示する。  
-講義回は `第 1 回` のように表示する。
-使用言語 / 規格は、`C23` や `C++23` のような人間向けの表記で、背景色なしの補助ラベルとして表示する。
-
-#### 個別問題ページの UX
-
-- 一覧ページからは通常のページ遷移で移動する
-- ページ上部のヒーロー全体をクリックすると一覧へ戻れる
-- `Accepted` 後、その場で `解いた` になったことを確認できる
-- `合格` 後は、その場で理解度を 1 クリックで記録できるようにする
-- 理解度を記録した直後に、視線移動を最小化した位置から一覧へ戻れるようにする
-- 入出力例は各組ごとにアコーディオンで開閉でき、初期状態ではすべて開いている
-- 判定結果欄にはローディング表示を出す
-- 判定中は `判定する` ボタンを無効化する
-- ページ再読み込み時、前回の判定結果は保持しない
-- 問題が存在しない、または未公開の場合は、その旨を表示する専用画面を出し、一覧へ戻る導線を置く
-- 講義回タグや難易度タグから、対応する条件で絞り込んだ一覧へ戻れるようにする
-- 問題文中の ```c / ```cpp / ```python` コードブロックには、控えめな syntax highlight を適用する
-
-## 判定仕様
-
-### 判定ボタン
-
-- `実行` と `提出` は分けない
-- `判定する` の 1 ボタンだけを提供する
-
-### テストケース
-
-- 判定対象は、問題文に表示している公開の入出力例のみ
-- 各問題の入出力例は 1 組以上 6 組以下
-- 先頭から順に試し、1 つでも失敗した時点で打ち切る
-- `.in.txt` は空ファイルでもよい
-- `.in.txt` はファイル末尾に改行がなくてもよい
-- `.out.txt` はファイル末尾に改行がなくても、末尾改行ありと同等に扱う
-
-### 出力比較
-
-- 末尾の空白は無視する
-- 末尾の改行差は無視する
-- 途中の空白差は不正解とする
-- 半角空白とタブ空白は別物として扱う
-
-補足:
-
-- この比較ルールは将来の UX 検証で変更する可能性がある
-
-### 結果表示
-
-- 未判定: `まだ判定していません`
-- 判定中: `判定中...`
-- 合格: `合格！`
-- 警告つき合格: `合格！ ただしコンパイラ警告を確認してください`
-- 出力不一致: `失敗ケースあり（例 02）` のように、最初に失敗した例番号を併記する
-- コンパイル失敗: `コンパイルエラー`
-- 実行失敗: `実行時エラー`
-- 時間超過: `時間切れ`
-- `失敗ケースあり` のときは、最初に失敗した 1 ケースについて、入力、正しい出力、実際の出力を表示する
-- `警告` は判定とは別に、個別問題ページの結果欄の詳細として表示する
-- 判定サービスとの通信失敗時は、サーバまたは外部サービス側の問題だと分かる文言を表示する
-
-### 学生向け文言と UX 方針
-
-- 競技プログラミング由来の英語ラベルをそのまま使わず、初学者に意味が伝わる日本語を優先する
-- `Wrong Answer` のような否定的な表現は避け、`失敗ケースあり` のように次の行動につながる表現を選ぶ
-- `合格` は安心感が先に伝わるようにし、警告がある場合は別途 `コンパイラ警告を確認してください` と誘導する
-- 判定結果の詳細欄では、`入力 / 正しい出力 / 実際の出力 / 警告 / コンパイルメッセージ` などの見出しを分かりやすく出す
-- 問題一覧や問題ページのタグは、見た目の情報で終わらせず、絞り込み操作にもつながるようにする
-- 学習直後に理解度を記録しやすい位置へ入力導線を置き、一覧への復帰も近くに置く
-- 問題文、入出力例、判定結果に出るコードやテキストは、必要に応じて 1 クリックでコピーできるようにする
-- `guide.md` がある問題では、個別問題ページ右カラム下部の `解説` パネルから解説を読めるようにする
-- 本文用フォントには `BIZ UDPGothic` を使い、日本語の読みやすさと英数字の自然さの両立を図る
-
-### Wandbox 障害時の案内
-
-IP 制限や Wandbox 側障害が疑われる場合、学生には次を案内します。
-
-- 時間帯を変えて再試行する
-- ローカルの VSCode などで確認する
-
-## コード入力欄
-
-### 仕様
-
-- 基本は空のコード欄を使う
-- `Tab` キーの挙動は、現在の言語プロファイルに従う
-- C / C++ では実際のタブ文字 `\t` を入力する
-- Python では空白 4 文字を入力する
-- インデント幅の既定値は 4 とする
-- `Enter` では現在行の先頭インデントを安全な範囲で引き継ぐ
-- 複数行選択時は `Tab` で一括字下げできるようにする
-- 複数行選択時は `Shift+Tab` で一括字下げ解除できるようにする
-- `Ctrl+/` または `Cmd+/` で、選択行に対する `//` コメントの一括追加・解除ができるようにする
-- 上記のエディタ操作は、通常の文字入力と同じ流れで元に戻す・やり直す操作に追従するようにする
-
-初期コードが必要な場合は、問題文中のコードブロックとして提示する。
-
-### やらないこと
-
-- 行番号表示は初期版では不要
-- コード入力欄や判定結果欄のシンタックスハイライトは初期版では不要
-
-### 問題文中のコードブロック
-
-- 問題文中の fenced code block では、`c` / `cpp` / `python` を標準サポートする
-- シンタックスハイライトは問題本文のコードブロックだけに適用する
-- 入出力例、判定結果、コード入力欄には適用しない
-- 問題文では ```c / ```cpp / ```python のように言語名付きで書くことを推奨する
-- Prism は外部 CDN ではなくアプリ同梱のローカルファイルから読み込む
-
-## ローカル保存
-
-### 保存対象
-
-- 問題ごとのコード
-- 問題ごとの `解いた` 状態
-- 問題ごとの理解度
-
-### 保存方式
-
-- ブラウザの `localStorage` を使う
-- コードは入力のたびに自動保存する
-
-### `解いた` 状態の扱い
-
-学生には 1 つの `解いた` 状態として見せますが、内部では将来拡張のために次のように分けて持てます。
-
-- 自動で `Accepted` になった記録
-- 学生が手動で `解いた` を付けた記録
-
-画面上は両者を統合して扱います。
-
-### `Accepted` と手動操作
-
-- `Accepted` になったら自動で `解いた` にする
-- その後、学生が手動で `未解` に戻せる
-- 再度 `Accepted` になったら、また自動で `解いた` にする
-- `解いた` の操作は、単純なチェックボックスではなく、達成感を感じやすいトグル表現にする
-
-### 理解度
-
-- 初期値は `未設定`
-- デフォルトの 3 段階は `要復習 / ふつう / 自信あり`
-- 語彙はグローバル設定で変更可能にする
-
-### 削除安全性
-
-- 問題が一覧から消えても、対応するローカル保存データは自動削除しない
-- バグで全問題が消えたように見えた場合でも、学生の記録を失わないことを優先する
-
-## 問題データ
-
-### 配置方針
-
-- 問題のメタデータは `JSON` で持つ
-- ただし、本文や入出力例のような複数行テキストは、`JSON` 文字列に `\n` を大量に書かなくて済む構成を優先する
-- 問題追加はなるべく単純なファイル追加で行えるようにする
-- 問題修正もテキストファイル編集中心で行えるようにする
-- 管理画面は作らない
-
-### 問題 ID
-
-- `problemId` の命名規則は固定しない
-- 内部 `id` は問題フォルダ名をそのまま使う
-- 内部 `id` は URL、ローカル保存キーなどの機械的な参照に使う
-- 画面表示用の問題番号は、任意の `number` としてフォルダ名ベースの `id` とは別に持てるようにする
-- 現在の講義回ソートでは、同じ講義回の中を `number`、未設定時は `id` で比較する
-
-### 同一 `problemId` の修正ルール
-
-- typo 修正など、ジャッジに影響しない変更のみ同じ `problemId` のまま行う
-- 入出力例や正しい出力など、ジャッジに影響する変更は `problemId` を変更して新規問題として扱う
-- そのため、同じ `problemId` に紐づくローカル記録は基本的に保持してよい
-
-### 公開制御
-
-- 未公開問題は学生画面に一切表示しない
-- 初期版では、未公開問題の確認はローカルプレビューのみで行う
-- 本番環境での特別なプレビュー URL は初期版では作らない
-- 任意で `publishedAt` を持てるようにし、未設定なら常に公開とする案を採用する
-
-### 問題データの表現方針
-
-JSON の文字列には生の改行をそのまま書けないため、本文や入出力例をすべて 1 つの JSON に埋め込むと `\n` が多くなり、編集しづらくなる。
-
-そのため、次のような「問題ごとのフォルダ構成」を有力案とする。
-
-```text
-problems/
-  sum-001/
-    problem.json
-    body.md
-    guide.md
-    01.in.txt
-    01.out.txt
-    02.in.txt
-    02.out.txt
-    figure1.png
-```
-
-この構成の利点:
-
-- 問題本文を Markdown ファイルとして自然に書ける
-- 入力例や出力例を生のテキストで管理できる
-- `\n` エスケープを大量に書かずに済む
-- 画像を問題ごとにまとめやすい
-- ファイル数を最小限に抑えやすい
-
-### `problem.json` の項目案
-
-```json
-{
-  "number": "1-1",
-  "title": "2つの整数の和",
-  "lecture": 1,
-  "difficulty": 1,
-  "profileId": "c23",
-  "publishedAt": "2026-04-01T09:00:00+09:00"
-}
-```
-
-### 項目ルール
-
-- `id`: `problem.json` には持たず、フォルダ名をそのまま使う
-- `title`: 必須
-- `number`: 必須
-- `lecture`: 任意
-- `difficulty`: 任意
-- `profileId`: 任意
-- `publishedAt`: 任意
-
-`lecture` と `difficulty` は省略しても動作するが、運用上はキーを残したまま `null` を書くことを推奨する。  
-将来の CLI による自動生成テンプレートとも、この形で揃える。
-
-問題本文ファイル名は固定で `body.md` とする。  
-解説ファイルは任意で `guide.md` とする。  
-`constraints`、入力説明、出力説明、ヒント、初期コードはすべて `body.md` に書く。  
-必要なら Markdown の見出しやコードブロックで表現する。
-
-`guide.md` がある場合は、個別問題ページの `解説` パネルから読めるようにする。  
-`guide.md` がない場合でも `解説` パネル自体は表示し、`この問題の解説はありません。` と案内する。
-
-入出力例は `01.in.txt` / `01.out.txt` から `06.in.txt` / `06.out.txt` までの固定連番で置く。  
-使う場合は `01` から順に詰めて置き、途中を飛ばさない。  
-
-### 問題追加テンプレート
-
-CLI による自動生成や手作業のひな形として、実ファイルのテンプレートは `templates/default/` に置く。
-
-最小の問題追加 CLI として、次のコマンドを想定する。
-
-```powershell
-php tools/create.php sample-001
-```
-
-このコマンドは `problems/sample-001/` を作成し、`templates/default/` の内容をコピーする。  
-必要なら `--template <name>` でテンプレート名を、`--profile <id>` で `problem.json` の `profileId` を上書きできる。
-
-問題データの検査を CLI から行いたい場合は、次のコマンドを使う。
-
-```powershell
-php tools/validate.php
-php tools/validate.php sample-001
-```
-
-引数なしでは全問題を検査し、`<problem-id>` を付けるとその問題だけを検査する。  
-終了コードは、`Error` が 1 件でもあれば `1`、それ以外は `0` を返す。
-
-#### 最小例
-
-最小限の 1 問は次のように追加できる。
-
-```text
-problems/
-  sum-001/
-    problem.json
-    body.md
-    01.in.txt
-    01.out.txt
-```
-
-`problem.json`
-
-```json
-{
-  "number": "1-1",
-  "title": "2つの整数の和",
-  "lecture": null,
-  "difficulty": null,
-  "profileId": "c23",
-  "publishedAt": "2026-01-01T00:00:00+09:00"
-}
-```
-
-`body.md`
-
-```md
-## 問題
-
-2つの整数 `a`, `b` が与えられます。  
-その和を出力してください。
-
-## 入力
-
-2つの整数 `a`, `b` が空白区切りで与えられます。
-
-## 出力
-
-`a + b` を 1 行で出力してください。
-```
-
-#### 基本例
-
-講義回と難易度を設定する、普段使いの例。
-
-```json
-{
-  "number": "1-1",
-  "title": "2つの整数の和",
-  "lecture": 1,
-  "difficulty": 1,
-  "profileId": "c23",
-  "publishedAt": "2026-01-01T00:00:00+09:00"
-}
-```
-
-`body.md`
-
-```md
-## 問題
-
-2つの整数 `a`, `b` が与えられます。  
-その和を出力してください。
-
-## 制約
-
-- `1 <= a, b <= 100`
-
-## 入力
-
-入力は次の形式で与えられます。
-
-```text
-a b
-```
-
-## 出力
-
-`a + b` を 1 行で出力してください。
-
-## ヒント
-
-まず `scanf` で 2 つの整数を読み取り、その後 `printf` で和を出力します。
-```
-
-#### 公開日時制御例
-
-公開日時を指定したい場合の例。
-
-```json
-{
-  "number": "1-1",
-  "title": "2つの整数の和",
-  "lecture": 1,
-  "difficulty": 1,
-  "profileId": "c23",
-  "publishedAt": "2026-04-01T09:00:00+09:00"
-}
-```
-
-#### 画像を使う例
-
-問題フォルダ内に画像ファイルを置き、`body.md` から相対パス風に参照する。
-
-```text
-problems/
-  geometry-001/
-    problem.json
-    body.md
-    figure1.png
-    01.in.txt
-    01.out.txt
-```
-
-`body.md`
-
-```md
-## 問題
-
-次の図形の面積を求めてください。
-
-![図](./figure1.png)
-```
-
-### `body.md` の推奨テンプレート
-
-`body.md` の構成は自由とするが、教員どうしで書き方をそろえたい場合は次のテンプレートを推奨する。
-
-```md
-## 問題
-
-ここに問題文を書く。
-
-## 制約
-
-- 必要なら制約を書く
-
-## 入力
-
-入力形式や入力の意味を書く。
-
-## 出力
-
-出力形式を書く。
-
-## ヒント
-
-必要な場合のみ書く。
-```
-
-補足:
-
-- `## 制約` と `## ヒント` は不要なら省略してよい
-- 初期コード例を示したい場合は、本文中にコードブロックで書く
-- 入出力例は例ファイルから自動表示するため、`body.md` に重複して書かなくてよい
-
-### `problem.json` のバリデーション方針
-
-実装時には最低限、次のルールを検証する。
-
-- フォルダ名: 問題 ID として使うため、空や重複がなく、安全な名前であること
-- `number`: 必須、空文字不可
-- `title`: 必須、空文字不可
-- `lecture`: 任意、指定時は整数
-- `difficulty`: 任意、指定時は 1 から 3 の整数
-- `profileId`: 任意、指定時は `config/app.json` 内の `languageProfiles` に存在すること
-- `publishedAt`: 任意、指定時はタイムゾーン付きの ISO 8601 文字列を推奨
-- 入出力例ファイル: `01` から `06` までの固定連番を使うこと
-- 入出力例ファイル: 少なくとも 1 組存在すること
-- 入出力例ファイル: 途中の番号を飛ばさず、連続していること
-- 入出力例ファイル: 各番号について `<nn>.in.txt` と `<nn>.out.txt` が両方存在すること
-- `body.md` が存在すること
-
-バリデーションエラー時は、教員が原因をすぐ直せるメッセージを返すことを目指す。
-
-### `validate.php`
-
-- `validate.php` にアクセスすると、全問題のメタ情報と検査結果を表形式で確認できる
-- 列は `problem.json` の主要項目に寄せ、`id / number / title / lecture / difficulty / profileId / publishedAt / examples / guide / status / details` を表示する
-- `publishedAt` 未設定、`lecture` 未設定、`difficulty` 未設定は `OK` 扱いとする
-- `number` 未設定は `エラー` とする
-- `profileId` 未指定は既定プロファイルを使えるため `OK` 扱いとする
-- `number` の重複は運用上の注意として `警告` にする
-- `guide.md` の有無は表に出すが、警告やエラーにはしない
-- `examples` 列は `01, 02` のように、自動検出された入出力例ファイルの連番を表示する
-- 将来的に CLI バリデータを追加する場合も、この検査ロジックを流用する
-- 学生向けの問題一覧では、壊れた問題が 1 つあっても一覧全体を止めず、その問題だけを除外する
-- 壊れた問題の詳細確認は `validate.php` で行う
-
-## Markdown 方針
-
-### 対応する記法
-
-- 見出し `#`, `##`, `###`, `####`, `#####`
-- ページタイトルは Markdown の外で表示するため、HTML では 1 段下げて描画する
-  - `#` は `h2`
-  - `##` は `h3`
-  - `###` は `h4`
-  - `####` は `h5`
-  - `#####` は `h6`
-- 太字 `**...**`
-- 箇条書き `-`
-- インラインコード `` `...` ``
-- コードブロック ```` ```...``` ````
-- 表
-- 画像参照
-- 外部 URL
-
-### 対応しないもの
-
-- 生の HTML
-- 数式
-
-### 画像
-
-- 問題画像はアプリ内の画像フォルダに置く
-- Markdown 内では相対パス風に参照できればよい
-- 完全な外部サイト画像参照は前提にしない
-
-### 外部 URL
-
-- 新しいタブで開く
-
-## グローバル設定
-
-JSON などの設定ファイルで、次の値を一括制御できるとよいです。
-
-- アプリ名
-- 難易度ラベル
-- 理解度ラベル
-- タブ幅
-- 折りたたみ対象とする行数しきい値
-- 既定の言語プロファイル
-- コンパイラ
-- C 規格
-- 将来的なバージョンフラグ
-- GCC 拡張有無
-- 追加コンパイルフラグ
-- 判定タイムアウト秒数
-
-### グローバル設定の目的
-
-グローバル設定は、教員ごとや教育機関ごとに運用方針を変えられるようにするためのものとする。  
-問題ごとに頻繁に変えるものではなく、アプリ全体の既定値を決める役割を持つ。
-
-### 設定ファイル案
-
-初期版では、たとえば `config/app.json` のような 1 ファイルで管理できると分かりやすい。
-
-```json
-{
-  "appName": "CCC",
-  "appSubtitle": "C プログラミングの自習と理解度確認のための演習環境です。",
-  "courseId": "cpro-2026-a",
-  "courseLabel": "2026年度 CプログラミングA",
-  "copyrightNotice": "© CCC",
-  "lectureLabelTemplate": "第 {value} 回",
-  "difficultyLabels": ["基礎", "中級", "発展"],
-  "understandingLabels": ["要復習", "ふつう", "自信あり"],
-  "uiText": {
-    "backToList": "← 問題一覧へ戻る",
-    "validationLink": "問題ステータス",
-    "teacherGuideLink": "教師用ガイド",
-    "teacherGuideTitle": "教師用ガイド",
-    "guidePanelTitle": "解説",
-    "guideReadLabel": "解説を読む",
-    "guideEmptyMessage": "この問題の解説はありません。"
-  },
-  "tabWidth": 4,
-  "editorRows": 20,
-  "longExampleLineThreshold": 30,
-  "resultPreviewMaxLines": 120,
-  "resultPreviewMaxChars": 6000,
-  "resultMessagePreviewMaxLines": 40,
-  "judgeTimeoutSeconds": 10,
-  "maxCodeBytes": 65536,
-  "defaultProfileId": "c23",
-  "languageProfiles": {
-    "c17": {
-      "language": "c",
-      "compiler": "gcc-head-c",
-      "standard": "c17",
-      "gnuExtensions": false,
-      "editorIndentStyle": "tab",
-      "editorIndentWidth": 4,
-      "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
-    },
-    "c23": {
-      "language": "c",
-      "compiler": "gcc-head-c",
-      "standard": "c23",
-      "gnuExtensions": false,
-      "editorIndentStyle": "tab",
-      "editorIndentWidth": 4,
-      "extraFlags": ["-Wall", "-Wextra", "-Wvla", "-Wstrict-prototypes", "-Wconversion", "-Wshadow", "-pedantic", "-lm"]
-    },
-    "cpp20": {
-      "language": "cpp",
-      "compiler": "gcc-head",
-      "standard": "c++20",
-      "gnuExtensions": false,
-      "editorIndentStyle": "tab",
-      "editorIndentWidth": 4,
-      "extraFlags": ["-Wall", "-Wextra", "-Wconversion", "-Wshadow", "-pedantic"]
-    },
-    "cpp23": {
-      "language": "cpp",
-      "compiler": "gcc-head",
-      "standard": "c++23",
-      "gnuExtensions": false,
-      "editorIndentStyle": "tab",
-      "editorIndentWidth": 4,
-      "extraFlags": ["-Wall", "-Wextra", "-Wconversion", "-Wshadow", "-pedantic"]
-    },
-    "python3.14": {
-      "language": "python",
-      "compiler": "cpython-3.14.0",
-      "standard": null,
-      "gnuExtensions": false,
-      "editorIndentStyle": "spaces",
-      "editorIndentWidth": 4,
-      "extraFlags": []
-    }
-  }
-}
-```
-
-### 項目ごとの意味
-
-- `appName`:
-  - 画面上に表示するアプリ名
-- `appSubtitle`:
-  - 一覧ページ上部ヒーローに表示する副題
-  - 教員ごとにトーンを変えたい場合はここで差し替えられる
-- `courseId`:
-  - 学習記録エクスポート/インポート時に講義を識別するための機械用 ID
-  - 例: `cpro-2026-a`
-- `courseLabel`:
-  - 学習記録エクスポート/インポート時に表示する講義名
-  - 例: `2026年度 CプログラミングA`
-- `copyrightNotice`:
-  - ページ下部に表示する著作権表記や提供者名
-- `lectureLabelTemplate`:
-  - 講義回の表示テンプレート
-  - `{value}` の部分に数値を埋め込む
-  - 例: `第 {value} 回`, `第 {value} 章`
-- `difficultyLabels`:
-  - 難易度 1, 2, 3 に対応する表示名
-- `understandingLabels`:
-  - 理解度 1, 2, 3 に対応する表示名
-- `uiText`:
-  - 共通 UI 文言の一部をまとめて上書きするための連想配列
-  - 初期版では `一覧ページ`, `問題ページ`, `一覧へ戻る`, `問題ステータス`, `教師用ガイド`, `解説` まわりの文言を差し替えられる
-- `tabWidth`:
-  - コード入力欄でタブ文字を何文字幅で表示するか
-- `editorRows`:
-  - コード入力欄の初期表示行数
-  - これを超える場合は入力欄内をスクロールする
-- `longExampleLineThreshold`:
-  - 入出力例を折りたたみ表示に切り替える行数しきい値
-- `resultPreviewMaxLines`:
-  - 出力比較結果で長すぎる実際の出力を省略表示する際の最大行数
-- `resultPreviewMaxChars`:
-  - 出力比較結果で長すぎる実際の出力を省略表示する際の最大文字数
-- `resultMessagePreviewMaxLines`:
-  - 警告、コンパイルメッセージ、実行時メッセージなどを省略表示する際の最大行数
-  - 既定値は `40`
-- `judgeTimeoutSeconds`:
-  - Wandbox 応答を待つ際の基準秒数
-  - 初期版では厳密な実行時間制限を保証するものではない
-- `maxCodeBytes`:
-  - 1 回の判定で受け付けるソースコードの最大バイト数
-  - 初期値は `65536` (`64 KiB`) とする
-- `defaultProfileId`:
-  - 問題ごとに `profileId` が未指定のときに使う既定の言語プロファイル ID
-- `languageProfiles`:
-  - 言語ごとのコンパイル設定をまとめた連想配列
-- `languageProfiles.<profileId>.language`:
-  - 言語識別子
-  - 例: `c`
-- `languageProfiles.<profileId>.label`:
-  - 問題ページなどに表示する人間向けの表示名
-  - 例: `C23`, `C++23`, `Python 3.14`
-  - 必須
-- `languageProfiles.<profileId>.compiler`:
-  - Wandbox で使うコンパイラ識別子
-- `languageProfiles.<profileId>.standard`:
-  - 言語規格を指定する
-  - C の想定値は `c17` または `c23`
-  - 既定値は `c23`
-- `languageProfiles.<profileId>.gnuExtensions`:
-  - GCC 拡張を使うかどうか
-- `languageProfiles.<profileId>.editorIndentStyle`:
-  - コード入力欄で `Tab` キーを押したときの字下げ方式
-  - `tab` または `spaces`
-- `languageProfiles.<profileId>.editorIndentWidth`:
-  - 1 段の字下げ幅
-  - `spaces` のときは実際にその数の空白を挿入する
-- `languageProfiles.<profileId>.extraFlags`:
-  - 追加のコンパイルフラグ配列
-  - C 講義での既定値は `-Wall`, `-Wextra`, `-Wvla`, `-Wstrict-prototypes`, `-Wconversion`, `-Wshadow`, `-pedantic`, `-lm`
-
-### 定義済みプロファイル例
-
-初期版では、少なくとも次の定義済みプロファイルを持っておくと扱いやすい。
-
-- `c17`
-- `c23`
-- `cpp20`
-- `cpp23`
-- `python3.14`
-
-`defaultProfileId` は既定で `c23` とする。
-`python3.14` は、コード入力欄でも `spaces 4` を既定にする。
-
-### 初期版で設定可能にしたい項目
-
-初期版では、少なくとも次を実際に設定可能にしたい。
-
-- `appName`
-- `appSubtitle`
-- `courseId`
-- `courseLabel`
-- `copyrightNotice`
-- `lectureLabelTemplate`
-- `difficultyLabels`
-- `understandingLabels`
-- `uiText`
-- `tabWidth`
-- `editorRows`
-- `longExampleLineThreshold`
-- `resultPreviewMaxLines`
-- `resultPreviewMaxChars`
-- `resultMessagePreviewMaxLines`
-- `judgeTimeoutSeconds`
-- `maxCodeBytes`
-- `defaultProfileId`
-- `languageProfiles`
-- `languageProfiles[].editorIndentStyle`
-- `languageProfiles[].editorIndentWidth`
-
-### 後回しでもよい項目
-
-次は README 上では意識しておくが、実装を急がなくてもよい。
-
-- エディタ入力欄の、より高度なショートカットや補完
-- 問題一覧の既定ソート順の詳細設定
-- UI 文言の完全な多言語化
-- 言語ごとの設定 UI の詳細
-
-### 初期版では設定ファイルに入れないもの
-
-次のような見た目の細かい値は、初期版では設定ファイルではなく CSS や実装側に固定する。
-
-- 難易度表示の色
-- 文字サイズ
-- 余白
-- ボタン色
-- レイアウト幅
-
-## 言語とコンパイル設定
-
-### 初期方針
-
-- 初期ターゲットは C
-- `config/app.json` では、`defaultProfileId` と `languageProfiles` により複数の言語プロファイルを定義できるようにする
-- 各問題は任意で `profileId` を持てるようにし、未指定時は `defaultProfileId` を使う
-- C17 / C23、将来的なバージョンフラグ、GCC 拡張有無、追加フラグをプロファイル単位で制御できるようにする
-- 講義での既定値は `C23` とする
-- 現在の定義済みプロファイルでは、Wandbox の `gcc-head-c`, `gcc-head`, `cpython-3.14.0` を使う
-
-### 将来拡張
-
-- 内部構造は将来の C++ や Python など他言語対応に耐えられる形にする
-- ただし、初期版の UI に言語選択は出さない
-- 問題ページ API では `profileId` と解決済みの `languageProfile` を返し、将来の表示拡張に備える
-
-## 想定ホスティング
-
-### 初期版の配置先
-
-初期版の `CCC` は、さくらのレンタルサーバ スタンダードでの運用を前提に設計する。
-
-この前提で重視すること:
-
-- 最終成果物をアップロードして運用できること
-- 常駐プロセス前提にしないこと
-- 共用サーバーで無理のない負荷に留めること
-- 90 人規模の講義利用でも、自習用ツールとして現実的に運用できること
-
-### 初期版の実装方針
-
-- フロントエンド:
-  - 静的 HTML / CSS / JavaScript
-- バックエンド:
-  - PHP ベースの小さな API
-- サーバ保存:
-  - 初期版では行わない
-- 学生ごとの状態保存:
-  - ブラウザの `localStorage`
-
-### この方針にする理由
-
-さくらのレンタルサーバの公式情報では、共用サーバーで CPU に著しい負荷をかける処理は避けるよう案内されている。  
-また、スタンダードプランでは PHP / Perl / Ruby / Python が利用できる一方、`CCC` の初期版で Node.js の常駐アプリを前提にするのは相性がよくない可能性が高い。
-
-そのため、`CCC` は「静的フロント + PHP API」のような、共用レンタルサーバ向きの構成を採用する。
-
-### 初期版では依存しないもの
-
-- Node.js の常駐プロセス
-- サーバサイドのジョブキュー
-- APCu などの高度なサーバキャッシュ
-- WebSocket
-
-### 運用上の見立て
-
-90 人規模の講義で一時的にアクセスが集中しても、`CCC` の今の設計ならサーバ側処理は比較的軽い。
-
-サーバ側で主に行うのは次である。
-
-- 問題ファイルの読み出し
-- 設定ファイルの読み出し
-- リクエストのバリデーション
-- Wandbox への中継
-- 結果の比較と整形
-
-そのため、実際のボトルネックになりやすいのは、さくらのレンタルサーバそのものよりも Wandbox 側の同一 IP 制限である可能性が高い。
-
-## 初期版のファイル構成案
-
-さくらのレンタルサーバへアップロードしやすいよう、初期版では分かりやすいディレクトリ構成を採用する。
+- 学生がブラウザから気軽に問題を解ける
+- 教員がシンプルな手順で問題を追加・修正できる
+- アカウント管理や提出回収なしで運用できる
+- 小規模な PHP + 静的ファイル構成で保守しやすくする
+
+## 現在の主な機能
+
+- 問題一覧ページ
+- 個別問題ページ
+- Wandbox 経由の判定
+- `解いた` 状態と理解度のローカル保存
+- 講義回、難易度、解いた状態、理解度による絞り込み
+- `guide.md` による問題ごとの解説表示
+- `publishedAt` による問題一覧への表示制御
+- 問題ステータスページ
+- 教師用ガイドページ
+- 問題追加 / 問題検査の CLI
+
+## 画面と役割
+
+- [index.html](./index.html)
+  - 問題一覧ページ
+- [problem.html](./problem.html)
+  - 個別問題ページ
+- [validate.php](./validate.php)
+  - 問題ステータスページ
+- [teacher-guide.php](./teacher-guide.php)
+  - 教師用ガイドページ
+
+## ディレクトリ構成
 
 ```text
 /
@@ -977,517 +46,217 @@ JSON などの設定ファイルで、次の値を一括制御できるとよい
   teacher-guide.php
   robots.txt
   TEACHER_GUIDE.md
+  LICENSE
   assets/
-    app.css
-    index-page.css
-    problem-page.css
-    validate.css
-    common.js
-    theme-init.js
-    index.js
-    code-editor.js
-    problem.js
-    teacher-guide.js
-    prism-init.js
-    vendor/
-      prism/
   api/
-    config.php
-    problems.php
-    problem.php
-    judge.php
-    bootstrap.php
-    lib/
-      config_loader.php
-      problem_loader.php
-      problem_manifest.php
-      problem_validator.php
-      markdown_renderer.php
-      judge_service.php
-      response.php
   config/
-    app.json
   problems/
-    sum-001/
-      problem.json
-      body.md
-      01.in.txt
-      01.out.txt
+  templates/
+  tools/
 ```
 
-### 役割分担
+主要ディレクトリ:
 
-- `index.html`:
-  - 問題一覧ページ
-- `problem.html`:
-  - 個別問題ページ
-- `validate.php`:
-  - 問題ステータスページ
-- `teacher-guide.php`:
-  - 教師用ガイドページ
-- `assets/app.css`:
-  - 全ページ共通の基盤スタイル
-- `assets/index-page.css`:
-  - 一覧ページ専用スタイル
-- `assets/problem-page.css`:
-  - 問題ページと教師用ガイドの本文系スタイル
-- `assets/validate.css`:
-  - 問題ステータスページ専用スタイル
-- `assets/common.js`:
-  - 共通設定取得、共通 UI 文言、ローカル保存補助
-- `assets/theme-init.js`:
-  - 初期テーマ適用
-- `assets/index.js`:
-  - 一覧取得、フィルタ、一覧のローカル状態保持
-- `assets/code-editor.js`:
-  - textarea ベースの軽量コードエディタ拡張
-- `assets/problem.js`:
-  - 個別問題取得、コード保存、判定実行、結果表示
-- `assets/teacher-guide.js`:
-  - 教師用ガイドページの初期化
-- `assets/prism-init.js`:
-  - 問題本文や解説の syntax highlight 初期化
-- `api/bootstrap.php`:
-  - 共通初期化
-- `api/lib/config_loader.php`:
-  - `config/app.json` の読み込み
-- `api/lib/problem_manifest.php`:
-  - 問題フォルダ内の固定ファイルパスや例ファイル走査の共通処理
-- `api/lib/problem_loader.php`:
-  - `problems/` 以下の読み込みと問題ページ / judge 用データ生成
-- `api/lib/problem_validator.php`:
-  - `validate.php` 用の問題データ検査
-- `api/lib/markdown_renderer.php`:
-  - `body.md` を安全な HTML に変換
-- `api/lib/judge_service.php`:
-  - Wandbox 呼び出しと判定ロジック
-- `api/lib/response.php`:
-  - JSON レスポンスの共通処理
+- [assets](./assets)
+  - CSS / JavaScript / Prism などのフロントエンド資産
+- [api](./api)
+  - PHP API と補助ライブラリ
+- [config](./config)
+  - グローバル設定
+- [problems](./problems)
+  - 各問題データ
+- [templates](./templates)
+  - `create.php` 用の問題雛形
+- [tools](./tools)
+  - ローカル CLI
 
-### 初期版ではやりすぎないこと
+## 問題データ
 
-- 独自フレームワーク導入
-- 複雑な DI コンテナ
-- ルーティングライブラリ導入
-- ORM 導入
-- ビルド必須のフロント構成
-
-## 小さな運用ルール
-
-### 文字コード
-
-- `problem.json`
-- `body.md`
-- `.in.txt`
-- `.out.txt`
-- `config/app.json`
-
-はすべて UTF-8 を前提とする。
-
-### API の前提
-
-- フロントエンドと API は同一オリジンで配信する
-- 初期版では CORS 設定を前提にしない
-- API のレスポンスは UTF-8 の JSON を返す
-- HTTP ステータスコードも意味のある形で使い分ける
-
-### ローカル保存キー
-
-ブラウザの `localStorage` では、将来の互換性のためプレフィックス付きのキーを使う。
+1 問ごとに `problems/<problem-id>/` というフォルダを持ちます。  
+**フォルダ名がそのまま問題 ID** になります。
 
 例:
 
-- `ccc:v1:listFilters`
-- `ccc:v1:code:sum-001`
-- `ccc:v1:solved:sum-001`
-- `ccc:v1:understanding:sum-001`
-- `ccc:v1:lastOpenedProblem`
-- `ccc:v1:theme`
-
-`sessionStorage` の例:
-
-- `ccc:v1:listScroll`
-
-`v1` を含めることで、将来保存形式を変えるときに移行しやすくする。
-
-### 学習記録のエクスポート / インポート
-
-- 一覧ページの `学習記録` パネルから、`解いた` 状態と `理解度` を JSON ファイルとして書き出せるようにする
-- エクスポート対象は、何かしら記録がある問題だけとする
-- `最近開いた問題` はエクスポート対象に含めない
-- JSON には `courseId` と `courseLabel` を含め、複数講義での取り違えを減らす
-- ファイル名にも `courseId` と日付を含める
-- インポート時は現在の記録へ追加する
-- `solved` は `true` を加算的に反映し、`understanding` はファイル側の値で更新する
-- `courseId` が一致しないファイルを読み込む場合は、確認を挟む
-- `学習記録` パネルからは、最近開いた問題への復帰や、ローカルに保存された学習記録の消去も行える
-- `記録の消去` では、`コード入力内容を消去` と `解いた記録・理解度を消去` を分けて扱う
-
-### テーマ切り替え
-
-- 一覧ページの `表示設定` パネルからテーマを切り替えられる
-- 選択肢は `ライト / ダーク / システム設定に合わせる`
-- 初回の既定値は `ライト`
-- 選択内容は `localStorage` に保存する
-- 問題ページでも同じ設定を引き継ぐ
-- ヒーロー領域は当面テーマ共通の見た目として扱う
-
-## キャッシュ方針
-
-問題の追加や修正が学生画面に反映されない事故を避けるため、問題データは静的 JSON をブラウザが直接読むのではなく、バックエンド API 経由で配信する方針にします。
-
-API では次を行います。
-
-- 問題一覧を毎回取得する
-- 個別問題データを必要時に取得する
-- 必要なら `Cache-Control: no-store` を付与する
-
-## UI 上の細部
-
-### 入出力例
-
-- 個別問題ページの最後に配置する
-- 行数が特に長い例は折りたたみ表示できるとよい
-- どこから長いとみなすかはグローバル設定で変更可能にする
-
-### スマホ対応
-
-- 初期版はデスクトップ中心で作るが、スマホでも実用になる水準を目指す
-- スマホでは問題一覧に素早く到達できることを重視し、ヒーローや左カラム補助パネルは圧縮する
-- スマホの問題一覧では、理解度は表示のみとし、編集は個別問題ページ側へ寄せる
-- スマホの問題一覧カードでは、講義回 / 難易度と、解いた状態 / 理解度表示を左右に整理して密度を高める
-- スマホでの講義回・難易度タグのタップによるフィルタ発動は無効にし、誤操作を避ける
-
-## API の方向性
-
-詳細は今後詰めるが、最低限次の責務が必要です。
-
-- `GET /api/config.php`
-- `GET /api/problems.php`
-- `GET /api/problem.php?id=<problemId>`
-- `POST /api/judge.php`
-
-`POST /api/judge.php` では、コードと問題 ID を受け取り、Wandbox 経由で判定結果を返します。
-
-### Wandbox への配慮方針
-
-Wandbox API は外部サービスであり、`CCC` はそれを前提にした軽量な学習支援ツールとして設計する。  
-UX を壊さず、複雑にしすぎない範囲で、次のような負荷抑制を入れる。
-
-Wandbox の GitHub リポジトリ README の FAQ では、講義や商業での利用について「利用していいです。ただし、同一 IP からのアクセスにはいくつか制限があるので、そこに引っかからないように気を付けてください。」と案内されている。  
-そのため、`CCC` では「利用可能であること」を前提にしつつ、「同一 IP から負荷を掛けすぎないこと」を設計上の原則にする。
-
-- コードの自動実行はしない
-- 入力中に自動で判定しない
-- `判定する` を押したときだけ API を呼ぶ
-- 判定中は同じ問題での多重送信を防ぐ
-- 1 回の判定では、先頭から順に実行し、1 ケース失敗で打ち切る
-- 巨大なソースコードは送らない
-- 問題一覧や設定取得では Wandbox を呼ばない
-- 同じ判定結果の永続キャッシュなど、複雑な最適化は初期版では行わない
-
-### `POST /api/judge.php` で抑制したいこと
-
-- コード長に上限を設ける
-- 問題 ID が存在しない場合は Wandbox を呼ばずにエラーを返す
-- 問題が未公開なら Wandbox を呼ばずにエラーを返す
-- サーバ側で 1 リクエストずつ順番にテストケースを処理する
-- Wandbox 側の失敗時は、再試行を無限に繰り返さない
-
-コード長上限はグローバル設定 `maxCodeBytes` で制御し、初期値は `64 KiB` とする。  
-これは Wandbox の公式推奨値として確認できたものではなく、`CCC` 側の設計上の提案である。
-
-### API 配置方針
-
-初期版では `.htaccess` による複雑な rewrite は使わず、PHP ファイルをそのままエンドポイントとして公開する。
-
-- `/api/config.php`
-- `/api/problems.php`
-- `/api/problem.php?id=<problemId>`
-- `/api/judge.php`
-- ルートには `robots.txt` を置き、主要ページには `meta robots (noindex, nofollow, noarchive)` を入れる
-- `theme-color` のような補助的な meta は入れるが、固定文言の `description` や OGP など共有促進系の meta は初期版では入れない
-
-理由:
-
-- さくらのレンタルサーバでそのまま置きやすい
-- 初心者でも挙動を追いやすい
-- デバッグ時に原因箇所を特定しやすい
-
-補足:
-
-- Chromium 系ブラウザでは、ダークモード時にネイティブ `<select>` を開く瞬間だけ白い背景が一瞬見えることがある
-- Firefox では再現しない
-- CSS だけでの完全解消は難しく、完全対応には custom dropdown 化が必要
-
-### Markdown 変換方針
-
-`body.md` はサーバ側で安全に HTML に変換して返す。  
-フロントエンドは返された HTML を表示する役割に集中する。
-
-### `GET /api/config.php`
-
-フロントエンドが表示に必要なグローバル設定だけを返す。  
-サーバ内部でしか使わない値は返さない。
-
-レスポンス例:
-
-```json
-{
-  "appName": "CCC",
-  "appSubtitle": "C プログラミングの自習と理解度確認のための演習環境です。",
-  "copyrightNotice": "© CCC",
-  "lectureLabelTemplate": "第 {value} 回",
-  "difficultyLabels": ["基礎", "中級", "発展"],
-  "understandingLabels": ["要復習", "ふつう", "自信あり"],
-  "uiText": {
-    "backToList": "← 問題一覧へ戻る",
-    "validationLink": "問題ステータス",
-    "teacherGuideLink": "教師用ガイド",
-    "teacherGuideTitle": "教師用ガイド",
-    "guidePanelTitle": "解説",
-    "guideReadLabel": "解説を読む",
-    "guideEmptyMessage": "この問題の解説はありません。"
-  },
-  "tabWidth": 4,
-  "editorRows": 20,
-  "longExampleLineThreshold": 30,
-  "resultPreviewMaxLines": 120,
-  "resultPreviewMaxChars": 6000,
-  "resultMessagePreviewMaxLines": 40,
-  "maxCodeBytes": 65536
-}
+```text
+problems/
+  sum-001/
+    problem.json
+    body.md
+    guide.md
+    01.in.txt
+    01.out.txt
 ```
 
-通常は `200 OK` を返す。
+### `problem.json`
 
-`/api/config.php` は、同じブラウザ内でのページ移動時の無駄な再取得を減らすため、短時間 (`max-age=60`) のキャッシュを許可する。
-
-### `GET /api/problems.php`
-
-問題一覧ページに必要な最小情報だけを返す。  
-`body.md` の中身や入出力例の中身はここでは返さない。
-
-一覧ページを開いたときに毎回呼び出す前提とする。  
-講義中のリアルタイム更新は要求しないが、問題追加や修正の反映漏れを避けるため、初期版ではブラウザ内キャッシュよりも再取得を優先する。
-
-レスポンス例:
+現在の基本形:
 
 ```json
 {
-  "items": [
-    {
-      "id": "sum-001",
-      "title": "2つの整数の和",
-      "lecture": 1,
-      "difficulty": 1
-    }
-  ]
-}
-```
-
-通常は `200 OK` を返す。
-
-### `GET /api/problem.php?id=<problemId>`
-
-個別問題ページに必要な情報を返す。  
-問題本文はサーバ側で安全に HTML に変換したものを返す。
-
-レスポンス例:
-
-```json
-{
-  "id": "sum-001",
+  "number": "1-1",
   "title": "2つの整数の和",
   "lecture": 1,
   "difficulty": 1,
-  "bodyHtml": "<h3>問題</h3>\n<p>2つの整数 <code>a</code>, <code>b</code> が与えられます。</p>",
-  "examples": [
-    {
-      "name": "01",
-      "stdin": "1 2",
-      "stdout": "3"
-    },
-    {
-      "name": "02",
-      "stdin": "100 200",
-      "stdout": "300"
-    }
-  ]
+  "profileId": "c23",
+  "publishedAt": "2026-04-01T09:00:00+09:00"
 }
 ```
 
-問題が存在しない、または未公開の場合は `404 Not Found` を返す。
+項目:
 
-### `POST /api/judge.php`
+- `number`
+  - 表示用の問題番号
+- `title`
+  - 問題タイトル
+- `lecture`
+  - 講義回。未設定にしたい場合は `null`
+- `difficulty`
+  - `1`〜`3`。未設定にしたい場合は `null`
+- `profileId`
+  - 使用する言語プロファイル
+- `publishedAt`
+  - 問題一覧への表示開始日時。未指定なら常時表示
 
-リクエスト例:
+補足:
 
-```json
-{
-  "problemId": "sum-001",
-  "code": "#include <stdio.h>\nint main(void){int a,b;scanf(\"%d %d\", &a, &b);printf(\"%d\\n\", a+b);return 0;}"
-}
+- `lecture` と `difficulty` は実装上は省略も許容していますが、運用上は `null` を書く形を推奨しています
+- `publishedAt` は**一覧や API の表示制御**であり、厳密なアクセス制限ではありません
+
+### `body.md` と `guide.md`
+
+- `body.md`
+  - 問題文を Markdown で書きます
+- `guide.md`
+  - 解説を Markdown で書きます。任意です
+
+`guide.md` がない場合でも問題は動作します。
+
+### 入出力例
+
+入出力例は固定連番です。
+
+- `01.in.txt` / `01.out.txt`
+- `02.in.txt` / `02.out.txt`
+- ...
+- `06.in.txt` / `06.out.txt`
+
+ルール:
+
+- `01` から順に置く
+- 途中を飛ばさない
+- 最大 6 組まで
+
+## Markdown 方針
+
+`CCC` の Markdown レンダラは、ページ外に問題タイトルがある前提で見出しを 1 段下げて描画します。
+
+- `#` -> `h2`
+- `##` -> `h3`
+- `###` -> `h4`
+- `####` -> `h5`
+- `#####` -> `h6`
+
+主な対応記法:
+
+- 見出し
+- 箇条書き
+- テーブル
+- インラインコード
+- fenced code block
+- 画像
+
+## 標準対応言語
+
+現在の標準 `profileId` は次のとおりです。
+
+| `profileId` | 表示名 |
+|---|---|
+| `c17` | `C17` |
+| `c23` | `C23` |
+| `cpp20` | `C++20` |
+| `cpp23` | `C++23` |
+| `python3.14` | `Python 3.14` |
+
+定義は [config/app.json](./config/app.json) の `languageProfiles` にあります。
+
+## 判定仕様の要点
+
+- 判定は公開されている入出力例のみを使います
+- 隠れテストケースはありません
+- 先頭から順に実行し、最初の失敗で打ち切ります
+- 途中の空白差は不正解です
+- 末尾の空白と末尾改行の差は無視します
+- 乱数や現在時刻のような、毎回出力が変わる問題には向いていません
+
+## 学習記録
+
+- `解いた` 状態、理解度、コード入力内容は各ブラウザに保存します
+- サーバ保存や自動同期は行いません
+- 学習記録はエクスポート / インポートできます
+- コード入力内容は現在のブラウザにのみ残り、エクスポート対象ではありません
+
+## 表示文言のカスタマイズ
+
+[config/app.json](./config/app.json) を編集すると、アプリ名や学生向け UI テキストの多くを変更できます。
+
+主な項目:
+
+- `appName`
+- `appSubtitle`
+- `courseLabel`
+- `lectureLabelTemplate`
+- `difficultyLabels`
+- `understandingLabels`
+- `uiText.*`
+
+補足:
+
+- `問題ステータス`
+- `教師用ガイド`
+
+のような公式ツール部分は、原則として固定です。
+
+## ローカル CLI
+
+### 問題を作る
+
+```powershell
+php tools/create.php sample-001
 ```
 
-成功時レスポンス例:
+オプション:
 
-```json
-{
-  "status": "accepted",
-  "passedExamples": 2,
-  "totalExamples": 2,
-  "warning": "warning: unused variable 'x'"
-}
+- `--template <name>`
+- `--profile <id>`
+
+### 問題を検査する
+
+```powershell
+php tools/validate.php
+php tools/validate.php sample-001
 ```
 
-出力不一致 (`wrong_answer`) の例:
+終了コード:
 
-```json
-{
-  "status": "wrong_answer",
-  "failedExample": {
-    "name": "02",
-    "stdin": "100 200",
-    "expectedStdout": "300",
-    "actualStdout": "301"
-  }
-}
-```
+- `Error` あり: `1`
+- `Warning` のみ、または `OK`: `0`
 
-`Compile Error` の例:
+## ホスティング方針
 
-```json
-{
-  "status": "compile_error",
-  "compilerMessage": "error: expected ';' before 'return'"
-}
-```
+- 静的 HTML / CSS / JavaScript + PHP API の構成です
+- さくらのレンタルサーバのような共有サーバでの運用を想定しています
+- 公開時のアップロード対象やパーミッションは [TEACHER_GUIDE.md](./TEACHER_GUIDE.md) を参照してください
 
-`Runtime Error` / `Timeout` の例:
+## 既知の制約
 
-```json
-{
-  "status": "runtime_error",
-  "message": "Program exited abnormally."
-}
-```
+- `publishedAt` は厳密な非公開機能ではありません
+- Chromium 系ブラウザでは、ダークモード時にネイティブ `<select>` を開く瞬間だけ白い背景が一瞬見えることがあります
+- 完全対応には custom dropdown 化が必要です
 
-```json
-{
-  "status": "timeout",
-  "message": "Execution timed out."
-}
-```
+## フィードバック
 
-Wandbox 側障害などで判定不能だった場合の例:
-
-```json
-{
-  "status": "service_unavailable",
-  "message": "判定サーバーとの通信に失敗しました。時間帯を変えて再試行するか、ローカルの VSCode などで確認してください。"
-}
-```
-
-HTTP ステータスの方針:
-
-- 正常に判定結果を返せた場合: `200 OK`
-- リクエスト不正: `400 Bad Request`
-- 問題未存在または未公開: `404 Not Found`
-- Wandbox 側障害などで判定不能: `503 Service Unavailable`
-
-### `POST /api/judge.php` のサーバ内部フロー案
-
-1. リクエストの JSON を受け取る
-2. `problemId` と `code` の基本バリデーションを行う
-3. コード長上限を超えていないか確認する
-4. 対象問題が存在するか確認する
-5. 対象問題が公開対象か確認する
-6. 問題ディレクトリから `body.md` と入出力例を読み込む
-7. 入出力例ファイルの連番と整合性を検証する
-8. 先頭の例から順に、Wandbox へコンパイル・実行を依頼する
-9. コンパイルエラーならその時点で `compile_error` を返す
-10. 実行失敗なら `runtime_error` または `timeout` を返す
-11. 標準出力を比較し、最初の不一致で `wrong_answer` を返す
-12. 全例を通過したら `accepted` を返す
-13. Wandbox の応答に警告が含まれる場合は、判定と別に警告欄へ載せる
-
-### `POST /api/judge.php` の責務境界
-
-#### バックエンドが担当すること
-
-- 問題の存在確認
-- 公開可否確認
-- コード長やリクエスト形式の検証
-- Wandbox へのリクエスト構築
-- 出力比較
-- `accepted` / `wrong_answer` / `compile_error` / `runtime_error` / `timeout` への分類
-- 学習支援向けの結果整形
-
-#### フロントエンドが担当すること
-
-- `判定する` ボタン押下
-- 判定中表示
-- 多重送信防止の UI
-- 結果表示
-- `Accepted` を受けたときのローカル `解いた` 状態更新
-- API 失敗時の定型メッセージ表示
-
-### 初期版ではやらないこと
-
-- 判定キュー
-- 判定履歴のサーバ保存
-- 同一コードのサーバ側キャッシュ
-- 失敗時の自動再試行
-- 並列で複数例を実行する最適化
-- 差分表示の高度な可視化
-
-## マイルストーン
-
-### Milestone 0: 要求整理
-
-- README に目的、やること、やらないこと、運用ルールを整理する
-- 問題データとグローバル設定の形を定める
-
-### Milestone 1: 問題表示基盤
-
-- 問題一覧ページを作る
-- 個別問題ページを作る
-- JSON から問題を読み込んで表示する
-- フィルタと並び順を実装する
-
-### Milestone 2: ローカル保存
-
-- 問題ごとのコード保存を実装する
-- 解いた状態の保存を実装する
-- 理解度の保存を実装する
-- 一覧復帰時のフィルタ状態とスクロール位置を保持する
-
-### Milestone 3: 判定機能
-
-- Wandbox と疎通する
-- `判定する` を実装する
-- `合格` / `失敗ケースあり` / `コンパイルエラー` / `実行時エラー` / `時間切れ` を表示する
-- コンパイル警告を結果欄に表示する
-
-### Milestone 4: 授業運用の整備
-
-- 公開日時による公開制御を実装する
-- 問題画像運用を整える
-- エラー時の案内文を整える
-
-## 参考
-
-- Wandbox: https://wandbox.org/
-- Wandbox compiler list endpoint: https://wandbox.org/api/list.json
-- Wandbox compile endpoint: https://wandbox.org/api/compile.json
-- Wandbox GitHub README FAQ: https://github.com/melpon/wandbox
+- 機能のリクエストやフィードバックは [GitHub Issues](https://github.com/Reputeless/ccc/issues) を利用してください
 
 ## License
 
 This project is licensed under `MIT-0`. See [LICENSE](./LICENSE).
-
-## 今後の検討候補
-
-- モバイル時の一覧 UI をどこまで最適化するか
-- ダークモードの細部配色をどこまで磨くか
