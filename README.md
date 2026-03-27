@@ -397,6 +397,9 @@ problems/
 - `profileId`: 任意
 - `publishedAt`: 任意
 
+`lecture` と `difficulty` は省略しても動作するが、運用上はキーを残したまま `null` を書くことを推奨する。  
+将来の CLI による自動生成テンプレートとも、この形で揃える。
+
 問題本文ファイル名は固定で `body.md` とする。  
 解説ファイルは任意で `guide.md` とする。  
 `constraints`、入力説明、出力説明、ヒント、初期コードはすべて `body.md` に書く。  
@@ -429,6 +432,8 @@ problems/
 {
   "number": "1-1",
   "title": "2つの整数の和",
+  "lecture": null,
+  "difficulty": null,
   "profileId": "c23"
 }
 ```
