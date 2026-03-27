@@ -151,6 +151,17 @@ final class CccMarkdownRenderer
     private function renderInline(string $text): string
     {
         $escaped = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        $codePlaceholders = [];
+
+        $escaped = preg_replace_callback(
+            '/`([^`]+)`/',
+            function (array $matches) use (&$codePlaceholders): string {
+                $placeholder = '@@CCC_CODE_' . count($codePlaceholders) . '@@';
+                $codePlaceholders[$placeholder] = '<code>' . $matches[1] . '</code>';
+                return $placeholder;
+            },
+            $escaped
+        ) ?? $escaped;
 
         $escaped = preg_replace_callback(
             '/!\[([^\]]*)\]\(([^)]+)\)/',
@@ -165,7 +176,10 @@ final class CccMarkdownRenderer
         ) ?? $escaped;
 
         $escaped = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $escaped) ?? $escaped;
-        $escaped = preg_replace('/`([^`]+)`/', '<code>$1</code>', $escaped) ?? $escaped;
+
+        if ($codePlaceholders !== []) {
+            $escaped = strtr($escaped, $codePlaceholders);
+        }
 
         return $escaped;
     }
