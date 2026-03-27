@@ -28,8 +28,27 @@ function handleCreate(array $args): void
 
     $root = dirname(__DIR__);
     $templateName = $options['template'] ?? 'default';
+    if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $templateName)) {
+        throw new RuntimeException('Template name may only contain letters, digits, dot, underscore, and hyphen.');
+    }
+
     $templateDir = $root . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $templateName;
     $targetDir = $root . DIRECTORY_SEPARATOR . 'problems' . DIRECTORY_SEPARATOR . $problemId;
+
+    if (isset($options['profile'])) {
+        $profileId = trim($options['profile']);
+        if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $profileId) !== 1) {
+            throw new RuntimeException('Profile ID may only contain letters, digits, dot, underscore, and hyphen.');
+        }
+
+        require_once $root . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'bootstrap.php';
+        $config = ccc_load_app_config();
+        if (!isset($config['languageProfiles'][$profileId])) {
+            throw new RuntimeException("Profile does not exist in config/app.json: {$profileId}");
+        }
+
+        $options['profile'] = $profileId;
+    }
 
     if (!is_dir($templateDir)) {
         throw new RuntimeException("Template '{$templateName}' does not exist.");

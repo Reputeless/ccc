@@ -274,11 +274,19 @@ function ccc_optional_int(mixed $value, string $field): ?int
     if ($value === null || $value === '') {
         return null;
     }
-    if (!is_int($value) && !is_string($value) && !is_float($value)) {
+
+    if (is_int($value)) {
+        return $value;
+    }
+
+    if (!is_string($value) && !is_float($value)) {
         throw new RuntimeException('Invalid ' . $field . ' value.');
     }
-    if (!is_numeric((string) $value)) {
+
+    $text = is_string($value) ? trim($value) : (string) $value;
+    if (preg_match('/^-?\d+$/', $text) !== 1) {
         throw new RuntimeException('Invalid ' . $field . ' value.');
     }
-    return (int) $value;
+
+    return (int) $text;
 }
