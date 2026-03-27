@@ -32,6 +32,24 @@ function render_validate_detail(string $detail): string
     return $html;
 }
 
+function render_validate_published_at(string $value): string
+{
+    $trimmed = trim($value);
+    if ($trimmed === '') {
+        return '<code></code>';
+    }
+
+    try {
+        $publishedAt = new DateTimeImmutable($trimmed);
+        $statusClass = $publishedAt <= new DateTimeImmutable('now')
+            ? 'validate-published-at-live'
+            : 'validate-published-at-scheduled';
+        return '<code class="validate-published-at ' . $statusClass . '">' . h($trimmed) . '</code>';
+    } catch (Throwable) {
+        return '<code>' . h($trimmed) . '</code>';
+    }
+}
+
 try {
     $config = ccc_load_app_config();
     $report = ccc_validate_problem_set($config);
@@ -134,7 +152,7 @@ $items = $report['items'];
                 <td class="validate-cell-center"><code><?= h((string) $item['lecture']) ?></code></td>
                 <td class="validate-cell-center"><code><?= h((string) $item['difficulty']) ?></code></td>
                 <td><code><?= h((string) $item['profileId']) ?></code></td>
-                <td><code><?= h((string) $item['publishedAt']) ?></code></td>
+                <td><?= render_validate_published_at((string) $item['publishedAt']) ?></td>
                 <td><code><?= h((string) $item['examples']) ?></code></td>
                 <td class="validate-guide-cell validate-cell-center">
                   <?php if (($item['guide'] ?? '') !== ''): ?>
