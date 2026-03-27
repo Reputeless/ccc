@@ -120,6 +120,19 @@ final class CccMarkdownRenderer
                 $indentWidth = strlen(str_replace("\t", '  ', $matches[1]));
                 $listItems[] = [
                     'level' => intdiv($indentWidth, 2),
+                    'type' => 'ul',
+                    'text' => $matches[2],
+                ];
+                continue;
+            }
+
+            if (preg_match('/^(\s*)\d+\.\s+(.+)$/', $line, $matches)) {
+                $flushParagraph();
+                $flushTable();
+                $indentWidth = strlen(str_replace("\t", '  ', $matches[1]));
+                $listItems[] = [
+                    'level' => intdiv($indentWidth, 2),
+                    'type' => 'ol',
                     'text' => $matches[2],
                 ];
                 continue;
@@ -187,15 +200,25 @@ final class CccMarkdownRenderer
     private function renderList(array $items): string
     {
         $index = 0;
-        return $this->renderListLevel($items, $index, 0);
+        $html = '';
+
+        while ($index < count($items)) {
+            $level = (int) ($items[$index]['level'] ?? 0);
+            $type = (string) ($items[$index]['type'] ?? 'ul');
+            $html .= $this->renderListLevel($items, $index, $level, $type);
+        }
+
+        return $html;
     }
 
-    private function renderListLevel(array $items, int &$index, int $level): string
+    private function renderListLevel(array $items, int &$index, int $level, string $type): string
     {
-        $html = '<ul>';
+        $tag = $type === 'ol' ? 'ol' : 'ul';
+        $html = '<' . $tag . '>';
 
         while ($index < count($items)) {
             $itemLevel = (int) ($items[$index]['level'] ?? 0);
+            $itemType = (string) ($items[$index]['type'] ?? 'ul');
             if ($itemLevel < $level) {
                 break;
             }
@@ -204,21 +227,26 @@ final class CccMarkdownRenderer
                 $itemLevel = $level;
             }
 
+             if ($itemType !== $type) {
+                break;
+            }
+
             $text = (string) ($items[$index]['text'] ?? '');
             $index++;
 
             $childHtml = '';
             if ($index < count($items)) {
                 $nextLevel = (int) ($items[$index]['level'] ?? 0);
+                $nextType = (string) ($items[$index]['type'] ?? 'ul');
                 if ($nextLevel > $itemLevel) {
-                    $childHtml = $this->renderListLevel($items, $index, $nextLevel);
+                    $childHtml = $this->renderListLevel($items, $index, $nextLevel, $nextType);
                 }
             }
 
             $html .= '<li>' . $this->renderInline($text) . $childHtml . '</li>';
         }
 
-        $html .= '</ul>';
+        $html .= '</' . $tag . '>';
         return $html;
     }
 
