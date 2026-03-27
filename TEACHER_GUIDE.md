@@ -25,6 +25,13 @@
 | `problem.html` | `604` | 公開ページ |
 | `validate.php` | `705` | 公開ページ |
 | `teacher-guide.php` | `705` | 公開ページ |
+| `favicon.ico` | `604` | ブラウザ用アイコン |
+| `favicon.svg` | `604` | ブラウザ用アイコン |
+| `favicon-96x96.png` | `604` | PNG フォールバック |
+| `apple-touch-icon.png` | `604` | iPhone / iPad 用アイコン |
+| `site.webmanifest` | `604` | Web アプリ用 manifest |
+| `web-app-manifest-192x192.png` | `604` | manifest 用アイコン |
+| `web-app-manifest-512x512.png` | `604` | manifest 用アイコン |
 | `robots.txt` | `604` | 公開用 |
 | `TEACHER_GUIDE.md` | `604` | 公開用 |
 | `assets/` | `705` | 配下の `.css`, `.js`, `.svg` などは `604` |
