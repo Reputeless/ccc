@@ -18,6 +18,21 @@ int main()
 {
 	int x;
 	scanf("%d", &x);
+	printf("%d\n", (x * 2));
+}
+```
+
+## 別の書き方
+
+式のまわりの `()` は、付けなくても正しく動きます。
+
+```c
+#include <stdio.h>
+
+int main()
+{
+	int x;
+	scanf("%d", &x);
 	printf("%d\n", x * 2);
 }
 ```

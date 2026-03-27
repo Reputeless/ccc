@@ -8,6 +8,7 @@ const {
   bindThemePreferenceListener,
   getDifficultyLabel,
   formatLectureLabel,
+  getLectureHue,
   getUnderstandingMarkerClass,
   isProblemSolved,
   setManualSolved,
@@ -264,11 +265,12 @@ function renderProblemMeta(problem) {
 
   if (problem.lecture != null) {
     container.appendChild(createMetaFilterLink(
-      "lecture-badge meta-filter-trigger",
+      "lecture-badge lecture-badge-coded meta-filter-trigger",
       formatLectureLabel(problem.lecture, appConfig.lectureLabelTemplate),
       "lecture",
       String(problem.lecture),
-      uiText("lectureBadgeTitle")
+      uiText("lectureBadgeTitle"),
+      getLectureHue(problem.lecture)
     ));
   }
 
@@ -301,11 +303,14 @@ function formatLanguageProfileLabel(profile) {
   return String(profile.label ?? "").trim();
 }
 
-function createMetaFilterLink(className, text, filterType, filterValue, title) {
+function createMetaFilterLink(className, text, filterType, filterValue, title, lectureHue = null) {
   const link = document.createElement("a");
   link.className = className;
   link.href = "./";
   link.textContent = text;
+  if (lectureHue != null) {
+    link.style.setProperty("--lecture-hue", String(lectureHue));
+  }
   window.CCCTooltip?.setTooltip(link, title);
   link.addEventListener("click", () => {
     applyListQuickFilter(filterType, filterValue);

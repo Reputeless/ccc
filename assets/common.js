@@ -313,6 +313,21 @@
     return String(template ?? DEFAULT_CONFIG.lectureLabelTemplate).replaceAll("{value}", lectureText);
   }
 
+  function getLectureHue(lecture) {
+    const numericLecture = Number(lecture);
+    if (!Number.isFinite(numericLecture)) {
+      return null;
+    }
+
+    // Use two cool-color lanes so adjacent lectures differ clearly while each lane
+    // still changes smoothly over time.
+    const normalizedLecture = Math.max(1, Math.trunc(numericLecture));
+    const laneIndex = normalizedLecture % 2 === 1 ? 0 : 1;
+    const step = Math.floor((normalizedLecture - 1) / 2) % 5;
+    const baseHues = [176, 220];
+    return baseHues[laneIndex] + step * 12;
+  }
+
   function getUnderstandingMarkerClass(value) {
     return value === ""
       ? "understanding-marker-understanding-unset"
@@ -432,6 +447,7 @@
     applyListQuickFilter,
     getDifficultyLabel,
     formatLectureLabel,
+    getLectureHue,
     getUnderstandingMarkerClass,
     getAcceptedOnce,
     getManualSolved,

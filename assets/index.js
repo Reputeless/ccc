@@ -17,6 +17,7 @@ const {
   getLastOpenedProblemId,
   getDifficultyLabel,
   formatLectureLabel,
+  getLectureHue,
   getUnderstandingMarkerClass,
   isProblemSolved,
   setManualSolved,
@@ -335,7 +336,9 @@ function renderLectureBadge(lecture) {
   if (lecture == null) {
     return "";
   }
-  return `<button type="button" class="lecture-badge meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" data-tooltip="${escapeHtml(uiText("lectureBadgeTitle"))}">${escapeHtml(formatLectureLabel(lecture, appConfig.lectureLabelTemplate))}</button>`;
+  const lectureHue = getLectureHue(lecture);
+  const lectureStyle = lectureHue == null ? "" : ` style="--lecture-hue:${lectureHue};"`;
+  return `<button type="button" class="lecture-badge lecture-badge-coded meta-filter-trigger" data-filter-type="lecture" data-filter-value="${escapeHtml(String(lecture))}" data-tooltip="${escapeHtml(uiText("lectureBadgeTitle"))}"${lectureStyle}>${escapeHtml(formatLectureLabel(lecture, appConfig.lectureLabelTemplate))}</button>`;
 }
 
 function getUnderstandingDisplayLabel(value) {

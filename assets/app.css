@@ -573,10 +573,21 @@ html[data-theme="dark"] optgroup {
   align-items: center;
   border-radius: 10px;
   padding: 7px 11px;
-  background: var(--lecture-badge-bg);
-  color: var(--text);
+  background: var(--lecture-chip-bg, var(--lecture-badge-bg));
+  color: var(--lecture-chip-color, var(--text));
   font-size: 0.9rem;
   white-space: nowrap;
+  border-color: var(--lecture-chip-border, transparent);
+}
+.lecture-badge-coded {
+  background: hsl(var(--lecture-hue) 26% 87%);
+  color: hsl(var(--lecture-hue) 42% 28%);
+  border-color: hsl(var(--lecture-hue) 34% 62% / 0.88);
+}
+html[data-theme="dark"] .lecture-badge-coded {
+  background: hsl(var(--lecture-hue) 22% 30% / 0.96);
+  color: hsl(var(--lecture-hue) 50% 90%);
+  border-color: hsl(var(--lecture-hue) 28% 46% / 0.82);
 }
 .problem-number-meta {
   display: inline-flex;
