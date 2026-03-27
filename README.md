@@ -415,6 +415,15 @@ problems/
 
 CLI による自動生成や手作業のひな形として、実ファイルのテンプレートは `templates/default/` に置く。
 
+最小の問題追加 CLI として、次のコマンドを想定する。
+
+```powershell
+php tools/create.php print-002
+```
+
+このコマンドは `problems/print-002/` を作成し、`templates/default/` の内容をコピーする。  
+必要なら `--template <name>` でテンプレート名を、`--profile <id>` で `problem.json` の `profileId` を上書きできる。
+
 #### 最小例
 
 最小限の 1 問は次のように追加できる。

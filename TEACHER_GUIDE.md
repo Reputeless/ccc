@@ -44,6 +44,27 @@
 
 ## 問題追加の流れ
 
+ローカルで CLI を使える場合は、次のコマンドで新しい問題フォルダを作成できる。
+
+```powershell
+php tools/create.php print-002
+```
+
+このコマンドは `problems/print-002/` を作り、`templates/default/` から
+
+- `problem.json`
+- `body.md`
+- `guide.md`
+- `01.in.txt`
+- `01.out.txt`
+
+をコピーする。
+
+必要なら次も指定できる。
+
+- `--template <name>`
+- `--profile <id>`
+
 ## 問題データの検査
 
 ## 学習記録の扱い
