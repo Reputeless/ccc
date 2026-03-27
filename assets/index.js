@@ -616,6 +616,7 @@ function bindProblemCardInteractions(article, problem, understandingValue) {
       applyListQuickFilter(button.dataset.filterType ?? "", button.dataset.filterValue ?? "");
       restoreFilterState();
       renderProblemList();
+      requestAnimationFrame(scrollListPanelIntoView);
     });
   });
 
@@ -884,6 +885,19 @@ function restoreScrollPosition() {
   if (!Number.isNaN(value)) {
     window.scrollTo(0, value);
   }
+}
+
+function scrollListPanelIntoView() {
+  const panel = document.querySelector(".list-panel");
+  if (!panel) {
+    return;
+  }
+
+  const top = Math.max(0, panel.getBoundingClientRect().top + window.scrollY - 12);
+  window.scrollTo({
+    top,
+    behavior: "smooth",
+  });
 }
 
 function showListMessage(message, kind, hidden = false) {
