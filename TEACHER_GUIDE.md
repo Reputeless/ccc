@@ -67,6 +67,20 @@ php tools/create.php print-002
 
 ## 問題データの検査
 
+ローカルで CLI を使える場合は、次のコマンドで問題データを検査できる。
+
+```powershell
+php tools/validate.php
+php tools/validate.php print-002
+```
+
+- 引数なし:
+  - 全問題を検査する
+- `<problem-id>` 付き:
+  - その問題だけを検査する
+- `Error` が 1 件でもあると終了コード `1` を返す
+- `Warning` だけなら終了コードは `0`
+
 ## 学習記録の扱い
 
 ## テーマと表示設定

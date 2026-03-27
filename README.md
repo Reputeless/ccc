@@ -424,6 +424,16 @@ php tools/create.php print-002
 このコマンドは `problems/print-002/` を作成し、`templates/default/` の内容をコピーする。  
 必要なら `--template <name>` でテンプレート名を、`--profile <id>` で `problem.json` の `profileId` を上書きできる。
 
+問題データの検査を CLI から行いたい場合は、次のコマンドを使う。
+
+```powershell
+php tools/validate.php
+php tools/validate.php print-002
+```
+
+引数なしでは全問題を検査し、`<problem-id>` を付けるとその問題だけを検査する。  
+終了コードは、`Error` が 1 件でもあれば `1`、それ以外は `0` を返す。
+
 #### 最小例
 
 最小限の 1 問は次のように追加できる。
