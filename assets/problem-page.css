@@ -145,9 +145,14 @@
   font-size: 1.02rem;
 }
 
+/* Markdown headings are intentionally rendered one level lower:
+   # -> h2, ## -> h3, ### -> h4, #### -> h5, ##### -> h6 */
 .problem-body h1,
 .problem-body h2,
-.problem-body h3 {
+.problem-body h3,
+.problem-body h4,
+.problem-body h5,
+.problem-body h6 {
   line-height: 1.18;
   margin-top: 1.45em;
   letter-spacing: -0.02em;
@@ -158,12 +163,46 @@
   font-size: 1.45rem;
 }
 
+/* Main body.md / guide.md section heading (`## ...`) */
 .problem-body h3 {
   margin-bottom: 0.18em;
 }
 
 .teacher-guide-accordion .teacher-guide-summary {
   margin: 0;
+}
+
+/* Nested body.md / guide.md subsection heading (`### ...`) */
+.problem-body h4 {
+  margin-bottom: 0.18em;
+  font-size: 1.12rem;
+}
+
+.problem-body h5,
+.problem-body h6 {
+  margin-bottom: 0.18em;
+  font-size: 1rem;
+}
+
+.problem-body h4 + p,
+.problem-body h4 + ul,
+.problem-body h4 + ol,
+.problem-body h4 + pre,
+.problem-body h4 + table {
+  margin-top: 0.55em;
+}
+
+.problem-body h5 + p,
+.problem-body h5 + ul,
+.problem-body h5 + ol,
+.problem-body h5 + pre,
+.problem-body h5 + table,
+.problem-body h6 + p,
+.problem-body h6 + ul,
+.problem-body h6 + ol,
+.problem-body h6 + pre,
+.problem-body h6 + table {
+  margin-top: 0.55em;
 }
 
 .problem-body h3 + p,

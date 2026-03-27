@@ -98,11 +98,17 @@ final class CccMarkdownRenderer
                 continue;
             }
 
-            if (preg_match('/^(#{1,3})\s+(.+)$/', $line, $matches)) {
+            if (preg_match('/^(#{1,5})\s+(.+)$/', $line, $matches)) {
                 $flushParagraph();
                 $flushList();
                 $flushTable();
-                // The page title is already rendered outside body.md, so body headings are displayed one level lower.
+                // Page-level titles are rendered outside Markdown, so body headings are intentionally
+                // shifted down by one level:
+                //   #   -> h2
+                //   ##  -> h3
+                //   ### -> h4
+                //   #### -> h5
+                //   ##### -> h6
                 $level = min(strlen($matches[1]) + 1, 6);
                 $html[] = '<h' . $level . '>' . $this->renderInline(trim($matches[2])) . '</h' . $level . '>';
                 continue;
@@ -122,7 +128,7 @@ final class CccMarkdownRenderer
             if (str_starts_with(trim($line), '|') && str_ends_with(trim($line), '|')) {
                 $flushParagraph();
                 $flushList();
-                $cells = array_values(array_filter(array_map('trim', explode('|', trim($line, '|'))), static fn ($cell) => $cell !== ''));
+                $cells = $this->splitMarkdownTableRow($line);
                 if ($cells !== [] && !$this->isMarkdownTableSeparator($cells)) {
                     $tableRows[] = $cells;
                 }
@@ -223,5 +229,44 @@ final class CccMarkdownRenderer
             }
         }
         return true;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function splitMarkdownTableRow(string $line): array
+    {
+        $trimmed = trim($line);
+        if (!str_starts_with($trimmed, '|') || !str_ends_with($trimmed, '|')) {
+            return [];
+        }
+
+        $content = substr($trimmed, 1, -1);
+        $cells = [];
+        $buffer = '';
+        $inCode = false;
+        $length = strlen($content);
+
+        for ($index = 0; $index < $length; $index++) {
+            $char = $content[$index];
+
+            if ($char === '`') {
+                $inCode = !$inCode;
+                $buffer .= $char;
+                continue;
+            }
+
+            if ($char === '|' && !$inCode) {
+                $cells[] = trim($buffer);
+                $buffer = '';
+                continue;
+            }
+
+            $buffer .= $char;
+        }
+
+        $cells[] = trim($buffer);
+
+        return array_values(array_filter($cells, static fn(string $cell): bool => $cell !== ''));
     }
 }

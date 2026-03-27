@@ -220,7 +220,7 @@ Options:
   --help               Show this help
 
 Examples:
-  php {$scriptPath} print-002
+  php {$scriptPath} sample-001
   php {$scriptPath} cpp-002 --profile cpp23
   php {$scriptPath} py-001 --template default --profile python3.14
 

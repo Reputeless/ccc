@@ -158,7 +158,11 @@ $items = $report['items'];
     </section>
     <footer class="site-footer">
       <div class="site-footer-inner">
-        <p class="site-footer-copy"><?= h($config['copyrightNotice']) ?></p>
+        <p class="site-footer-line">
+          <span class="site-footer-copy"><?= h($config['copyrightNotice']) ?></span>
+          <a class="site-footer-link" href="validate.php"><?= h((string) ($config['uiText']['validationLink'] ?? '問題ステータス')) ?></a>
+          <a class="site-footer-link" href="teacher-guide.php"><?= h((string) ($config['uiText']['teacherGuideLink'] ?? '教師用ガイド')) ?></a>
+        </p>
       </div>
     </footer>
   </div>

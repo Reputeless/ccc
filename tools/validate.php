@@ -139,7 +139,7 @@ Description:
 
 Examples:
   php {$scriptPath}
-  php {$scriptPath} print-002
+  php {$scriptPath} sample-001
 
 TEXT
     );
