@@ -53,35 +53,35 @@ http://localhost:8000/
 
 | 対象 | パーミッション | 備考 |
 |---|---|---|
-| `index.html` | `604` | 公開ページ |
-| `problem.html` | `604` | 公開ページ |
-| `validate.php` | `705` | 公開ページ |
-| `teacher-guide.php` | `705` | 公開ページ |
-| `favicon.ico` | `604` | ブラウザ用アイコン |
-| `favicon.svg` | `604` | ブラウザ用アイコン |
-| `favicon-96x96.png` | `604` | PNG フォールバック |
-| `apple-touch-icon.png` | `604` | iPhone / iPad 用アイコン |
-| `site.webmanifest` | `604` | Web アプリ用 manifest |
-| `web-app-manifest-192x192.png` | `604` | manifest 用アイコン |
-| `web-app-manifest-512x512.png` | `604` | manifest 用アイコン |
-| `robots.txt` | `604` | 公開用 |
-| `TEACHER_GUIDE.md` | `604` | 公開用 |
+| `api/` | `705` | 配下の `.php` は `604` |
 | `assets/` | `705` | 配下の `.css`, `.js`, `.svg` などは `604` |
-| `api/` | `705` | 配下の `.php` は `705` |
 | `config/` | `705` | 配下の `.json` は `604` |
 | `problems/` | `705` | 配下の `problem.json`, `body.md`, `guide.md`, `.in.txt`, `.out.txt` は `604` |
+| `apple-touch-icon.png` | `604` | iPhone / iPad 用アイコン |
+| `favicon-96x96.png` | `604` | PNG フォールバック |
+| `favicon.ico` | `604` | ブラウザ用アイコン |
+| `favicon.svg` | `604` | ブラウザ用アイコン |
+| `index.html` | `604` | 公開ページ |
+| `problem.html` | `604` | 公開ページ |
+| `robots.txt` | `604` | 公開用 |
+| `site.webmanifest` | `604` | Web アプリ用 manifest |
+| `TEACHER_GUIDE.md` | `604` | 公開用 |
+| `teacher-guide.php` | `604` | 公開ページ |
+| `validate.php` | `604` | 公開ページ |
+| `web-app-manifest-192x192.png` | `604` | manifest 用アイコン |
+| `web-app-manifest-512x512.png` | `604` | manifest 用アイコン |
 
 ### アップロードしないもの
 
 | 対象 | 理由 |
 |---|---|
-| `README.md` | 公開不要 |
+| `.git/` | 公開不要 |
+| `templates/` | ローカル雛形用 |
+| `tools/` | ローカル CLI 用 |
+| `.gitattributes` | 公開不要 |
 | `AUTHOR_NOTES.md` | 作問メモ用 |
 | `LICENSE` | 公開不要 |
-| `tools/` | ローカル CLI 用 |
-| `templates/` | ローカル雛形用 |
-| `.git/` | 公開不要 |
-| `.gitattributes` | 公開不要 |
+| `README.md` | 公開不要 |
 
 ## 表示文言をカスタマイズする
 
