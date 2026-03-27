@@ -17,6 +17,7 @@ final class CccMarkdownRenderer
         $lines = preg_split('/\r\n|\r|\n/', $markdown) ?: [];
         $html = [];
         $paragraph = [];
+        $quoteParagraph = [];
         $listItems = [];
         $tableRows = [];
         $inCodeBlock = false;
@@ -38,6 +39,15 @@ final class CccMarkdownRenderer
             }
             $html[] = $this->renderList($listItems);
             $listItems = [];
+        };
+
+        $flushQuote = function () use (&$quoteParagraph, &$html): void {
+            if ($quoteParagraph === []) {
+                return;
+            }
+            $text = implode(' ', array_map('trim', $quoteParagraph));
+            $html[] = '<blockquote><p>' . $this->renderInline($text) . '</p></blockquote>';
+            $quoteParagraph = [];
         };
 
         $flushTable = function () use (&$tableRows, &$html): void {
@@ -83,6 +93,7 @@ final class CccMarkdownRenderer
 
             if (preg_match('/^```([A-Za-z0-9_-]+)?\s*$/', $line, $matches)) {
                 $flushParagraph();
+                $flushQuote();
                 $flushList();
                 $flushTable();
                 $inCodeBlock = true;
@@ -93,13 +104,24 @@ final class CccMarkdownRenderer
 
             if (trim($line) === '') {
                 $flushParagraph();
+                $flushQuote();
                 $flushList();
                 $flushTable();
                 continue;
             }
 
+            if (preg_match('/^\s*---\s*$/', $line)) {
+                $flushParagraph();
+                $flushQuote();
+                $flushList();
+                $flushTable();
+                $html[] = '<hr>';
+                continue;
+            }
+
             if (preg_match('/^(#{1,5})\s+(.+)$/', $line, $matches)) {
                 $flushParagraph();
+                $flushQuote();
                 $flushList();
                 $flushTable();
                 // Page-level titles are rendered outside Markdown, so body headings are intentionally
@@ -116,6 +138,7 @@ final class CccMarkdownRenderer
 
             if (preg_match('/^(\s*)- (.+)$/', $line, $matches)) {
                 $flushParagraph();
+                $flushQuote();
                 $flushTable();
                 $indentWidth = strlen(str_replace("\t", '  ', $matches[1]));
                 $listItems[] = [
@@ -128,6 +151,7 @@ final class CccMarkdownRenderer
 
             if (preg_match('/^(\s*)\d+\.\s+(.+)$/', $line, $matches)) {
                 $flushParagraph();
+                $flushQuote();
                 $flushTable();
                 $indentWidth = strlen(str_replace("\t", '  ', $matches[1]));
                 $listItems[] = [
@@ -138,8 +162,17 @@ final class CccMarkdownRenderer
                 continue;
             }
 
+            if (preg_match('/^>\s?(.*)$/', $line, $matches)) {
+                $flushParagraph();
+                $flushList();
+                $flushTable();
+                $quoteParagraph[] = $matches[1];
+                continue;
+            }
+
             if (str_starts_with(trim($line), '|') && str_ends_with(trim($line), '|')) {
                 $flushParagraph();
+                $flushQuote();
                 $flushList();
                 $cells = $this->splitMarkdownTableRow($line);
                 if ($cells !== [] && !$this->isMarkdownTableSeparator($cells)) {
@@ -149,11 +182,13 @@ final class CccMarkdownRenderer
             }
 
             $flushList();
+            $flushQuote();
             $flushTable();
             $paragraph[] = $line;
         }
 
         $flushParagraph();
+        $flushQuote();
         $flushList();
         $flushTable();
         $flushCode();
@@ -169,7 +204,7 @@ final class CccMarkdownRenderer
         $escaped = preg_replace_callback(
             '/`([^`]+)`/',
             function (array $matches) use (&$codePlaceholders): string {
-                $placeholder = '@@CCC_CODE_' . count($codePlaceholders) . '@@';
+                $placeholder = '@@CCCCODE' . count($codePlaceholders) . '@@';
                 $codePlaceholders[$placeholder] = '<code>' . $matches[1] . '</code>';
                 return $placeholder;
             },
@@ -189,6 +224,9 @@ final class CccMarkdownRenderer
         ) ?? $escaped;
 
         $escaped = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $escaped) ?? $escaped;
+        $escaped = preg_replace('/~~(.+?)~~/s', '<del>$1</del>', $escaped) ?? $escaped;
+        $escaped = preg_replace('/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/s', '<em>$1</em>', $escaped) ?? $escaped;
+        $escaped = preg_replace('/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/s', '<em>$1</em>', $escaped) ?? $escaped;
 
         if ($codePlaceholders !== []) {
             $escaped = strtr($escaped, $codePlaceholders);

@@ -13,7 +13,7 @@ function ccc_load_app_config(): array
         'appSubtitle' => 'C プログラミングの自習と理解度確認のための演習環境です。',
         'courseId' => 'ccc-demo',
         'courseLabel' => 'CCC Demo Course',
-        'copyrightNotice' => '© CCC',
+        'copyrightNotice' => '',
         'lectureLabelTemplate' => '第 {value} 回',
         'difficultyLabels' => ['基本', '標準', '発展'],
         'understandingLabels' => ['要復習', 'ふつう', '自信あり'],

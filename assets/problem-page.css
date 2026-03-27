@@ -222,6 +222,27 @@
   padding-left: 1.35em;
 }
 
+.problem-body hr {
+  margin: 1.15em 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+.problem-body blockquote {
+  margin: 1em 0;
+  padding: 0.05em 0 0.05em 1em;
+  border-left: 3px solid var(--border-field-focus);
+  color: var(--muted);
+}
+
+.problem-body blockquote > :first-child {
+  margin-top: 0;
+}
+
+.problem-body blockquote > :last-child {
+  margin-bottom: 0;
+}
+
 .problem-body li > ul,
 .problem-body li > ol {
   margin-top: 0.35em;
