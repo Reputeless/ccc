@@ -115,7 +115,7 @@ http://localhost:8000/
 | `appSubtitle` | `"C プログラミングの自習と理解度確認のための演習環境です。"` | `"C 言語の練習問題をブラウザで確認できます。"` |
 | `courseLabel` | `"CCC Demo Course"` | `"2026年度 情報処理演習"` |
 | `lectureLabelTemplate` | `"第 {value} 回"` | `"第 {value} 章"` |
-| `difficultyLabels` | `["基礎", "中級", "発展"]` | `["基本", "標準", "応用"]` |
+| `difficultyLabels` | `["基本", "標準", "発展"]` | `["入門", "標準", "応用"]` |
 | `understandingLabels` | `["要復習", "ふつう", "自信あり"]` | `["もう一度", "だいたいOK", "説明できる"]` |
 | `uiText.problemListTitle` | `"問題一覧"` | `"練習問題"` |
 | `uiText.filtersTitle` | `"フィルタ"` | `"絞り込み"` |
@@ -130,7 +130,7 @@ http://localhost:8000/
 {
   "appName": "CCC",
   "lectureLabelTemplate": "第 {value} 回",
-  "difficultyLabels": ["基礎", "中級", "発展"],
+  "difficultyLabels": ["基本", "標準", "発展"],
   "understandingLabels": ["要復習", "ふつう", "自信あり"],
   "uiText": {
     "problemListTitle": "問題一覧",
@@ -291,7 +291,7 @@ php tools/validate.php sample-001
 
 ### Q. `difficulty` にはどんな値を書けますか？
 
-`1` から `3` の整数を書きます。表示ラベルは通常 `基礎 / 中級 / 発展` です。
+`1` から `3` の整数を書きます。表示ラベルは通常 `基本 / 標準 / 発展` です。
 
 ### Q. `profileId` には何を書けばよいですか？
 

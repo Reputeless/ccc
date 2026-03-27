@@ -15,7 +15,7 @@ function ccc_load_app_config(): array
         'courseLabel' => 'CCC Demo Course',
         'copyrightNotice' => '© CCC',
         'lectureLabelTemplate' => '第 {value} 回',
-        'difficultyLabels' => ['基礎', '中級', '発展'],
+        'difficultyLabels' => ['基本', '標準', '発展'],
         'understandingLabels' => ['要復習', 'ふつう', '自信あり'],
         'uiText' => [
             'heroEyebrow' => 'C Code Checker',
