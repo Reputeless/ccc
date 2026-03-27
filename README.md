@@ -192,54 +192,31 @@ problems/
 
 - `解いた` 状態、理解度、コード入力内容は各ブラウザに保存します
 - サーバ保存や自動同期は行いません
-- 学習記録はエクスポート / インポートできます
-- コード入力内容は現在のブラウザにのみ残り、エクスポート対象ではありません
+- 運用上の注意やエクスポート / インポートの案内は [TEACHER_GUIDE.md](./TEACHER_GUIDE.md) を参照してください
 
 ## 表示文言のカスタマイズ
 
 [config/app.json](./config/app.json) を編集すると、アプリ名や学生向け UI テキストの多くを変更できます。
 
-主な項目:
+代表的な項目:
 
 - `appName`
-- `appSubtitle`
-- `courseLabel`
 - `lectureLabelTemplate`
 - `difficultyLabels`
 - `understandingLabels`
 - `uiText.*`
 
-補足:
-
-- `問題ステータス`
-- `教師用ガイド`
-
-のような公式ツール部分は、原則として固定です。
+具体例や運用上の考え方は [TEACHER_GUIDE.md](./TEACHER_GUIDE.md) を参照してください。
 
 ## ローカル CLI
 
-### 問題を作る
-
 ```powershell
 php tools/create.php sample-001
-```
-
-オプション:
-
-- `--template <name>`
-- `--profile <id>`
-
-### 問題を検査する
-
-```powershell
 php tools/validate.php
 php tools/validate.php sample-001
 ```
 
-終了コード:
-
-- `Error` あり: `1`
-- `Warning` のみ、または `OK`: `0`
+詳しい使い方は [TEACHER_GUIDE.md](./TEACHER_GUIDE.md) を参照してください。
 
 ## ホスティング方針
 
