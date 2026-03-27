@@ -178,6 +178,16 @@
   margin-top: 0;
 }
 
+.problem-body ul,
+.problem-body ol {
+  padding-left: 1.35em;
+}
+
+.problem-body li > ul,
+.problem-body li > ol {
+  margin-top: 0.35em;
+}
+
 .problem-body pre,
 .example-block pre,
 .result-details pre {
@@ -449,10 +459,14 @@
 
 .result-section {
   margin-top: 22px;
-  padding: 16px;
+  padding: 16px 16px 0;
   border: 1px solid var(--result-section-border);
   border-radius: 10px;
   background: var(--surface-result-section);
+}
+
+.result-section.has-result-details {
+  padding-bottom: 16px;
 }
 
 .guide-section {
@@ -464,18 +478,32 @@
 }
 
 .guide-container {
-  margin-top: 8px;
+  margin-top: 0;
 }
 
 .guide-accordion {
-  border-top: 1px solid var(--footer-line);
-  padding-top: 12px;
+  border-top: 0;
+}
+
+.guide-heading-static {
+  margin-bottom: 8px;
+}
+
+.guide-heading-static h2 {
+  margin: 0;
 }
 
 .guide-summary {
   cursor: pointer;
   list-style: none;
-  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.18;
 }
 
 .guide-summary::-webkit-details-marker {
@@ -484,22 +512,23 @@
 
 .guide-summary::after {
   content: "";
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-left: 10px;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 auto;
   border-right: 2px solid var(--accordion-arrow);
   border-bottom: 2px solid var(--accordion-arrow);
-  transform: rotate(45deg) translateY(-1px);
+  transform: rotate(-45deg) translateY(-1px);
   transition: transform 0.18s ease;
 }
 
 .guide-accordion[open] .guide-summary::after {
-  transform: rotate(225deg) translateY(-1px);
+  transform: rotate(45deg);
 }
 
 .guide-content {
   margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--footer-line);
 }
 
 .guide-content > :first-child {
@@ -508,7 +537,7 @@
 
 .guide-empty-text {
   margin: 0;
-  padding-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid var(--footer-line);
   color: var(--muted);
 }
@@ -726,6 +755,11 @@
     font-size: 1.34rem;
   }
 
+  .guide-summary,
+  .guide-heading-static h2 {
+    font-size: 1.34rem;
+  }
+
   .teacher-guide-summary {
     font-size: 1.34rem;
   }
@@ -736,6 +770,11 @@
   .problem-body pre,
   .problem-body table {
     margin-block: 0.8em;
+  }
+
+  .problem-body ul,
+  .problem-body ol {
+    padding-left: 1.15em;
   }
 
   .problem-body h3 + p,

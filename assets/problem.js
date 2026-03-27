@@ -140,11 +140,6 @@ function renderStaticUiText() {
     resultBack.textContent = backText;
   }
 
-  const guideHeading = document.getElementById("guide-title");
-  if (guideHeading) {
-    guideHeading.textContent = guideTitle;
-  }
-
   const errorTitle = document.getElementById("problem-error-title");
   if (errorTitle) {
     errorTitle.textContent = uiText.problemErrorTitle ?? DEFAULT_CONFIG.uiText.problemErrorTitle;
@@ -236,15 +231,21 @@ function highlightProblemBodyCode() {
 function renderGuide() {
   const container = document.getElementById("guide-container");
   const guideHtml = typeof currentProblem.guideHtml === "string" ? currentProblem.guideHtml.trim() : "";
+  const guideTitle = escapeHtml(appConfig.uiText?.guidePanelTitle ?? DEFAULT_CONFIG.uiText.guidePanelTitle);
 
   if (guideHtml === "") {
-    container.innerHTML = `<p class="guide-empty-text">${escapeHtml(appConfig.uiText?.guideEmptyMessage ?? DEFAULT_CONFIG.uiText.guideEmptyMessage)}</p>`;
+    container.innerHTML = `
+      <div class="guide-heading-static">
+        <h2>${guideTitle}</h2>
+      </div>
+      <p class="guide-empty-text">${escapeHtml(appConfig.uiText?.guideEmptyMessage ?? DEFAULT_CONFIG.uiText.guideEmptyMessage)}</p>
+    `;
     return;
   }
 
   container.innerHTML = `
     <details class="guide-accordion">
-      <summary class="guide-summary">${escapeHtml(appConfig.uiText?.guideReadLabel ?? DEFAULT_CONFIG.uiText.guideReadLabel)}</summary>
+      <summary class="guide-summary"><span class="guide-summary-text">${guideTitle}</span></summary>
       <div class="guide-content problem-body">
         ${guideHtml}
       </div>
@@ -664,8 +665,10 @@ function renderResultBanner(message, kind, icon) {
 
 function renderResultDetails(items) {
   const container = document.getElementById("result-details");
+  const section = container.closest(".result-section");
   container.innerHTML = "";
   items.forEach((item) => container.appendChild(item));
+  section?.classList.toggle("has-result-details", items.length > 0);
   enhanceCopyableCodeBlocks();
 }
 
