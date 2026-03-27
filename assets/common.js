@@ -118,7 +118,7 @@
       inputLabel: "入力",
       outputLabel: "出力",
       expectedOutputLabel: "正しい出力",
-      actualOutputLabel: "実際の出力",
+      actualOutputLabel: "あなたの出力",
       warningLabel: "警告",
       compilerMessageLabel: "コンパイルメッセージ",
       messageLabel: "メッセージ",
