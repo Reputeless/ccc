@@ -449,7 +449,7 @@
 
 .result-section {
   margin-top: 22px;
-  padding: 16px 16px 0;
+  padding: 16px;
   border: 1px solid var(--result-section-border);
   border-radius: 10px;
   background: var(--surface-result-section);
