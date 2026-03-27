@@ -1,6 +1,7 @@
 ## 考え方
 
-`publishedAt` の公開制御を試すためのテスト用問題です。
+この問題の目的は、`publishedAt` による公開日時の制御を確認することです。  
+判定自体は、文字列 `publishedAt test` を 1 行で出力できれば通ります。
 
 ## つまずきやすい点
 
@@ -13,8 +14,8 @@
 ```c
 #include <stdio.h>
 
-int main(void) {
-    puts("publishedAt test");
-    return 0;
+int main()
+{
+	puts("publishedAt test");
 }
 ```

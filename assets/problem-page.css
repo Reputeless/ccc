@@ -653,6 +653,11 @@
   background: var(--surface-result-card);
 }
 
+.result-card-actual-output {
+  background: var(--surface-result-card-actual-output);
+  border-color: var(--line-result-card-actual-output);
+}
+
 .result-card h3 {
   margin: 2px 0 10px;
 }

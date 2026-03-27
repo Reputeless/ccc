@@ -79,7 +79,7 @@
 
 ```text
 problems/
-  sum-001/
+  01-1/
     problem.json
     body.md
     guide.md

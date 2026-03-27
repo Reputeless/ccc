@@ -2,9 +2,13 @@
 
 文字列 `Hello, C++!` を 1 行で出力してください。
 
+## 制約
+
+この問題に制約はありません。
+
 ## 入力
 
-この問題には入力がありません。
+この問題に入力はありません。
 
 ## 出力
 
@@ -12,13 +16,13 @@
 
 ## ヒント
 
-`std::println` が使えれば C++23 らしい書き方になりますが、`std::cout` でも構いません。
+C++23 では、`std::println` を使うと改行付きの出力を簡潔に書けます。
 
 ```cpp
-#include <iostream>
+#include <print>
 
 int main()
 {
-	std::cout << "Hello, C++!\n";
+	std::println("Hello, C++!");
 }
 ```

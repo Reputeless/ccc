@@ -1,7 +1,7 @@
 {
-  "number": "12-2",
-  "title": "Python で Hello, Python!",
-  "lecture": 12,
+  "number": "99-3",
+  "title": "Python で Hello, Python! を表示する",
+  "lecture": 99,
   "difficulty": 1,
   "profileId": "python3.14",
   "publishedAt": "2026-01-01T00:00:00+09:00"

@@ -1,7 +1,7 @@
 {
-  "number": "12-1",
-  "title": "C++23 で Hello, C++!",
-  "lecture": 12,
+  "number": "99-1",
+  "title": "C++23 で Hello, C++! を表示する",
+  "lecture": 99,
   "difficulty": 1,
   "profileId": "cpp23",
   "publishedAt": "2026-01-01T00:00:00+09:00"

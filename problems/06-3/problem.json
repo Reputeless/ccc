@@ -1,7 +1,8 @@
 {
-  "number": "T-2",
-  "title": "壊れた JSON のテスト",
-  "lecture": 99,
+  "number": "06-3",
+  "title": "1 から N まで表示する",
+  "lecture": 6,
   "difficulty": 1,
   "profileId": "c23",
   "publishedAt": "2026-01-01T00:00:00+09:00"
+}

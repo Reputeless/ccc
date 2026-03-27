@@ -1,7 +1,8 @@
 {
-  "number": "T-2",
-  "title": "壊れた JSON のテスト",
-  "lecture": 99,
+  "number": "03-4",
+  "title": "長方形の面積を求める",
+  "lecture": 3,
   "difficulty": 1,
   "profileId": "c23",
   "publishedAt": "2026-01-01T00:00:00+09:00"
+}

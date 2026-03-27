@@ -600,7 +600,9 @@ function renderJudgePayload(payload) {
       if (payload.failedExample) {
         details.push(renderPreCard(uiText("inputLabel"), payload.failedExample.stdin ?? ""));
         details.push(renderPreCard(uiText("expectedOutputLabel"), payload.failedExample.expectedStdout ?? ""));
-        details.push(renderPreCard(uiText("actualOutputLabel"), payload.failedExample.actualStdout ?? ""));
+        details.push(renderPreCard(uiText("actualOutputLabel"), payload.failedExample.actualStdout ?? "", {
+          extraClassName: "result-card-actual-output"
+        }));
       }
       if (payload.warning) {
         details.push(renderPreCard(uiText("warningLabel"), payload.warning, { previewMode: "message", highlightCompilerTerms: true }));
@@ -632,7 +634,7 @@ function renderJudgePayload(payload) {
 
 function renderPreCard(title, content, options = {}) {
   const section = document.createElement("section");
-  section.className = "result-card";
+  section.className = ["result-card", options.extraClassName].filter(Boolean).join(" ");
   const previewMode = options.previewMode ?? "output";
   const display = buildResultDisplayContent(content, previewMode);
   const previewLines = previewMode === "message"
