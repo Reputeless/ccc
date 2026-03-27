@@ -81,11 +81,11 @@
   --understanding-choice-3-bg: #dff0e6;
   --understanding-choice-3-border: rgba(54, 111, 79, 0.28);
   --understanding-choice-3-text: #215f3c;
-  --difficulty-1-bg: #e5f2ea;
+  --difficulty-1-bg: #d8efe2;
   --difficulty-1-text: var(--text);
-  --difficulty-2-bg: #fff0d9;
+  --difficulty-2-bg: #ffe6bf;
   --difficulty-2-text: var(--text);
-  --difficulty-3-bg: #f9e1db;
+  --difficulty-3-bg: #f5d1c8;
   --difficulty-3-text: var(--text);
   --difficulty-unset-bg: #ece7dd;
   --lecture-unset-bg: #ece7dd;
@@ -209,11 +209,11 @@ html[data-theme="dark"] {
   --understanding-choice-3-bg: rgba(42, 110, 78, 0.56);
   --understanding-choice-3-border: rgba(178, 236, 208, 0.24);
   --understanding-choice-3-text: #eafff4;
-  --difficulty-1-bg: rgba(54, 124, 87, 0.52);
+  --difficulty-1-bg: rgba(54, 124, 87, 0.62);
   --difficulty-1-text: #effdf4;
-  --difficulty-2-bg: rgba(168, 128, 32, 0.52);
+  --difficulty-2-bg: rgba(168, 128, 32, 0.62);
   --difficulty-2-text: #fff6dc;
-  --difficulty-3-bg: rgba(160, 72, 88, 0.52);
+  --difficulty-3-bg: rgba(160, 72, 88, 0.62);
   --difficulty-3-text: #fff0f3;
   --difficulty-unset-bg: #24303a;
   --lecture-unset-bg: #24303a;
@@ -627,6 +627,16 @@ html[data-theme="dark"] .lecture-badge-coded {
 .difficulty-2 { background: var(--difficulty-2-bg); color: var(--difficulty-2-text); }
 .difficulty-3 { background: var(--difficulty-3-bg); color: var(--difficulty-3-text); }
 .difficulty-unset { background: var(--difficulty-unset-bg); }
+.difficulty-1,
+.difficulty-2,
+.difficulty-3 {
+  border-color: rgba(82, 64, 42, 0.16);
+}
+html[data-theme="dark"] .difficulty-1,
+html[data-theme="dark"] .difficulty-2,
+html[data-theme="dark"] .difficulty-3 {
+  border-color: rgba(228, 235, 234, 0.14);
+}
 .checkbox-field { align-items: center; flex-direction: row; gap: 10px; font-weight: 600; }
 .solved-toggle {
   display: inline-flex;

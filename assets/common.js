@@ -319,13 +319,10 @@
       return null;
     }
 
-    // Use two cool-color lanes so adjacent lectures differ clearly while each lane
-    // still changes smoothly over time.
+    // Alternate between two cool tones so neighboring lectures are distinguishable
+    // without adding too many different colors to the page.
     const normalizedLecture = Math.max(1, Math.trunc(numericLecture));
-    const laneIndex = normalizedLecture % 2 === 1 ? 0 : 1;
-    const step = Math.floor((normalizedLecture - 1) / 2) % 5;
-    const baseHues = [176, 220];
-    return baseHues[laneIndex] + step * 12;
+    return normalizedLecture % 2 === 1 ? 176 : 244;
   }
 
   function getUnderstandingMarkerClass(value) {
