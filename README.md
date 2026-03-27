@@ -455,7 +455,8 @@ problems/
   "title": "2つの整数の和",
   "lecture": null,
   "difficulty": null,
-  "profileId": "c23"
+  "profileId": "c23",
+  "publishedAt": "2026-01-01T00:00:00+09:00"
 }
 ```
 
@@ -486,7 +487,8 @@ problems/
   "title": "2つの整数の和",
   "lecture": 1,
   "difficulty": 1,
-  "profileId": "c23"
+  "profileId": "c23",
+  "publishedAt": "2026-01-01T00:00:00+09:00"
 }
 ```
 
