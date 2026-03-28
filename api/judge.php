@@ -23,13 +23,6 @@ if ($problemId === '') {
 
 try {
     $config = ccc_load_app_config();
-    if (strlen($code) > (int) $config['maxCodeBytes']) {
-        ccc_send_json([
-            'message' => 'Code is too large.',
-            'maxCodeBytes' => $config['maxCodeBytes'],
-        ], 400, ['Cache-Control' => 'no-store']);
-    }
-
     $problem = ccc_load_problem_for_judge($problemId, $config);
 } catch (InvalidArgumentException $exception) {
     ccc_send_json(['message' => $exception->getMessage()], 400, ['Cache-Control' => 'no-store']);
@@ -42,6 +35,19 @@ try {
 
 if ($problem === null) {
     ccc_send_json(['message' => 'Problem not found.'], 404, ['Cache-Control' => 'no-store']);
+}
+
+if (($problem['type'] ?? 'code') !== 'code') {
+    ccc_send_json([
+        'message' => '文章入力問題はブラウザ内で判定します。',
+    ], 400, ['Cache-Control' => 'no-store']);
+}
+
+if (strlen($code) > (int) $config['maxCodeBytes']) {
+    ccc_send_json([
+        'message' => 'Code is too large.',
+        'maxCodeBytes' => $config['maxCodeBytes'],
+    ], 400, ['Cache-Control' => 'no-store']);
 }
 
 try {

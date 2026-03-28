@@ -52,10 +52,10 @@
       importRecordButton: "学習記録のインポート",
       importRecordDescription: "書き出した学習記録ファイルを読み込み、現在の記録に追加できます。",
       recordDangerSummary: "記録の消去",
-      clearCodeButton: "コード入力内容を消去",
-      clearCodeDescription: "このブラウザに保存されたコード入力内容を消去します。解いた記録と理解度は残ります。",
+      clearCodeButton: "入力内容を消去",
+      clearCodeDescription: "このブラウザに保存されたコード入力内容と文章入力の解答内容を消去します。解いた記録と理解度は残ります。",
       clearProgressButton: "解いた記録と理解度を消去",
-      clearProgressDescription: "このブラウザに保存された解いた記録と理解度を消去します。コード入力内容は残ります。",
+      clearProgressDescription: "このブラウザに保存された解いた記録と理解度を消去します。入力内容は残ります。",
       appearanceKicker: "Appearance",
       appearanceTitle: "表示設定",
       themeSummary: "テーマ",
@@ -86,10 +86,10 @@
       recordImportReadError: "学習記録ファイルの読み込みに失敗しました。JSON 形式を確認してください。",
       recordImportInvalidFile: "学習記録ファイルの形式が正しくありません。",
       recordImportInvalidRecords: "学習記録ファイルの records が正しくありません。",
-      clearCodeConfirm: "このブラウザに保存されたコード入力内容を消去します。\n解いた記録と理解度は残ります。\n\nよろしいですか？",
+      clearCodeConfirm: "このブラウザに保存されたコード入力内容と文章入力の解答内容を消去します。\n解いた記録と理解度は残ります。\n\nよろしいですか？",
       clearCodeCancelled: "消去をキャンセルしました。",
-      clearCodeDone: "コード入力内容を消去しました。",
-      clearProgressConfirm: "このブラウザに保存された解いた記録と理解度を消去します。\nコード入力内容は残ります。\n\nよろしいですか？",
+      clearCodeDone: "入力内容を消去しました。",
+      clearProgressConfirm: "このブラウザに保存された解いた記録と理解度を消去します。\n入力内容は残ります。\n\nよろしいですか？",
       clearProgressCancelled: "消去をキャンセルしました。",
       clearProgressDone: "解いた記録と理解度を消去しました。",
       problemErrorTitle: "問題を表示できません",
@@ -99,6 +99,7 @@
       invalidRequest: "送信内容に問題があります。入力内容を確認してください。",
       problemUnavailable: "問題が見つからないか、まだ公開されていません。",
       codeEditorTitle: "コード入力",
+      textAnswerPanelTitle: "解答入力",
       judgeButtonLabel: "判定する",
       resultPanelTitle: "判定結果",
       judgeLoadingLabel: "判定中...",
@@ -108,6 +109,7 @@
       resultAcceptedWithWarning: "合格！ ただしコンパイラ警告を確認してください",
       resultWrongAnswer: "失敗ケースあり",
       resultWrongAnswerExample: "失敗ケースあり（例 {example}）",
+      resultWrongAnswerItem: "失敗ケースあり（問 {item}）",
       resultCompileError: "コンパイルエラー",
       resultRuntimeError: "実行時エラー",
       resultTimeout: "時間切れ",
@@ -117,6 +119,13 @@
       exampleLabelTemplate: "例 {value}",
       inputLabel: "入力",
       outputLabel: "出力",
+      questionLabel: "設問",
+      acceptedAnswersLabel: "正しい解答例",
+      yourAnswerLabel: "あなたの解答",
+      textQuestionLabelTemplate: "問 {value}",
+      textAnswerPlaceholder: "ここに解答を入力",
+      textUnansweredLabel: "(未入力)",
+      textAnswerTooLongMessage: "解答が長すぎます。{maxChars} 文字以内にしてください。",
       expectedOutputLabel: "正しい出力",
       actualOutputLabel: "あなたの出力",
       warningLabel: "警告",
@@ -136,6 +145,7 @@
     resultPreviewMaxChars: 6000,
     resultMessagePreviewMaxLines: 40,
     maxCodeBytes: 65536,
+    maxTextAnswerChars: 100,
   };
   const FILTER_STORAGE_KEY = "ccc:v1:listFilters";
   const LAST_OPENED_PROBLEM_KEY = "ccc:v1:lastOpenedProblem";
@@ -379,9 +389,34 @@
     localStorage.setItem(storageKey("code", problemId), value);
   }
 
-  function clearStoredCode(problemIds) {
+  function getStoredTextAnswers(problemId) {
+    const raw = localStorage.getItem(storageKey("textAnswers", problemId));
+    if (!raw) {
+      return {};
+    }
+
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function setStoredTextAnswer(problemId, itemName, value) {
+    const current = getStoredTextAnswers(problemId);
+    if (value === "") {
+      delete current[itemName];
+    } else {
+      current[itemName] = value;
+    }
+    localStorage.setItem(storageKey("textAnswers", problemId), JSON.stringify(current));
+  }
+
+  function clearStoredInputs(problemIds) {
     problemIds.forEach((problemId) => {
       localStorage.removeItem(storageKey("code", problemId));
+      localStorage.removeItem(storageKey("textAnswers", problemId));
     });
   }
 
@@ -396,7 +431,7 @@
   function clearLearningRecord(problemIds) {
     localStorage.removeItem(LAST_OPENED_PROBLEM_KEY);
     clearLearningProgress(problemIds);
-    clearStoredCode(problemIds);
+    clearStoredInputs(problemIds);
   }
 
   function escapeHtml(value) {
@@ -455,7 +490,9 @@
     setUnderstanding,
     getStoredCode,
     setStoredCode,
-    clearStoredCode,
+    getStoredTextAnswers,
+    setStoredTextAnswer,
+    clearStoredInputs,
     clearLearningProgress,
     clearLearningRecord,
     escapeHtml,

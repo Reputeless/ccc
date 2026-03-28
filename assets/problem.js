@@ -17,6 +17,8 @@ const {
   setUnderstanding,
   getStoredCode,
   setStoredCode,
+  getStoredTextAnswers,
+  setStoredTextAnswer,
   setLastOpenedProblemId,
   escapeHtml,
   renderGlobalFooter,
@@ -57,6 +59,14 @@ function getResultStatePresets() {
     timeout: { kind: "error", icon: "!", text: uiText("resultTimeout") },
     requestError: { kind: "error", icon: "!" },
   };
+}
+
+function isTextProblem() {
+  return currentProblem?.type === "text";
+}
+
+function getTextItems() {
+  return Array.isArray(currentProblem?.textItems) ? currentProblem.textItems : [];
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -116,8 +126,8 @@ function renderProblem() {
   renderProblemMeta(currentProblem);
   document.getElementById("problem-body").innerHTML = currentProblem.bodyHtml;
   renderGuide();
+  renderProblemTypeUi();
   highlightProblemBodyCode();
-  renderExamples();
   enhanceCopyableCodeBlocks();
 }
 
@@ -254,6 +264,32 @@ function renderGuide() {
   `;
 }
 
+function renderProblemTypeUi() {
+  const examplesSection = document.querySelector(".examples-section");
+  const codeEditorTitle = document.getElementById("code-editor-title");
+  const codeEditor = document.getElementById("code-editor");
+  const textAnswerPanel = document.getElementById("text-answer-panel");
+
+  if (isTextProblem()) {
+    if (examplesSection) {
+      examplesSection.hidden = true;
+    }
+    codeEditor.hidden = true;
+    textAnswerPanel.hidden = false;
+    codeEditorTitle.textContent = uiText("textAnswerPanelTitle");
+    renderTextQuestions();
+    return;
+  }
+
+  if (examplesSection) {
+    examplesSection.hidden = false;
+  }
+  codeEditor.hidden = false;
+  textAnswerPanel.hidden = true;
+  codeEditorTitle.textContent = uiText("codeEditorTitle");
+  renderExamples();
+}
+
 function renderProblemMeta(problem) {
   const container = document.getElementById("problem-meta");
   container.innerHTML = "";
@@ -358,6 +394,36 @@ function renderExampleBlock(title, content) {
   return block;
 }
 
+function renderTextQuestions() {
+  const container = document.getElementById("text-questions");
+  const storedAnswers = getStoredTextAnswers(currentProblem.id);
+  container.innerHTML = "";
+
+  getTextItems().forEach((item) => {
+    const card = document.createElement("section");
+    card.className = "text-question-card";
+    card.innerHTML = `
+      <h3>${escapeHtml(formatUiText("textQuestionLabelTemplate", { value: item.name }))}</h3>
+      <p>${escapeHtml(item.prompt)}</p>
+      <input
+        class="text-answer-input"
+        type="text"
+        data-item-name="${escapeHtml(item.name)}"
+        placeholder="${escapeHtml(uiText("textAnswerPlaceholder"))}"
+        maxlength="${escapeHtml(String(appConfig.maxTextAnswerChars ?? DEFAULT_CONFIG.maxTextAnswerChars))}"
+        value="${escapeHtml(String(storedAnswers[item.name] ?? ""))}"
+      >
+    `;
+
+    const input = card.querySelector(".text-answer-input");
+    input.addEventListener("input", () => {
+      setStoredTextAnswer(currentProblem.id, item.name, input.value);
+    });
+
+    container.appendChild(card);
+  });
+}
+
 function enhanceCopyableCodeBlocks() {
   document.querySelectorAll("#problem-body pre, #guide-container pre, #examples-list pre, #result-details pre").forEach((pre) => {
     if (pre.parentElement?.classList.contains("copyable-code-wrapper")) {
@@ -437,6 +503,10 @@ async function copyText(text) {
 }
 
 function setupEditor() {
+  if (isTextProblem()) {
+    return;
+  }
+
   const editor = document.getElementById("code-editor");
   const indentSettings = getEditorIndentSettings();
   editor.rows = appConfig.editorRows;
@@ -513,63 +583,131 @@ function setupResultUnderstandingPrompt() {
 }
 
 function setupJudgeButton() {
-  document.getElementById("judge-button").addEventListener("click", judgeCurrentCode);
+  document.getElementById("judge-button").addEventListener("click", submitCurrentProblem);
 }
 
-async function judgeCurrentCode() {
-  const editor = document.getElementById("code-editor");
-  const code = editor.value;
+async function submitCurrentProblem() {
   const errorMessages = getErrorMessages();
 
-  if (new TextEncoder().encode(code).length > appConfig.maxCodeBytes) {
-    renderResultState("requestError", formatUiText("codeTooLongMessage", { maxBytes: appConfig.maxCodeBytes }));
+  if (isTextProblem()) {
+    renderResultState("pending");
     renderResultDetails([]);
+    setJudgeLoading(true);
+
+    try {
+      renderJudgePayload(judgeCurrentTextAnswers());
+    } finally {
+      setJudgeLoading(false);
+    }
     return;
-  }
-
-  renderResultState("pending");
-  renderResultDetails([]);
-  setJudgeLoading(true);
-
-  try {
-    const response = await fetch("api/judge.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        problemId: currentProblem.id,
-        code,
-      }),
-    });
-
-    const payload = await response.json().catch(() => ({}));
-
-    if (response.status === 400) {
-      renderResultState("requestError", payload.message ?? errorMessages.invalidRequest);
+  } else {
+    const editor = document.getElementById("code-editor");
+    const code = editor.value;
+    if (new TextEncoder().encode(code).length > appConfig.maxCodeBytes) {
+      renderResultState("requestError", formatUiText("codeTooLongMessage", { maxBytes: appConfig.maxCodeBytes }));
       renderResultDetails([]);
       return;
     }
 
-    if (response.status === 404) {
-      showProblemError(errorMessages.problemUnavailable);
-      return;
-    }
+    const requestPayload = {
+      problemId: currentProblem.id,
+      code,
+    };
 
-    if (!response.ok) {
-      renderResultState("requestError", payload.message ?? errorMessages.judgeUnavailable);
-      renderResultDetails([]);
-      return;
-    }
-
-    renderJudgePayload(payload);
-  } catch {
-    renderResultState("requestError", errorMessages.judgeUnavailable);
+    renderResultState("pending");
     renderResultDetails([]);
-  } finally {
-    setJudgeLoading(false);
+    setJudgeLoading(true);
+
+    try {
+      const response = await fetch("api/judge.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(requestPayload),
+      });
+
+      const responsePayload = await response.json().catch(() => ({}));
+
+      if (response.status === 400) {
+        renderResultState("requestError", responsePayload.message ?? errorMessages.invalidRequest);
+        renderResultDetails([]);
+        return;
+      }
+
+      if (response.status === 404) {
+        showProblemError(errorMessages.problemUnavailable);
+        return;
+      }
+
+      if (!response.ok) {
+        renderResultState("requestError", responsePayload.message ?? errorMessages.judgeUnavailable);
+        renderResultDetails([]);
+        return;
+      }
+
+      renderJudgePayload(responsePayload);
+    } catch {
+      renderResultState("requestError", errorMessages.judgeUnavailable);
+      renderResultDetails([]);
+    } finally {
+      setJudgeLoading(false);
+    }
   }
+}
+
+function buildTextAnswerPayload() {
+  const answers = {};
+  document.querySelectorAll(".text-answer-input").forEach((input) => {
+    const itemName = input.dataset.itemName;
+    if (!itemName) {
+      return;
+    }
+    answers[itemName] = input.value;
+  });
+  return answers;
+}
+
+function judgeCurrentTextAnswers() {
+  const answers = buildTextAnswerPayload();
+  const maxChars = Number(appConfig.maxTextAnswerChars) || DEFAULT_CONFIG.maxTextAnswerChars;
+
+  for (const item of getTextItems()) {
+    const rawAnswer = String(answers[item.name] ?? "");
+    if (rawAnswer.length > maxChars) {
+      return {
+        status: "request_error",
+        message: formatUiText("textAnswerTooLongMessage", { maxChars }),
+      };
+    }
+
+    const actualAnswer = normalizeTextAnswer(rawAnswer);
+    const acceptedAnswers = Array.isArray(item.acceptedAnswers) ? item.acceptedAnswers : [];
+    const matched = acceptedAnswers.some((answer) => normalizeTextAnswer(String(answer)) === actualAnswer);
+
+    if (!matched) {
+      return {
+        status: "wrong_answer",
+        failedItem: {
+          name: item.name,
+          prompt: item.prompt,
+          acceptedAnswers,
+          actualAnswer,
+        },
+      };
+    }
+  }
+
+  return {
+    status: "accepted",
+    passedItems: getTextItems().length,
+    totalItems: getTextItems().length,
+  };
+}
+
+function normalizeTextAnswer(value) {
+  return String(value).replaceAll("\r\n", "\n").replaceAll("\r", "\n").trim();
 }
 
 function renderJudgePayload(payload) {
@@ -594,7 +732,11 @@ function renderJudgePayload(payload) {
     case "wrong_answer":
       renderResultState(
         "wrongAnswer",
-        payload.failedExample?.name ? formatUiText("resultWrongAnswerExample", { example: payload.failedExample.name }) : undefined
+        payload.failedExample?.name
+          ? formatUiText("resultWrongAnswerExample", { example: payload.failedExample.name })
+          : payload.failedItem?.name
+            ? formatUiText("resultWrongAnswerItem", { item: payload.failedItem.name })
+            : undefined
       );
       toggleResultUnderstandingPrompt(false);
       if (payload.failedExample) {
@@ -602,6 +744,13 @@ function renderJudgePayload(payload) {
         details.push(renderPreCard(uiText("expectedOutputLabel"), payload.failedExample.expectedStdout ?? ""));
         details.push(renderPreCard(uiText("actualOutputLabel"), payload.failedExample.actualStdout ?? "", {
           extraClassName: "result-card-actual-output"
+        }));
+      } else if (payload.failedItem) {
+        details.push(renderPreCard(uiText("questionLabel"), payload.failedItem.prompt ?? "", { previewMode: "message" }));
+        details.push(renderPreCard(uiText("acceptedAnswersLabel"), (payload.failedItem.acceptedAnswers ?? []).join("\n")));
+        details.push(renderPreCard(uiText("yourAnswerLabel"), payload.failedItem.actualAnswer ?? "", {
+          extraClassName: "result-card-actual-output",
+          emptyLabel: uiText("textUnansweredLabel")
         }));
       }
       if (payload.warning) {
@@ -623,6 +772,10 @@ function renderJudgePayload(payload) {
       toggleResultUnderstandingPrompt(false);
       details.push(renderPreCard(uiText("messageLabel"), payload.message ?? "", { previewMode: "message" }));
       break;
+    case "request_error":
+      renderResultState("requestError", payload.message ?? errorMessages.invalidRequest);
+      toggleResultUnderstandingPrompt(false);
+      break;
     default:
       renderResultState("requestError", payload.message ?? errorMessages.judgeUnavailable);
       toggleResultUnderstandingPrompt(false);
@@ -636,7 +789,7 @@ function renderPreCard(title, content, options = {}) {
   const section = document.createElement("section");
   section.className = ["result-card", options.extraClassName].filter(Boolean).join(" ");
   const previewMode = options.previewMode ?? "output";
-  const display = buildResultDisplayContent(content, previewMode);
+  const display = buildResultDisplayContent(content, previewMode, options.emptyLabel ?? null);
   const previewLines = previewMode === "message"
     ? (Number(appConfig.resultMessagePreviewMaxLines) || DEFAULT_CONFIG.resultMessagePreviewMaxLines)
     : (Number(appConfig.resultPreviewMaxLines) || DEFAULT_CONFIG.resultPreviewMaxLines);
@@ -724,9 +877,9 @@ function showProblemError(message) {
   document.getElementById("problem-error-message").textContent = message;
 }
 
-function buildResultDisplayContent(content, previewMode = "output") {
+function buildResultDisplayContent(content, previewMode = "output", emptyLabel = null) {
   if (content === "") {
-    return { text: uiText("emptyContentLabel"), truncated: false };
+    return { text: emptyLabel ?? uiText("emptyContentLabel"), truncated: false };
   }
 
   const normalized = content.replaceAll("\r\n", "\n");

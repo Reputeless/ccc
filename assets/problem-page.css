@@ -498,6 +498,51 @@
   margin: 0;
 }
 
+.text-answer-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.text-question-list {
+  display: grid;
+  gap: 12px;
+}
+
+.text-question-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  background: var(--surface-result-card);
+}
+
+.text-question-card h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+}
+
+.text-question-card p {
+  margin: 0 0 10px;
+  line-height: 1.65;
+}
+
+.text-answer-input {
+  width: 100%;
+  border: 1px solid var(--border-field);
+  border-radius: 8px;
+  background: var(--surface-field);
+  color: var(--text);
+  padding: 11px 13px;
+  font: inherit;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.text-answer-input:focus {
+  outline: none;
+  border-color: var(--border-field-focus);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+  background: var(--surface-field-focus);
+}
+
 .code-editor {
   width: 100%;
   border: 1px solid var(--border-field);

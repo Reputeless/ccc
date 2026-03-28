@@ -35,16 +35,30 @@ function ccc_load_problem_detail(string $problemId, ?array $config = null): ?arr
     }
 
     $config ??= ccc_load_app_config();
-    $profile = ccc_resolve_problem_language_profile($manifest, $config);
     $renderer = new CccMarkdownRenderer($manifest['id']);
-
-    return [
+    $detail = [
         ...ccc_build_problem_summary($manifest),
-        'profileId' => $profile['id'],
-        'languageProfile' => ccc_build_language_profile_summary($profile),
         'bodyHtml' => $renderer->render(ccc_load_problem_body($manifest)),
         'guideHtml' => ccc_load_problem_guide_html($manifest, $renderer),
-        'examples' => ccc_load_problem_examples($manifest),
+    ];
+
+    if ($manifest['type'] === 'code') {
+        $profile = ccc_resolve_problem_language_profile($manifest, $config);
+        return [
+            ...$detail,
+            'profileId' => $profile['id'],
+            'languageProfile' => ccc_build_language_profile_summary($profile),
+            'examples' => ccc_load_problem_examples($manifest),
+            'textItems' => [],
+        ];
+    }
+
+    return [
+        ...$detail,
+        'profileId' => null,
+        'languageProfile' => null,
+        'examples' => [],
+        'textItems' => ccc_load_problem_text_items($manifest),
     ];
 }
 
@@ -56,15 +70,29 @@ function ccc_load_problem_for_judge(string $problemId, ?array $config = null): ?
     }
 
     $config ??= ccc_load_app_config();
-    $profile = ccc_resolve_problem_language_profile($manifest, $config);
-
-    return [
+    $problem = [
         'id' => $manifest['id'],
         'title' => $manifest['title'],
         'type' => $manifest['type'],
-        'profileId' => $profile['id'],
-        'languageProfile' => $profile,
-        'examples' => ccc_load_problem_examples($manifest),
+    ];
+
+    if ($manifest['type'] === 'code') {
+        $profile = ccc_resolve_problem_language_profile($manifest, $config);
+        return [
+            ...$problem,
+            'profileId' => $profile['id'],
+            'languageProfile' => $profile,
+            'examples' => ccc_load_problem_examples($manifest),
+            'textItems' => [],
+        ];
+    }
+
+    return [
+        ...$problem,
+        'profileId' => null,
+        'languageProfile' => null,
+        'examples' => [],
+        'textItems' => ccc_load_problem_text_items($manifest),
     ];
 }
 
@@ -147,8 +175,8 @@ function ccc_load_problem_manifest(string $problemId): ?array
     if ($type === '') {
         throw new RuntimeException($problemId . '/problem.json requires type.');
     }
-    if ($type !== 'code') {
-        throw new RuntimeException($problemId . '/problem.json type must be "code".');
+    if (!in_array($type, ['code', 'text'], true)) {
+        throw new RuntimeException($problemId . '/problem.json type must be "code" or "text".');
     }
 
     $lecture = array_key_exists('lecture', $decoded) ? ccc_optional_int($decoded['lecture'], 'lecture') : null;
@@ -272,6 +300,75 @@ function ccc_load_problem_examples(array $manifest): array
     }
 
     return $examples;
+}
+
+function ccc_load_problem_text_items(array $manifest): array
+{
+    $itemFiles = ccc_scan_problem_example_files($manifest['id']);
+    $items = [];
+    $hasMissingEarlierSlot = false;
+
+    foreach ($itemFiles as $itemFile) {
+        $name = $itemFile['name'];
+        if (!$itemFile['hasAny']) {
+            $hasMissingEarlierSlot = true;
+            continue;
+        }
+
+        if ($hasMissingEarlierSlot) {
+            throw new RuntimeException($manifest['id'] . ' item files must use consecutive names from `01`.');
+        }
+
+        if (!$itemFile['inputExists'] || !$itemFile['outputExists']) {
+            throw new RuntimeException($manifest['id'] . ' item files are missing for "' . $name . '".');
+        }
+
+        $inputPath = ccc_problem_example_input_path($manifest['id'], $name);
+        $outputPath = ccc_problem_example_output_path($manifest['id'], $name);
+        $prompt = file_get_contents($inputPath);
+        $answers = file_get_contents($outputPath);
+        if ($prompt === false || $answers === false) {
+            throw new RuntimeException($manifest['id'] . ' item files could not be read for "' . $name . '".');
+        }
+
+        $prompt = trim(ccc_normalize_file_newlines($prompt));
+        if ($prompt === '') {
+            throw new RuntimeException($manifest['id'] . ' item prompt is empty for "' . $name . '".');
+        }
+
+        $acceptedAnswers = ccc_parse_text_answer_candidates($answers);
+        if ($acceptedAnswers === []) {
+            throw new RuntimeException($manifest['id'] . ' item answers are empty for "' . $name . '".');
+        }
+
+        $items[] = [
+            'name' => $name,
+            'prompt' => $prompt,
+            'acceptedAnswers' => $acceptedAnswers,
+        ];
+    }
+
+    if ($items === []) {
+        throw new RuntimeException($manifest['id'] . ' requires at least one item file pair.');
+    }
+
+    return $items;
+}
+
+function ccc_parse_text_answer_candidates(string $content): array
+{
+    $normalized = ccc_normalize_file_newlines($content);
+    $lines = preg_split('/\n/', $normalized) ?: [];
+    $items = [];
+
+    foreach ($lines as $line) {
+        $candidate = trim($line);
+        if ($candidate !== '') {
+            $items[] = $candidate;
+        }
+    }
+
+    return array_values(array_unique($items));
 }
 
 function ccc_normalize_file_newlines(string $content): string

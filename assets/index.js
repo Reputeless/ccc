@@ -23,7 +23,7 @@ const {
   setManualSolved,
   getUnderstanding,
   setUnderstanding,
-  clearStoredCode,
+  clearStoredInputs,
   clearLearningProgress,
   escapeHtml,
   renderGlobalFooter,
@@ -589,7 +589,7 @@ function clearStoredCodeWithConfirmation() {
     return;
   }
 
-  clearStoredCode(allProblems.map((problem) => problem.id));
+  clearStoredInputs(allProblems.map((problem) => problem.id));
   renderProblemList();
   showRecordTransferStatus(uiText("clearCodeDone"));
 }

@@ -90,8 +90,8 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
 {
     if ($row['type'] === '') {
         $row['errors'][] = '`type` is required.';
-    } elseif ($row['type'] !== 'code') {
-        $row['errors'][] = '`type` must be `code`.';
+    } elseif (!in_array($row['type'], ['code', 'text'], true)) {
+        $row['errors'][] = '`type` must be `code` or `text`.';
     }
 
     if ($row['number'] === '') {
@@ -112,7 +112,7 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
         }
     }
 
-    if ($row['profileId'] !== '') {
+    if ($row['type'] === 'code' && $row['profileId'] !== '') {
         $profileId = trim($row['profileId']);
         if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $profileId) !== 1) {
             $row['errors'][] = '`profileId` has an invalid format.';
@@ -129,7 +129,7 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
         }
     }
 
-    ccc_validate_problem_example_files($row);
+    ccc_validate_problem_item_files($row);
 
     $bodyPath = ccc_problem_body_path($row['directory']);
     if (!is_file($bodyPath)) {
@@ -139,7 +139,7 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
     $row['guide'] = is_file(ccc_problem_guide_path($row['directory'])) ? 'available' : '';
 }
 
-function ccc_validate_problem_example_files(array &$row): void
+function ccc_validate_problem_item_files(array &$row): void
 {
     $exampleFiles = ccc_scan_problem_example_files($row['directory']);
     $detectedNames = [];
@@ -153,7 +153,10 @@ function ccc_validate_problem_example_files(array &$row): void
         }
 
         if ($hasMissingEarlierSlot) {
-            $row['errors'][] = 'Example files must use consecutive names from `01`.';
+            $row['errors'][] = sprintf(
+                '%s files must use consecutive names from `01`.',
+                $row['type'] === 'text' ? 'Item' : 'Example'
+            );
             break;
         }
 
@@ -168,12 +171,34 @@ function ccc_validate_problem_example_files(array &$row): void
     }
 
     if ($detectedNames === []) {
-        $row['errors'][] = 'At least one example file pair is required.';
+        $row['errors'][] = sprintf(
+            'At least one %s file pair is required.',
+            $row['type'] === 'text' ? 'item' : 'example'
+        );
         $row['items'] = '';
         return;
     }
 
     $row['items'] = implode(', ', $detectedNames);
+
+    if ($row['type'] !== 'text') {
+        return;
+    }
+
+    foreach ($detectedNames as $name) {
+        $inputPath = ccc_problem_example_input_path($row['directory'], $name);
+        $outputPath = ccc_problem_example_output_path($row['directory'], $name);
+        $prompt = file_get_contents($inputPath);
+        $answers = file_get_contents($outputPath);
+
+        if ($prompt === false || trim(ccc_normalize_file_newlines($prompt)) === '') {
+            $row['errors'][] = sprintf('`%s.in.txt` must not be empty.', $name);
+        }
+
+        if ($answers === false || ccc_parse_text_answer_candidates($answers) === []) {
+            $row['errors'][] = sprintf('`%s.out.txt` must contain at least one accepted answer.', $name);
+        }
+    }
 }
 
 function ccc_validate_problem_optional_integer(array &$row, array $decoded, string $field): void
