@@ -59,6 +59,7 @@ function ccc_create_problem_validation_row(string $directory): array
     return [
         'directory' => $directory,
         'id' => $directory,
+        'type' => '',
         'number' => '',
         'title' => '',
         'lecture' => '',
@@ -76,6 +77,7 @@ function ccc_create_problem_validation_row(string $directory): array
 
 function ccc_fill_problem_validation_row(array &$row, array $decoded): void
 {
+    $row['type'] = trim((string) ($decoded['type'] ?? ''));
     $row['number'] = trim((string) ($decoded['number'] ?? ''));
     $row['title'] = trim((string) ($decoded['title'] ?? ''));
     $row['lecture'] = ccc_problem_validation_scalar_display($decoded['lecture'] ?? null);
@@ -86,6 +88,12 @@ function ccc_fill_problem_validation_row(array &$row, array $decoded): void
 
 function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array $config): void
 {
+    if ($row['type'] === '') {
+        $row['errors'][] = '`type` is required.';
+    } elseif ($row['type'] !== 'code') {
+        $row['errors'][] = '`type` must be `code`.';
+    }
+
     if ($row['number'] === '') {
         $row['errors'][] = '`number` is required.';
     }

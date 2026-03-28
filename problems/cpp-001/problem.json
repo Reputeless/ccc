@@ -1,4 +1,5 @@
 {
+  "type": "code",
   "number": "99-1",
   "title": "C++23 で Hello, C++! を表示する",
   "lecture": 99,

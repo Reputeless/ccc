@@ -125,6 +125,7 @@ $items = $report['items'];
           <thead>
             <tr>
               <th>id</th>
+              <th>type</th>
               <th>number</th>
               <th>title</th>
               <th class="validate-cell-center">lecture</th>
@@ -141,6 +142,7 @@ $items = $report['items'];
             <?php foreach ($items as $item): ?>
               <tr>
                 <td><code><?= h((string) $item['id']) ?></code></td>
+                <td><code><?= h((string) $item['type']) ?></code></td>
                 <td><code><?= h((string) $item['number']) ?></code></td>
                 <td class="validate-title-cell">
                   <?php if (($item['id'] ?? '') !== ''): ?>

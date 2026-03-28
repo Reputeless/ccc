@@ -61,6 +61,7 @@ function ccc_load_problem_for_judge(string $problemId, ?array $config = null): ?
     return [
         'id' => $manifest['id'],
         'title' => $manifest['title'],
+        'type' => $manifest['type'],
         'profileId' => $profile['id'],
         'languageProfile' => $profile,
         'examples' => ccc_load_problem_examples($manifest),
@@ -71,6 +72,7 @@ function ccc_build_problem_summary(array $manifest): array
 {
     return [
         'id' => $manifest['id'],
+        'type' => $manifest['type'],
         'number' => $manifest['number'],
         'title' => $manifest['title'],
         'lecture' => $manifest['lecture'],
@@ -135,11 +137,18 @@ function ccc_load_problem_manifest(string $problemId): ?array
     $id = $problemId;
     $number = array_key_exists('number', $decoded) ? trim((string) $decoded['number']) : null;
     $title = isset($decoded['title']) ? trim((string) $decoded['title']) : '';
+    $type = array_key_exists('type', $decoded) ? trim((string) $decoded['type']) : '';
     if ($number === null || $number === '') {
         throw new RuntimeException($problemId . '/problem.json requires number.');
     }
     if ($title === '') {
         throw new RuntimeException($problemId . '/problem.json requires title.');
+    }
+    if ($type === '') {
+        throw new RuntimeException($problemId . '/problem.json requires type.');
+    }
+    if ($type !== 'code') {
+        throw new RuntimeException($problemId . '/problem.json type must be "code".');
     }
 
     $lecture = array_key_exists('lecture', $decoded) ? ccc_optional_int($decoded['lecture'], 'lecture') : null;
@@ -161,6 +170,7 @@ function ccc_load_problem_manifest(string $problemId): ?array
 
     return [
         'id' => $id,
+        'type' => $type,
         'number' => $number,
         'title' => $title,
         'lecture' => $lecture,

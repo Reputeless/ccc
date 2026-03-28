@@ -93,6 +93,7 @@ problems/
 
 ```json
 {
+  "type": "code",
   "number": "1-1",
   "title": "2つの整数の和",
   "lecture": 1,
@@ -104,6 +105,8 @@ problems/
 
 項目:
 
+- `type`
+  - 問題種別。現在は `code` を指定
 - `number`
   - 表示用の問題番号
 - `title`
@@ -119,6 +122,7 @@ problems/
 
 補足:
 
+- 現在の `CCC` では、`type` は `code` を使います
 - `lecture` と `difficulty` は実装上は省略も許容していますが、運用上は `null` を書く形を推奨しています
 - `publishedAt` は**一覧や API の表示制御**であり、厳密なアクセス制限ではありません
 

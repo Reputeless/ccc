@@ -1,4 +1,5 @@
 {
+  "type": "code",
   "number": "03-8",
   "title": "4 桁の整数の各桁を下の位から出力する",
   "lecture": 3,

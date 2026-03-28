@@ -1,4 +1,5 @@
 {
+  "type": "code",
   "number": "02-1",
   "title": "アスタリスクで 4x4 の正方形を表示する",
   "lecture": 2,
