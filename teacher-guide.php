@@ -8,10 +8,37 @@ function h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+function ccc_read_version_string(string $path): string
+{
+    if (!is_file($path)) {
+        return '';
+    }
+
+    $decoded = json_decode((string) file_get_contents($path), true);
+    if (!is_array($decoded)) {
+        return '';
+    }
+
+    return trim((string) ($decoded['version'] ?? ''));
+}
+
+function ccc_append_teacher_guide_version_section(string $markdown, string $version): string
+{
+    if ($version === '') {
+        return $markdown;
+    }
+
+    $section = "## バージョン情報\n\n- `CCC` version `{$version}`\n";
+    return rtrim($markdown) . "\n\n" . $section;
+}
+
 try {
     $config = ccc_load_app_config();
     $guidePath = __DIR__ . DIRECTORY_SEPARATOR . 'TEACHER_GUIDE.md';
+    $versionPath = __DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'version.json';
     $guideMarkdown = is_file($guidePath) ? (string) file_get_contents($guidePath) : '';
+    $version = ccc_read_version_string($versionPath);
+    $guideMarkdown = ccc_append_teacher_guide_version_section($guideMarkdown, $version);
     $renderer = new CccMarkdownRenderer('', '');
     $guideHtml = trim($guideMarkdown) !== ''
         ? $renderer->render($guideMarkdown)
