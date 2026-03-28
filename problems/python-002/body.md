@@ -26,7 +26,7 @@ s
 
 左から 1 文字ずつ見て、今何個連続しているかを数えると考えやすいです。  
 `x` が来たら連続数を 0 に戻します。
-*** Add File: c:\Users\reput\Desktop\projects\ccc\problems\python-002\guide.md
+
 ## 考え方
 
 文字列を左から順に見ていき、`o` が続いている間は連続数を増やします。  
