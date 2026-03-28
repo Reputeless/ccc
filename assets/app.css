@@ -42,6 +42,8 @@
   --surface-button-primary-hover: #0b4f4a;
   --surface-button-secondary: #ece7dd;
   --surface-button-secondary-hover: #e4ddd0;
+  --inline-code-bg: rgba(131, 103, 75, 0.10);
+  --inline-code-text: #3d2a1d;
   --button-primary-border: rgba(13, 95, 88, 0.28);
   --button-primary-text: var(--accent-strong);
   --button-primary-hover-border: rgba(7, 52, 48, 0.62);
@@ -172,6 +174,8 @@ html[data-theme="dark"] {
   --surface-button-primary-hover: #25625c;
   --surface-button-secondary: #23303b;
   --surface-button-secondary-hover: #2b3945;
+  --inline-code-bg: rgba(131, 171, 166, 0.14);
+  --inline-code-text: #f0fbf9;
   --button-primary-border: rgba(102, 221, 209, 0.28);
   --button-primary-text: #dcf6f2;
   --button-primary-hover-border: rgba(102, 221, 209, 0.44);

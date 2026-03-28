@@ -320,6 +320,15 @@
   font-family: var(--font-code);
 }
 
+.problem-body :not(pre) > code,
+.example-block :not(pre) > code,
+.result-details :not(pre) > code {
+  padding: 0.08em 0.35em;
+  border-radius: 0.35em;
+  background: var(--inline-code-bg);
+  color: var(--inline-code-text);
+}
+
 .problem-body pre code,
 .example-block pre code,
 .result-details pre code {
