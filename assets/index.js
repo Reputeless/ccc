@@ -51,6 +51,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.addEventListener("pagehide", saveScrollPosition);
   window.addEventListener("resize", scheduleSidebarStickyUpdate);
   document.getElementById("reset-filters").addEventListener("click", resetFilters);
+  document.getElementById("app-name").addEventListener("click", handleHeroResetClick);
+  document.getElementById("hero-card").addEventListener("click", handleHeroCardClick);
   applyThemePreference();
   bindThemePreferenceListener();
 
@@ -255,6 +257,28 @@ function resetFilters() {
     checkbox.checked = false;
   });
   onFilterChanged();
+}
+
+function resetFiltersAndScrollToTop() {
+  resetFilters();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function handleHeroResetClick(event) {
+  event.preventDefault();
+  resetFiltersAndScrollToTop();
+}
+
+function handleHeroCardClick(event) {
+  if (event.target.closest(".hero-reset-trigger")) {
+    return;
+  }
+
+  if (!window.matchMedia("(max-width: 800px)").matches) {
+    return;
+  }
+
+  resetFiltersAndScrollToTop();
 }
 
 function renderProblemList() {

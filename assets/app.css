@@ -421,6 +421,25 @@ button, input, select, textarea { font: inherit; }
   border-radius: 0;
 }
 .hero-card h1 { margin: 0; font-size: clamp(2rem, 4vw, 3rem); line-height: 0.98; letter-spacing: -0.03em; }
+.hero-reset-trigger {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hero-reset-trigger:hover,
+.hero-reset-trigger:focus-visible {
+  outline: none;
+  color: inherit;
+  opacity: 0.92;
+}
 .hero-card:not(.hero-card-compact) .eyebrow {
   color: #5ddcd0;
   font-weight: 700;
@@ -925,6 +944,9 @@ html[data-theme="dark"] .difficulty-3 {
   /* Mobile hero is intentionally minimal so the list appears earlier. */
   .hero-card:not(.hero-card-compact) h1 {
     margin: 0;
+  }
+  .hero-card:not(.hero-card-compact) {
+    cursor: pointer;
   }
   .panel-heading {
     gap: 10px;
