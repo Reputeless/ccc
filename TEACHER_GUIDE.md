@@ -35,9 +35,9 @@
 
 ### PHP の簡易サーバーを起動する
 
-プロジェクトのルートで、次のコマンドを実行します。
+コマンドプロンプトやターミナルを開き、`CCC` のフォルダ（プロジェクトのルート）へ移動してから、次のコマンドを実行します。
 
-```powershell
+```sh
 php -S localhost:8000
 ```
 
@@ -163,6 +163,7 @@ http://localhost:8000/
 - `problems/` の下に新しいフォルダを作成します
 - フォルダ名がそのまま問題 ID になります
 - 問題 ID には、半角英数字とハイフン（例: `sample-001`）を使うと安全です
+- 問題 ID は、小文字を使うことをおすすめします
 - 日本語、空白、記号の多い名前は避けてください
 - 次のファイルを用意します
 
@@ -173,6 +174,8 @@ http://localhost:8000/
 | `guide.md` | 解説を Markdown で書きます（任意） |
 | `01.in.txt` | 最初の入出力例の入力を書きます |
 | `01.out.txt` | 最初の入出力例の正しい出力を書きます |
+
+- `problem.json`、`body.md`、`guide.md` は、`UTF-8（BOM なし）` で保存してください
 
 ### `problem.json` の主な項目
 
@@ -206,7 +209,7 @@ http://localhost:8000/
 CLI は、コマンドを入力して使う方法です。  
 ローカルで CLI を使える場合は、次のコマンドで新しい問題フォルダを作成できます。
 
-```powershell
+```sh
 php tools/create.php sample-001
 ```
 
@@ -236,7 +239,7 @@ php tools/create.php sample-001
 CLI は、コマンドを入力して使う方法です。  
 ローカルで CLI を使える場合は、次のコマンドで問題データを検査できます。
 
-```powershell
+```sh
 php tools/validate.php
 php tools/validate.php sample-001
 ```
