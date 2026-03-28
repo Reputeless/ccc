@@ -80,20 +80,15 @@ http://localhost:8000/
 | `api/` | `705` | 配下の `.php` は `604` |
 | `assets/` | `705` | 配下の `.css`, `.js`, `.svg` などは `604` |
 | `config/` | `705` | 配下の `.json` は `604` |
+| `favicon/` | `705` | 配下の `.png`, `.svg`, `.webmanifest` は `604` |
 | `problems/` | `705` | 配下の `problem.json`, `body.md`, `guide.md`, `.in.txt`, `.out.txt` は `604` |
-| `apple-touch-icon.png` | `604` | iPhone / iPad 用アイコン |
-| `favicon-96x96.png` | `604` | PNG フォールバック |
 | `favicon.ico` | `604` | ブラウザ用アイコン |
-| `favicon.svg` | `604` | ブラウザ用アイコン |
 | `index.html` | `604` | 公開ページ |
 | `problem.html` | `604` | 公開ページ |
 | `robots.txt` | `604` | 公開用 |
-| `site.webmanifest` | `604` | Web アプリ用 manifest |
 | `TEACHER_GUIDE.md` | `604` | `teacher-guide.php` が読み込んで表示します |
 | `teacher-guide.php` | `604` | 公開ページ |
 | `validate.php` | `604` | 公開ページ |
-| `web-app-manifest-192x192.png` | `604` | manifest 用アイコン |
-| `web-app-manifest-512x512.png` | `604` | manifest 用アイコン |
 
 ### アップロードしないもの
 
