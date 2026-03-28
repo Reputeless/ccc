@@ -55,7 +55,7 @@ final class CccMarkdownRenderer
                 return;
             }
             $header = array_shift($tableRows);
-            $html[] = '<table><thead><tr>' . implode('', array_map(
+            $html[] = '<div class="table-scroll"><table><thead><tr>' . implode('', array_map(
                 fn (string $cell): string => '<th>' . $this->renderInline(trim($cell)) . '</th>',
                 $header
             )) . '</tr></thead><tbody>';
@@ -65,7 +65,7 @@ final class CccMarkdownRenderer
                     $row
                 )) . '</tr>';
             }
-            $html[] = '</tbody></table>';
+            $html[] = '</tbody></table></div>';
             $tableRows = [];
         };
 
