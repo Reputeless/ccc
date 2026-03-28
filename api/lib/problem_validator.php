@@ -66,7 +66,7 @@ function ccc_create_problem_validation_row(string $directory): array
         'difficulty' => '',
         'profileId' => '',
         'publishedAt' => '',
-        'examples' => '',
+        'items' => '',
         'guide' => '',
         'errors' => [],
         'warnings' => [],
@@ -169,11 +169,11 @@ function ccc_validate_problem_example_files(array &$row): void
 
     if ($detectedNames === []) {
         $row['errors'][] = 'At least one example file pair is required.';
-        $row['examples'] = '';
+        $row['items'] = '';
         return;
     }
 
-    $row['examples'] = implode(', ', $detectedNames);
+    $row['items'] = implode(', ', $detectedNames);
 }
 
 function ccc_validate_problem_optional_integer(array &$row, array $decoded, string $field): void

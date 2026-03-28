@@ -281,7 +281,7 @@ php tools/validate.php sample-001
 
 ### Q. `問題ステータス` から何が見えますか？
 
-問題 ID、問題番号、タイトル、講義回、難易度、`profileId`、`publishedAt`、入出力例の状態、`guide` の有無、検査結果などが見えます。
+問題 ID、問題番号、タイトル、講義回、難易度、`profileId`、`publishedAt`、`items`、`guide` の有無、検査結果などが見えます。
 
 ### Q. `publishedAt` を使えば、特定日時まで完全に非公開にできますか？
 

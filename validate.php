@@ -132,7 +132,7 @@ $items = $report['items'];
               <th class="validate-cell-center">difficulty</th>
               <th>profileId</th>
               <th>publishedAt</th>
-              <th>examples</th>
+              <th>items</th>
               <th class="validate-cell-center">guide</th>
               <th class="validate-cell-center">status</th>
               <th>details</th>
@@ -155,7 +155,7 @@ $items = $report['items'];
                 <td class="validate-cell-center"><code><?= h((string) $item['difficulty']) ?></code></td>
                 <td><code><?= h((string) $item['profileId']) ?></code></td>
                 <td><?= render_validate_published_at((string) $item['publishedAt']) ?></td>
-                <td><code><?= h((string) $item['examples']) ?></code></td>
+                <td><code><?= h((string) $item['items']) ?></code></td>
                 <td class="validate-guide-cell validate-cell-center">
                   <?php if (($item['guide'] ?? '') !== ''): ?>
                     <span class="validate-guide-badge" data-tooltip="Guide available" aria-label="Guide available"></span>
