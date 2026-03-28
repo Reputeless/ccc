@@ -202,10 +202,19 @@ final class CccMarkdownRenderer
         $codePlaceholders = [];
 
         $escaped = preg_replace_callback(
-            '/`([^`]+)`/',
+            '/(`+)(.+?)\1/',
             function (array $matches) use (&$codePlaceholders): string {
                 $placeholder = '@@CCCCODE' . count($codePlaceholders) . '@@';
-                $codePlaceholders[$placeholder] = '<code>' . $matches[1] . '</code>';
+                $codeText = $matches[2];
+
+                // When using multiple backticks to show code that itself contains
+                // backticks, Markdown commonly allows a single padding space on
+                // both sides: `` `code` `` -> <code>`code`</code>.
+                if (strlen($codeText) >= 2 && $codeText[0] === ' ' && substr($codeText, -1) === ' ' && trim($codeText) !== '') {
+                    $codeText = substr($codeText, 1, -1);
+                }
+
+                $codePlaceholders[$placeholder] = '<code>' . $codeText . '</code>';
                 return $placeholder;
             },
             $escaped
