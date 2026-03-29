@@ -53,10 +53,12 @@ function ccc_load_problem_detail(string $problemId, ?array $config = null): ?arr
         ];
     }
 
+    $profile = ccc_resolve_optional_problem_language_profile($manifest, $config);
+
     return [
         ...$detail,
-        'profileId' => null,
-        'languageProfile' => null,
+        'profileId' => $profile['id'] ?? null,
+        'languageProfile' => $profile !== null ? ccc_build_language_profile_summary($profile) : null,
         'examples' => [],
         'textItems' => ccc_load_problem_text_items($manifest),
     ];
@@ -87,10 +89,12 @@ function ccc_load_problem_for_judge(string $problemId, ?array $config = null): ?
         ];
     }
 
+    $profile = ccc_resolve_optional_problem_language_profile($manifest, $config);
+
     return [
         ...$problem,
-        'profileId' => null,
-        'languageProfile' => null,
+        'profileId' => $profile['id'] ?? null,
+        'languageProfile' => $profile,
         'examples' => [],
         'textItems' => ccc_load_problem_text_items($manifest),
     ];
@@ -211,6 +215,16 @@ function ccc_load_problem_manifest(string $problemId): ?array
 function ccc_resolve_problem_language_profile(array $manifest, array $config): array
 {
     return ccc_resolve_language_profile($config, $manifest['profileId'] ?? null);
+}
+
+function ccc_resolve_optional_problem_language_profile(array $manifest, array $config): ?array
+{
+    $profileId = $manifest['profileId'] ?? null;
+    if ($profileId === null || trim((string) $profileId) === '') {
+        return null;
+    }
+
+    return ccc_resolve_language_profile($config, $profileId);
 }
 
 function ccc_problem_is_published(array $manifest): bool

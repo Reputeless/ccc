@@ -112,7 +112,7 @@ function ccc_validate_problem_manifest_fields(array &$row, array $decoded, array
         }
     }
 
-    if ($row['type'] === 'code' && $row['profileId'] !== '') {
+    if ($row['profileId'] !== '') {
         $profileId = trim($row['profileId']);
         if (preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]*$/', $profileId) !== 1) {
             $row['errors'][] = '`profileId` has an invalid format.';
