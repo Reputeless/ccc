@@ -8,7 +8,27 @@ function ccc_load_app_config(): array
         return $loaded;
     }
 
-    $defaults = [
+    $defaults = ccc_default_app_config();
+
+    $path = CCC_CONFIG_DIR . DIRECTORY_SEPARATOR . 'app.json';
+    if (!is_file($path)) {
+        $loaded = ccc_normalize_app_config($defaults);
+        return $loaded;
+    }
+
+    $raw = file_get_contents($path);
+    $decoded = json_decode($raw ?: '', true);
+    if (!is_array($decoded)) {
+        throw new RuntimeException('config/app.json is not valid JSON.');
+    }
+
+    $loaded = ccc_normalize_app_config(ccc_array_merge_recursive_distinct($defaults, $decoded));
+    return $loaded;
+}
+
+function ccc_default_app_config(): array
+{
+    return [
         'appName' => 'CCC',
         'appSubtitle' => 'プログラミングの自習と理解度確認のための演習環境です。',
         'courseId' => 'ccc-demo',
@@ -29,21 +49,6 @@ function ccc_load_app_config(): array
         'defaultProfileId' => ccc_default_profile_id(),
         'languageProfiles' => ccc_built_in_language_profiles(),
     ];
-
-    $path = CCC_CONFIG_DIR . DIRECTORY_SEPARATOR . 'app.json';
-    if (!is_file($path)) {
-        $loaded = ccc_normalize_app_config($defaults);
-        return $loaded;
-    }
-
-    $raw = file_get_contents($path);
-    $decoded = json_decode($raw ?: '', true);
-    if (!is_array($decoded)) {
-        throw new RuntimeException('config/app.json is not valid JSON.');
-    }
-
-    $loaded = ccc_normalize_app_config(ccc_array_merge_recursive_distinct($defaults, $decoded));
-    return $loaded;
 }
 
 function ccc_normalize_app_config(array $config): array
