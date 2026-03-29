@@ -1,6 +1,8 @@
 const {
   DEFAULT_CONFIG,
   fetchConfig,
+  getConfigText,
+  getUiText,
   populateLabelSelect,
   populateOrderedLabelSelect,
   applyListQuickFilter,
@@ -30,7 +32,7 @@ let understandingControls = null;
 const UNDERSTANDING_SELECT_ORDER = ["3", "2", "1"];
 
 function uiText(key) {
-  return appConfig.uiText?.[key] ?? DEFAULT_CONFIG.uiText[key] ?? "";
+  return getUiText(appConfig, key);
 }
 
 function formatUiText(key, replacements = {}) {
@@ -120,7 +122,7 @@ async function fetchProblem(problemId) {
 }
 
 function renderProblem() {
-  document.title = `${currentProblem.title} | ${appConfig.appName}`;
+  document.title = `${currentProblem.title} | ${getConfigText(appConfig, "appName", DEFAULT_CONFIG.appName)}`;
   document.getElementById("problem-view").hidden = false;
   document.getElementById("problem-title").textContent = currentProblem.title;
   renderProblemMeta(currentProblem);
@@ -132,9 +134,8 @@ function renderProblem() {
 }
 
 function renderStaticUiText() {
-  const uiText = appConfig.uiText ?? DEFAULT_CONFIG.uiText;
-  const backText = uiText.backToList ?? DEFAULT_CONFIG.uiText.backToList;
-  const guideTitle = uiText.guidePanelTitle ?? DEFAULT_CONFIG.uiText.guidePanelTitle;
+  const backText = uiText("backToList");
+  const guideTitle = uiText("guidePanelTitle");
 
   const headerBack = document.getElementById("problem-back-link-text");
   if (headerBack) {
@@ -153,21 +154,21 @@ function renderStaticUiText() {
 
   const errorTitle = document.getElementById("problem-error-title");
   if (errorTitle) {
-    errorTitle.textContent = uiText.problemErrorTitle ?? DEFAULT_CONFIG.uiText.problemErrorTitle;
+    errorTitle.textContent = uiText("problemErrorTitle");
   }
 
   const solvedToggleLabel = document.getElementById("solved-toggle-label");
   if (solvedToggleLabel) {
-    const label = uiText.solvedToggleLabel ?? DEFAULT_CONFIG.uiText.solvedToggleLabel;
+    const label = uiText("solvedToggleLabel");
     window.CCCTooltip?.setTooltip(solvedToggleLabel, label);
   }
 
   const solvedToggle = document.getElementById("solved-toggle");
   if (solvedToggle) {
-    solvedToggle.setAttribute("aria-label", uiText.solvedToggleLabel ?? DEFAULT_CONFIG.uiText.solvedToggleLabel);
+    solvedToggle.setAttribute("aria-label", uiText("solvedToggleLabel"));
   }
 
-  const understandingLabel = uiText.understandingSelectLabel ?? DEFAULT_CONFIG.uiText.understandingSelectLabel;
+  const understandingLabel = uiText("understandingSelectLabel");
   const understandingSelectLabel = document.getElementById("understanding-select-label");
   if (understandingSelectLabel) {
     understandingSelectLabel.textContent = understandingLabel;
@@ -185,42 +186,42 @@ function renderStaticUiText() {
 
   const examplesTitle = document.getElementById("examples-section-title");
   if (examplesTitle) {
-    examplesTitle.textContent = uiText.examplesSectionTitle ?? DEFAULT_CONFIG.uiText.examplesSectionTitle;
+    examplesTitle.textContent = uiText("examplesSectionTitle");
   }
 
   const codeEditorTitle = document.getElementById("code-editor-title");
   if (codeEditorTitle) {
-    codeEditorTitle.textContent = uiText.codeEditorTitle ?? DEFAULT_CONFIG.uiText.codeEditorTitle;
+    codeEditorTitle.textContent = uiText("codeEditorTitle");
   }
 
   const judgeButton = document.getElementById("judge-button");
   if (judgeButton) {
-    judgeButton.textContent = uiText.judgeButtonLabel ?? DEFAULT_CONFIG.uiText.judgeButtonLabel;
+    judgeButton.textContent = uiText("judgeButtonLabel");
   }
 
   const resultPanelTitle = document.getElementById("result-panel-title");
   if (resultPanelTitle) {
-    resultPanelTitle.textContent = uiText.resultPanelTitle ?? DEFAULT_CONFIG.uiText.resultPanelTitle;
+    resultPanelTitle.textContent = uiText("resultPanelTitle");
   }
 
   const judgeLoadingLabel = document.getElementById("judge-loading-label");
   if (judgeLoadingLabel) {
-    judgeLoadingLabel.textContent = uiText.judgeLoadingLabel ?? DEFAULT_CONFIG.uiText.judgeLoadingLabel;
+    judgeLoadingLabel.textContent = uiText("judgeLoadingLabel");
   }
 
   const understandingPromptTitle = document.getElementById("understanding-prompt-title");
   if (understandingPromptTitle) {
-    understandingPromptTitle.textContent = uiText.understandingPromptTitle ?? DEFAULT_CONFIG.uiText.understandingPromptTitle;
+    understandingPromptTitle.textContent = uiText("understandingPromptTitle");
   }
 
   const understandingPromptLead = document.getElementById("understanding-prompt-lead");
   if (understandingPromptLead) {
-    understandingPromptLead.textContent = uiText.understandingPromptLead ?? DEFAULT_CONFIG.uiText.understandingPromptLead;
+    understandingPromptLead.textContent = uiText("understandingPromptLead");
   }
 
   const idleMessage = document.querySelector("#result-message .result-status-text");
   if (idleMessage) {
-    idleMessage.textContent = uiText.resultIdle ?? DEFAULT_CONFIG.uiText.resultIdle;
+    idleMessage.textContent = uiText("resultIdle");
   }
 }
 
@@ -242,14 +243,14 @@ function highlightProblemBodyCode() {
 function renderGuide() {
   const container = document.getElementById("guide-container");
   const guideHtml = typeof currentProblem.guideHtml === "string" ? currentProblem.guideHtml.trim() : "";
-  const guideTitle = escapeHtml(appConfig.uiText?.guidePanelTitle ?? DEFAULT_CONFIG.uiText.guidePanelTitle);
+  const guideTitle = escapeHtml(uiText("guidePanelTitle"));
 
   if (guideHtml === "") {
     container.innerHTML = `
       <div class="guide-heading-static">
         <h2>${guideTitle}</h2>
       </div>
-      <p class="guide-empty-text">${escapeHtml(appConfig.uiText?.guideEmptyMessage ?? DEFAULT_CONFIG.uiText.guideEmptyMessage)}</p>
+      <p class="guide-empty-text">${escapeHtml(uiText("guideEmptyMessage"))}</p>
     `;
     return;
   }
@@ -871,7 +872,7 @@ function syncResultUnderstandingPrompt(value) {
 }
 
 function showProblemError(message) {
-  document.title = `${uiText("problemUnavailableTitle")} | ${appConfig.appName}`;
+  document.title = `${uiText("problemUnavailableTitle")} | ${getConfigText(appConfig, "appName", DEFAULT_CONFIG.appName)}`;
   document.getElementById("problem-view").hidden = true;
   document.getElementById("problem-error").hidden = false;
   document.getElementById("problem-error-message").textContent = message;

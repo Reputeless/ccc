@@ -6,6 +6,8 @@ const {
   DEFAULT_CONFIG,
   FILTER_STORAGE_KEY,
   fetchConfig,
+  getConfigText,
+  getUiText,
   populateLabelSelect,
   populateOrderedLabelSelect,
   normalizeSortOrder,
@@ -38,7 +40,7 @@ let sidebarStickyFrame = 0;
 const UNDERSTANDING_SELECT_ORDER = ["3", "2", "1"];
 
 function uiText(key) {
-  return appConfig.uiText?.[key] ?? DEFAULT_CONFIG.uiText[key] ?? "";
+  return getUiText(appConfig, key);
 }
 
 function formatUiText(key, replacements = {}) {
@@ -62,8 +64,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     showListMessage(uiText("configLoadWarning"), "warning");
   }
 
-  document.getElementById("app-name").textContent = appConfig.appName;
-  document.getElementById("app-subtitle").textContent = appConfig.appSubtitle;
+  document.getElementById("app-name").textContent = getConfigText(appConfig, "appName", DEFAULT_CONFIG.appName);
+  document.getElementById("app-subtitle").textContent = getConfigText(appConfig, "appSubtitle");
   renderGlobalFooter(appConfig);
   renderStaticUiText();
   setupStaticControls();
@@ -401,7 +403,7 @@ function renderRecordPanel() {
 
 function exportLearningRecord() {
   const payload = {
-    app: appConfig.appName,
+    app: getConfigText(appConfig, "appName", DEFAULT_CONFIG.appName),
     kind: "learning-record",
     version: 1,
     courseId: appConfig.courseId,
