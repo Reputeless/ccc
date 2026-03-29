@@ -64,7 +64,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     showListMessage(uiText("configLoadWarning"), "warning");
   }
 
-  document.getElementById("app-name").textContent = getConfigText(appConfig, "appName", DEFAULT_CONFIG.appName);
+  const appName = getConfigText(appConfig, "appName", DEFAULT_CONFIG.appName);
+  document.title = appName;
+  document.getElementById("app-name").textContent = appName;
   document.getElementById("app-subtitle").textContent = getConfigText(appConfig, "appSubtitle");
   renderGlobalFooter(appConfig);
   renderStaticUiText();
