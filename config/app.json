@@ -134,8 +134,7 @@
     "copyCodeLabel": "コードをコピー",
     "copiedCodeLabel": "コピーしました",
     "codeTooLongMessage": "コードが長すぎます。{maxBytes} バイト以内にしてください。",
-    "resultPreviewNote": "表示が長いため、先頭 {lines} 行・{chars} 文字までを表示しています。"
-    ,
+    "resultPreviewNote": "表示が長いため、先頭 {lines} 行・{chars} 文字までを表示しています。",
     "languageProfileMetaTemplate": "言語: {value}"
   },
   "tabWidth": 4,
