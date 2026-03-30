@@ -94,7 +94,7 @@ try {
           <h1><?= h((string) ($config['uiText']['teacherGuideTitle'] ?? '教師用ガイド')) ?></h1>
         </div>
         <div>
-          <a class="secondary-button" href="./"><?= h((string) ($config['uiText']['backToList'] ?? '← 問題一覧へ戻る')) ?></a>
+          <a class="secondary-button" href="./?resetScroll=1"><?= h((string) ($config['uiText']['backToList'] ?? '← 問題一覧へ戻る')) ?></a>
         </div>
       </div>
       <article class="panel content-panel">

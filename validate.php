@@ -101,7 +101,7 @@ $items = $report['items'];
           <h1><?= h((string) ($config['uiText']['validationLink'] ?? '問題ステータス')) ?></h1>
         </div>
         <div>
-          <a class="secondary-button validate-back-link" href="./"><?= h((string) ($config['uiText']['backToList'] ?? '← 問題一覧へ戻る')) ?></a>
+          <a class="secondary-button validate-back-link" href="./?resetScroll=1"><?= h((string) ($config['uiText']['backToList'] ?? '← 問題一覧へ戻る')) ?></a>
         </div>
       </div>
 

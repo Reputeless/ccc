@@ -50,6 +50,7 @@ function formatUiText(key, replacements = {}) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  consumeResetScrollRequest();
   window.addEventListener("pagehide", saveScrollPosition);
   window.addEventListener("resize", scheduleSidebarStickyUpdate);
   document.getElementById("reset-filters").addEventListener("click", resetFilters);
@@ -913,6 +914,18 @@ function restoreScrollPosition() {
   if (!Number.isNaN(value)) {
     window.scrollTo(0, value);
   }
+}
+
+function consumeResetScrollRequest() {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("resetScroll") !== "1") {
+    return;
+  }
+
+  sessionStorage.removeItem(LIST_SCROLL_KEY);
+  url.searchParams.delete("resetScroll");
+  const nextUrl = `${url.pathname}${url.search}${url.hash}`;
+  window.history.replaceState({}, "", nextUrl);
 }
 
 function scrollListPanelIntoView() {
