@@ -20,6 +20,7 @@
   const FILTER_STORAGE_KEY = "ccc:v1:listFilters";
   const LAST_OPENED_PROBLEM_KEY = "ccc:v1:lastOpenedProblem";
   const THEME_STORAGE_KEY = "ccc:v1:theme";
+  const VISUAL_EFFECTS_STORAGE_KEY = "ccc:v1:visualEffects";
   let themeMediaQuery = null;
   let themeMediaQueryListenerBound = false;
 
@@ -151,6 +152,27 @@
       }
     });
     themeMediaQueryListenerBound = true;
+  }
+
+  function normalizeVisualEffectsPreference(value) {
+    return value === "standard" || value === "reduced" ? value : "standard";
+  }
+
+  function getVisualEffectsPreference() {
+    return normalizeVisualEffectsPreference(localStorage.getItem(VISUAL_EFFECTS_STORAGE_KEY) ?? "standard");
+  }
+
+  function setVisualEffectsPreference(value) {
+    localStorage.setItem(VISUAL_EFFECTS_STORAGE_KEY, normalizeVisualEffectsPreference(value));
+  }
+
+  function applyVisualEffectsPreference(value = getVisualEffectsPreference()) {
+    const preference = normalizeVisualEffectsPreference(value);
+    document.documentElement.dataset.visualEffects = preference;
+  }
+
+  function visualEffectsReduced(value = getVisualEffectsPreference()) {
+    return normalizeVisualEffectsPreference(value) === "reduced";
   }
 
   function getLastOpenedProblemId() {
@@ -350,6 +372,7 @@
     FILTER_STORAGE_KEY,
     LAST_OPENED_PROBLEM_KEY,
     THEME_STORAGE_KEY,
+    VISUAL_EFFECTS_STORAGE_KEY,
     fetchConfig,
     populateLabelSelect,
     populateOrderedLabelSelect,
@@ -360,6 +383,10 @@
     setThemePreference,
     applyThemePreference,
     bindThemePreferenceListener,
+    getVisualEffectsPreference,
+    setVisualEffectsPreference,
+    applyVisualEffectsPreference,
+    visualEffectsReduced,
     getLastOpenedProblemId,
     setLastOpenedProblemId,
     applyListQuickFilter,

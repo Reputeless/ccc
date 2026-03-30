@@ -8,6 +8,8 @@ const {
   applyListQuickFilter,
   applyThemePreference,
   bindThemePreferenceListener,
+  applyVisualEffectsPreference,
+  visualEffectsReduced,
   getDifficultyLabel,
   formatLectureLabel,
   getLectureHue,
@@ -74,6 +76,7 @@ function getTextItems() {
 document.addEventListener("DOMContentLoaded", async () => {
   applyThemePreference();
   bindThemePreferenceListener();
+  applyVisualEffectsPreference();
   const errorMessages = getErrorMessages();
 
   const problemId = new URLSearchParams(window.location.search).get("id");
@@ -822,6 +825,11 @@ function renderResultBanner(message, kind, icon) {
     <span class="result-status-text">${escapeHtml(message)}</span>
   `;
   banner.className = `status-banner result-status-banner ${icon ? "has-icon" : "no-icon"} ${kind === "error" ? "error-banner" : kind === "warning" ? "warning-banner" : kind === "muted" ? "muted-banner" : kind === "success" ? "success-banner" : ""}`.trim();
+  if (kind === "success" && !visualEffectsReduced()) {
+    banner.classList.remove("result-status-banner-celebrate");
+    void banner.offsetWidth;
+    banner.classList.add("result-status-banner-celebrate");
+  }
 }
 
 function renderResultDetails(items) {
@@ -856,7 +864,7 @@ function updateProblemUnderstandingUI(value, animate = false) {
   understandingControls.select.value = value;
   understandingControls.marker.className = `understanding-marker ${getUnderstandingMarkerClass(value)}`;
 
-  if (!animate) {
+  if (!animate || visualEffectsReduced()) {
     return;
   }
 

@@ -16,6 +16,10 @@ const {
   setThemePreference,
   applyThemePreference,
   bindThemePreferenceListener,
+  getVisualEffectsPreference,
+  setVisualEffectsPreference,
+  applyVisualEffectsPreference,
+  visualEffectsReduced,
   getLastOpenedProblemId,
   getDifficultyLabel,
   formatLectureLabel,
@@ -58,6 +62,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("hero-card").addEventListener("click", handleHeroCardClick);
   applyThemePreference();
   bindThemePreferenceListener();
+  applyVisualEffectsPreference();
 
   try {
     appConfig = await fetchConfig();
@@ -146,6 +151,7 @@ function renderStaticUiText() {
     "appearance-kicker": "appearanceKicker",
     "appearance-panel-heading": "appearanceTitle",
     "theme-summary": "themeSummary",
+    "visual-effects-summary": "visualEffectsSummary",
     "problem-list-kicker": "problemListKicker",
     "problems-heading": "problemListTitle",
   };
@@ -171,19 +177,36 @@ function renderStaticUiText() {
   if (themeSystemOption) {
     themeSystemOption.textContent = uiText("themeSystem");
   }
+
+  const visualEffectsStandardOption = document.getElementById("visual-effects-standard-option");
+  if (visualEffectsStandardOption) {
+    visualEffectsStandardOption.textContent = uiText("visualEffectsStandard");
+  }
+
+  const visualEffectsReducedOption = document.getElementById("visual-effects-reduced-option");
+  if (visualEffectsReducedOption) {
+    visualEffectsReducedOption.textContent = uiText("visualEffectsReduced");
+  }
 }
 
 function setupAppearanceControls() {
-  const select = document.getElementById("theme-preference");
-  if (!select) {
-    return;
+  const themeSelect = document.getElementById("theme-preference");
+  if (themeSelect) {
+    themeSelect.value = getThemePreference();
+    themeSelect.addEventListener("change", () => {
+      setThemePreference(themeSelect.value);
+      applyThemePreference(themeSelect.value);
+    });
   }
 
-  select.value = getThemePreference();
-  select.addEventListener("change", () => {
-    setThemePreference(select.value);
-    applyThemePreference(select.value);
-  });
+  const visualEffectsSelect = document.getElementById("visual-effects-preference");
+  if (visualEffectsSelect) {
+    visualEffectsSelect.value = getVisualEffectsPreference();
+    visualEffectsSelect.addEventListener("change", () => {
+      setVisualEffectsPreference(visualEffectsSelect.value);
+      applyVisualEffectsPreference(visualEffectsSelect.value);
+    });
+  }
 }
 
 function setupRecordTransferControls() {
@@ -651,14 +674,16 @@ function bindProblemCardInteractions(article, problem, understandingValue) {
 
   const solvedCheckbox = article.querySelector(".solved-checkbox");
   solvedCheckbox.addEventListener("change", () => {
-    animatedSolvedProblemId = problem.id;
+    animatedSolvedProblemId = visualEffectsReduced() ? null : problem.id;
     setManualSolved(problem.id, solvedCheckbox.checked);
     renderProblemList();
-    window.setTimeout(() => {
-      if (animatedSolvedProblemId === problem.id) {
-        animatedSolvedProblemId = null;
-      }
-    }, 400);
+    if (animatedSolvedProblemId === problem.id) {
+      window.setTimeout(() => {
+        if (animatedSolvedProblemId === problem.id) {
+          animatedSolvedProblemId = null;
+        }
+      }, 400);
+    }
   });
 
   const select = article.querySelector(".understanding-select");
@@ -666,15 +691,17 @@ function bindProblemCardInteractions(article, problem, understandingValue) {
   populateOrderedLabelSelect(select, appConfig.understandingLabels, UNDERSTANDING_SELECT_ORDER, { emptyLabel: "" });
   select.value = understandingValue;
   select.addEventListener("change", () => {
-    animatedUnderstandingProblemId = problem.id;
+    animatedUnderstandingProblemId = visualEffectsReduced() ? null : problem.id;
     marker.className = `understanding-marker ${getUnderstandingMarkerClass(select.value)}`;
     setUnderstanding(problem.id, select.value);
     renderProblemList();
-    window.setTimeout(() => {
-      if (animatedUnderstandingProblemId === problem.id) {
-        animatedUnderstandingProblemId = null;
-      }
-    }, 520);
+    if (animatedUnderstandingProblemId === problem.id) {
+      window.setTimeout(() => {
+        if (animatedUnderstandingProblemId === problem.id) {
+          animatedUnderstandingProblemId = null;
+        }
+      }, 520);
+    }
   });
 }
 

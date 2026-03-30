@@ -756,6 +756,13 @@ html[data-theme="dark"] .difficulty-3 {
   border-color: var(--understanding-select-active-border);
   background: var(--understanding-select-active-bg);
 }
+html[data-visual-effects="reduced"] .success-banner.result-status-banner-celebrate,
+html[data-visual-effects="reduced"] .success-banner.result-status-banner-celebrate .result-status-icon,
+html[data-visual-effects="reduced"] .solved-toggle-animate .solved-toggle-input:checked + .solved-toggle-icon svg,
+html[data-visual-effects="reduced"] .understanding-select-wrap-animate,
+html[data-visual-effects="reduced"] .understanding-select-wrap-animate .understanding-marker {
+  animation: none;
+}
 .understanding-marker {
   width: 14px;
   height: 14px;
@@ -827,6 +834,12 @@ html[data-theme="dark"] .difficulty-3 {
 .success-banner { background: var(--status-success-bg); }
 .warning-banner { background: var(--status-warning-bg); }
 .error-banner { background: var(--status-error-bg); }
+.success-banner.result-status-banner-celebrate {
+  animation: accepted-banner-glow 0.95s ease-out;
+}
+.success-banner.result-status-banner-celebrate .result-status-icon {
+  animation: accepted-icon-pop 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .understanding-choice {
   display: inline-flex;
   align-items: center;
@@ -870,6 +883,26 @@ html[data-theme="dark"] .difficulty-3 {
 .back-link, .primary-link { font-weight: 600; text-decoration: none; }
 .error-panel { text-align: center; }
 @keyframes spin { to { transform: rotate(360deg); } }
+@keyframes accepted-banner-glow {
+  0% {
+    box-shadow: 0 0 0 rgba(29, 166, 114, 0);
+    filter: saturate(1);
+  }
+  24% {
+    box-shadow: 0 0 0 5px rgba(29, 166, 114, 0.14);
+    filter: saturate(1.08);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(29, 166, 114, 0);
+    filter: saturate(1);
+  }
+}
+@keyframes accepted-icon-pop {
+  0% { transform: scale(0.76); }
+  48% { transform: scale(1.18); }
+  74% { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
 @keyframes solved-pop {
   0% { transform: scale(0.92); }
   55% { transform: scale(1.08); }
@@ -984,4 +1017,10 @@ html[data-theme="dark"] .difficulty-3 {
   }
 }
 @media (max-width: 360px) {
+}
+@media (prefers-reduced-motion: reduce) {
+  .success-banner.result-status-banner-celebrate,
+  .success-banner.result-status-banner-celebrate .result-status-icon {
+    animation: none;
+  }
 }
