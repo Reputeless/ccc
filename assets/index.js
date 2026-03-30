@@ -173,6 +173,11 @@ function renderStaticUiText() {
     themeDarkOption.textContent = uiText("themeDark");
   }
 
+  const themeFrostOption = document.getElementById("theme-frost-option");
+  if (themeFrostOption) {
+    themeFrostOption.textContent = uiText("themeFrost");
+  }
+
   const themeSystemOption = document.getElementById("theme-system-option");
   if (themeSystemOption) {
     themeSystemOption.textContent = uiText("themeSystem");

@@ -163,6 +163,7 @@ function ccc_default_ui_text(): array
         'themeSummary' => 'テーマ',
         'themeLight' => 'ライト',
         'themeDark' => 'ダーク',
+        'themeFrost' => 'フロスト',
         'themeSystem' => 'システム設定に合わせる',
         'visualEffectsSummary' => '視覚効果',
         'visualEffectsStandard' => '標準',

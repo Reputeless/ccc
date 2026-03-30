@@ -111,7 +111,7 @@
   }
 
   function normalizeThemePreference(value) {
-    return value === "light" || value === "dark" || value === "system" ? value : "light";
+    return value === "light" || value === "dark" || value === "frost" || value === "system" ? value : "light";
   }
 
   function getThemePreference() {
@@ -124,7 +124,7 @@
 
   function resolveThemePreference(value) {
     const preference = normalizeThemePreference(value);
-    if (preference === "light" || preference === "dark") {
+    if (preference === "light" || preference === "dark" || preference === "frost") {
       return preference;
     }
 
