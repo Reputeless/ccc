@@ -289,7 +289,7 @@ function resetFilters() {
 
 function resetFiltersAndScrollToTop() {
   resetFilters();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  window.scrollTo(0, 0);
 }
 
 function handleHeroResetClick(event) {
@@ -962,10 +962,7 @@ function scrollListPanelIntoView() {
   }
 
   const top = Math.max(0, panel.getBoundingClientRect().top + window.scrollY - 12);
-  window.scrollTo({
-    top,
-    behavior: "smooth",
-  });
+  window.scrollTo(0, top);
 }
 
 function showListMessage(message, kind, hidden = false) {
