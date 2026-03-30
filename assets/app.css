@@ -279,11 +279,11 @@ body {
 a { color: var(--accent); }
 button, input, select, textarea { font: inherit; }
 .page-shell { min-height: 100vh; }
-.site-header { padding: 28px 20px 10px; }
-.site-header-inner { width: min(1360px, calc(100% - 24px)); margin: 0 auto; }
-.site-footer { padding: 0 20px 32px; }
+.site-header { padding: 28px 0 10px; }
+.site-header-inner { width: min(1360px, calc(100% - 40px)); margin: 0 auto; }
+.site-footer { padding: 0 0 32px; }
 .site-footer-inner {
-  width: min(1360px, calc(100% - 24px));
+  width: min(1360px, calc(100% - 40px));
   margin: 0 auto;
   padding-top: 10px;
   border-top: 1px solid var(--footer-line);
@@ -341,7 +341,7 @@ button, input, select, textarea { font: inherit; }
   visibility: hidden;
 }
 .compact-header { padding-bottom: 0; }
-.content-stack { width: min(1360px, calc(100% - 24px)); margin: 0 auto; padding: 14px 0 56px; }
+.content-stack { width: min(1360px, calc(100% - 40px)); margin: 0 auto; padding: 14px 0 56px; }
 .compact-header + .content-stack { padding-top: 4px; }
 .eyebrow { margin: 0 0 8px; color: var(--muted); font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; }
 .section-kicker { margin: 0 0 6px; color: var(--accent); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
