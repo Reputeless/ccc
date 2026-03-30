@@ -276,15 +276,18 @@ php tools/create.php sample-001
 CLI は、コマンドを入力して使う方法です。  
 ローカルで CLI を使える場合は、次のコマンドで問題データを検査できます。
 
+- 全問題を検査する場合:
+
 ```sh
 php tools/validate.php
+```
+
+- 1 問だけ検査する場合:
+
+```sh
 php tools/validate.php sample-001
 ```
 
-- 引数なし:
-  - 全問題を検査します
-- `<problem-id>` 付き:
-  - その問題だけを検査します
 - `Error` が 1 件でもあると終了コード `1` を返します
 - `Warning` だけなら終了コードは `0` です
 
