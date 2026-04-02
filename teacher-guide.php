@@ -77,7 +77,7 @@ try {
   <script src="assets/prism-init.js<?= h($assetVersionQuery) ?>"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/app.css<?= h($assetVersionQuery) ?>">
   <link rel="stylesheet" href="assets/problem-page.css<?= h($assetVersionQuery) ?>">
   <script defer src="assets/vendor/prism/prism-core.min.js<?= h($assetVersionQuery) ?>"></script>
