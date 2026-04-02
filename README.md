@@ -29,7 +29,7 @@
 
 - [index.html](./index.html)
   - 問題一覧ページ
-- [problem.html](./problem.html)
+- [problem.php](./problem.php)
   - 個別問題ページ
 - [validate.php](./validate.php)
   - 問題ステータスページ
@@ -41,7 +41,7 @@
 ```text
 /
   index.html
-  problem.html
+  problem.php
   validate.php
   teacher-guide.php
   robots.txt

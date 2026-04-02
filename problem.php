@@ -1,32 +1,76 @@
-<!DOCTYPE html>
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/api/bootstrap.php';
+
+function h(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+}
+
+function ccc_read_version_string(string $path): string
+{
+    if (!is_file($path)) {
+        return '';
+    }
+
+    $decoded = json_decode((string) file_get_contents($path), true);
+    if (!is_array($decoded)) {
+        return '';
+    }
+
+    return trim((string) ($decoded['version'] ?? ''));
+}
+
+try {
+    $config = ccc_load_app_config();
+    $version = ccc_read_version_string(__DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'version.json');
+    $assetVersionQuery = $version !== '' ? '?v=' . rawurlencode($version) : '';
+} catch (Throwable $throwable) {
+    http_response_code(500);
+    ?><!doctype html>
+    <html lang="ja">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>問題ページ</title>
+    </head>
+    <body>
+      <h1>問題ページの読み込みに失敗しました。</h1>
+      <pre><?= h($throwable->getMessage()) ?></pre>
+    </body>
+    </html><?php
+    exit;
+}
+?><!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#0d2e3a">
-  <title>CCC</title>
-  <link rel="icon" href="favicon.ico?v=0.9.3" sizes="any">
-  <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg?v=0.9.3">
-  <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png?v=0.9.3">
-  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png?v=0.9.3">
-  <link rel="manifest" href="favicon/site.webmanifest?v=0.9.3">
-  <script src="assets/theme-init.js?v=0.9.3"></script>
-  <script src="assets/prism-init.js?v=0.9.3"></script>
+  <title><?= h($config['appName']) ?></title>
+  <link rel="icon" href="favicon.ico<?= h($assetVersionQuery) ?>" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg<?= h($assetVersionQuery) ?>">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png<?= h($assetVersionQuery) ?>">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png<?= h($assetVersionQuery) ?>">
+  <link rel="manifest" href="favicon/site.webmanifest<?= h($assetVersionQuery) ?>">
+  <script src="assets/theme-init.js<?= h($assetVersionQuery) ?>"></script>
+  <script src="assets/prism-init.js<?= h($assetVersionQuery) ?>"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/app.css?v=0.9.3">
-  <link rel="stylesheet" href="assets/problem-page.css?v=0.9.3">
-  <script defer src="assets/tooltip.js?v=0.9.3"></script>
-  <script defer src="assets/vendor/prism/prism-core.min.js?v=0.9.3"></script>
-  <script defer src="assets/vendor/prism/prism-clike.min.js?v=0.9.3"></script>
-  <script defer src="assets/vendor/prism/prism-c.min.js?v=0.9.3"></script>
-  <script defer src="assets/vendor/prism/prism-cpp.min.js?v=0.9.3"></script>
-  <script defer src="assets/vendor/prism/prism-python.min.js?v=0.9.3"></script>
-  <script defer src="assets/common.js?v=0.9.3"></script>
-  <script defer src="assets/code-editor.js?v=0.9.3"></script>
-  <script defer src="assets/problem.js?v=0.9.3"></script>
+  <link rel="stylesheet" href="assets/app.css<?= h($assetVersionQuery) ?>">
+  <link rel="stylesheet" href="assets/problem-page.css<?= h($assetVersionQuery) ?>">
+  <script defer src="assets/tooltip.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-core.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-clike.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-c.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-cpp.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-python.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/common.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/code-editor.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/problem.js<?= h($assetVersionQuery) ?>"></script>
 </head>
 <body class="page-shell">
   <header class="site-header compact-header">

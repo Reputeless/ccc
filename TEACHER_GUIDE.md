@@ -85,7 +85,7 @@ http://localhost:8000/
 | `problems/` | `705` | 配下の `problem.json`, `body.md`, `guide.md`, `.in.txt`, `.out.txt` は `604` |
 | `favicon.ico` | `604` | ブラウザ用アイコン |
 | `index.html` | `604` | 公開ページ |
-| `problem.html` | `604` | 公開ページ |
+| `problem.php` | `604` | 公開ページ |
 | `robots.txt` | `604` | 公開用 |
 | `TEACHER_GUIDE.md` | `604` | `teacher-guide.php` が読み込んで表示します |
 | `teacher-guide.php` | `604` | 公開ページ |

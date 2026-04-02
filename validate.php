@@ -162,7 +162,7 @@ $items = $report['items'];
                 <td><code><?= h((string) $item['number']) ?></code></td>
                 <td class="validate-title-cell">
                   <?php if (($item['id'] ?? '') !== ''): ?>
-                    <a class="validate-problem-link" href="problem.html?id=<?= rawurlencode((string) $item['id']) ?>"><?= h((string) $item['title']) ?></a>
+                    <a class="validate-problem-link" href="problem.php?id=<?= rawurlencode((string) $item['id']) ?>"><?= h((string) $item['title']) ?></a>
                   <?php else: ?>
                     <?= h((string) $item['title']) ?>
                   <?php endif; ?>

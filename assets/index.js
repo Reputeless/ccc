@@ -361,7 +361,7 @@ function renderProblemCard(problem) {
 
   article.innerHTML = `
     <div class="problem-main">
-      <a class="problem-main-link" href="problem.html?id=${encodeURIComponent(problem.id)}">
+      <a class="problem-main-link" href="problem.php?id=${encodeURIComponent(problem.id)}">
         <span class="problem-number-slot">${numberSlot}</span>
         <span class="problem-title-text">${escapeHtml(problem.title)}</span>
       </a>
@@ -424,7 +424,7 @@ function renderRecordPanel() {
 
   const number = `<span class="record-problem-number">${problem.number ? escapeHtml(problem.number) : ""}</span>`;
   container.innerHTML = `
-    <a class="record-problem-link" href="problem.html?id=${encodeURIComponent(problem.id)}">
+    <a class="record-problem-link" href="problem.php?id=${encodeURIComponent(problem.id)}">
       ${number}
       <span class="record-problem-title">${escapeHtml(problem.title)}</span>
     </a>
