@@ -599,7 +599,7 @@ button, input, select, textarea { font: inherit; }
   margin: 0;
   line-height: 1.45;
   color: rgba(200, 238, 234, 0.78);
-  max-width: 38rem;
+  max-width: min(100%, 56rem);
 }
 .hero-card-compact {
   padding: 18px 22px;
