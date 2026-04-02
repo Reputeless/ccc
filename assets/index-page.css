@@ -455,8 +455,13 @@
 
   .problem-main-link {
     padding: 16px 6px 12px;
-    align-items: start;
+    align-items: center;
     align-content: start;
+  }
+
+  .problem-number-slot,
+  .problem-title-text {
+    align-self: center;
   }
 
   .problem-card-actions {
