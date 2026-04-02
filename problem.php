@@ -8,6 +8,26 @@ function h(string $value): string
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
 
+function ccc_problem_ui_text(array $uiText, string $key): string
+{
+    $value = $uiText[$key] ?? null;
+    if (is_string($value) && $value !== '') {
+        return $value;
+    }
+
+    return '[[' . $key . ']]';
+}
+
+function ccc_problem_config_text(array $config, string $key): string
+{
+    $value = $config[$key] ?? null;
+    if (is_string($value) && $value !== '') {
+        return $value;
+    }
+
+    return '[[' . $key . ']]';
+}
+
 function ccc_read_version_string(string $path): string
 {
     if (!is_file($path)) {
@@ -26,6 +46,25 @@ try {
     $config = ccc_load_app_config();
     $version = ccc_read_version_string(__DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'version.json');
     $assetVersionQuery = $version !== '' ? '?v=' . rawurlencode($version) : '';
+    $uiText = is_array($config['uiText'] ?? null) ? $config['uiText'] : [];
+    $backToList = ccc_problem_ui_text($uiText, 'backToList');
+    $backToListPlain = preg_replace('/^←\s*/u', '', $backToList) ?? $backToList;
+    $problemErrorTitle = ccc_problem_ui_text($uiText, 'problemErrorTitle');
+    $problemUnavailable = ccc_problem_ui_text($uiText, 'problemUnavailable');
+    $solvedToggleLabel = ccc_problem_ui_text($uiText, 'solvedToggleLabel');
+    $understandingSelectLabel = ccc_problem_ui_text($uiText, 'understandingSelectLabel');
+    $examplesSectionTitle = ccc_problem_ui_text($uiText, 'examplesSectionTitle');
+    $codeEditorTitle = ccc_problem_ui_text($uiText, 'codeEditorTitle');
+    $judgeButtonLabel = ccc_problem_ui_text($uiText, 'judgeButtonLabel');
+    $resultPanelTitle = ccc_problem_ui_text($uiText, 'resultPanelTitle');
+    $judgeLoadingLabel = ccc_problem_ui_text($uiText, 'judgeLoadingLabel');
+    $resultIdle = ccc_problem_ui_text($uiText, 'resultIdle');
+    $understandingPromptTitle = ccc_problem_ui_text($uiText, 'understandingPromptTitle');
+    $understandingPromptLead = ccc_problem_ui_text($uiText, 'understandingPromptLead');
+    $validationLink = ccc_problem_ui_text($uiText, 'validationLink');
+    $teacherGuideLink = ccc_problem_ui_text($uiText, 'teacherGuideLink');
+    $appName = ccc_problem_config_text($config, 'appName');
+    $copyrightNotice = ccc_problem_config_text($config, 'copyrightNotice');
 } catch (Throwable $throwable) {
     http_response_code(500);
     ?><!doctype html>
@@ -49,7 +88,7 @@ try {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#0d2e3a">
-  <title><?= h($config['appName']) ?></title>
+  <title><?= h($appName) ?></title>
   <link rel="icon" href="favicon.ico<?= h($assetVersionQuery) ?>" sizes="any">
   <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg<?= h($assetVersionQuery) ?>">
   <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png<?= h($assetVersionQuery) ?>">
@@ -76,16 +115,16 @@ try {
   <header class="site-header compact-header">
     <div class="site-header-inner">
       <a class="hero-card hero-card-compact hero-card-link hero-card-link-only" href="./">
-        <span id="problem-back-link-text" class="back-link">← 問題一覧へ戻る</span>
+        <span id="problem-back-link-text" class="back-link"><?= h($backToList) ?></span>
       </a>
     </div>
   </header>
 
   <main class="content-stack">
     <section id="problem-error" class="panel error-panel" hidden>
-      <h1 id="problem-error-title">問題を表示できません</h1>
-      <p id="problem-error-message">問題が見つかりません。</p>
-      <a id="problem-error-back-link" class="primary-link" href="./">問題一覧へ戻る</a>
+      <h1 id="problem-error-title"><?= h($problemErrorTitle) ?></h1>
+      <p id="problem-error-message"><?= h($problemUnavailable) ?></p>
+      <a id="problem-error-back-link" class="primary-link" href="./"><?= h($backToListPlain) ?></a>
     </section>
 
     <section id="problem-view" hidden>
@@ -98,7 +137,7 @@ try {
                 <div id="problem-meta" class="problem-meta-badges"></div>
                 <div class="meta-actions">
                   <label id="solved-toggle-label" class="solved-toggle solved-toggle-large">
-                    <input id="solved-toggle" class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="解いた">
+                    <input id="solved-toggle" class="solved-checkbox solved-toggle-input sr-only" type="checkbox" aria-label="<?= h($solvedToggleLabel) ?>">
                     <span class="solved-toggle-icon" aria-hidden="true">
                       <svg viewBox="0 0 20 20" focusable="false">
                         <circle class="solved-toggle-circle" cx="10" cy="10" r="7.75"></circle>
@@ -107,10 +146,10 @@ try {
                     </span>
                   </label>
                   <label class="field select-inline compact-select problem-understanding-field">
-                    <span id="understanding-select-label" class="sr-only">理解度</span>
+                    <span id="understanding-select-label" class="sr-only"><?= h($understandingSelectLabel) ?></span>
                     <span id="problem-understanding-wrap" class="understanding-select-wrap">
                       <span id="problem-understanding-marker" class="understanding-marker understanding-marker-understanding-unset" aria-hidden="true"></span>
-                      <select id="understanding-select" class="understanding-select" aria-label="理解度"></select>
+                      <select id="understanding-select" class="understanding-select" aria-label="<?= h($understandingSelectLabel) ?>"></select>
                     </span>
                   </label>
                 </div>
@@ -119,14 +158,14 @@ try {
           </header>
           <div id="problem-body" class="problem-body"></div>
           <section class="examples-section">
-            <h2 id="examples-section-title">入出力例</h2>
+            <h2 id="examples-section-title"><?= h($examplesSectionTitle) ?></h2>
             <div id="examples-list" class="examples-list"></div>
           </section>
         </article>
 
         <aside class="panel editor-panel">
           <div class="panel-heading">
-            <h2 id="code-editor-title">コード入力</h2>
+            <h2 id="code-editor-title"><?= h($codeEditorTitle) ?></h2>
           </div>
 
           <div id="text-answer-panel" class="text-answer-panel" hidden>
@@ -136,26 +175,26 @@ try {
           <textarea id="code-editor" class="code-editor" spellcheck="false" wrap="off"></textarea>
 
           <div class="editor-actions">
-            <button id="judge-button" class="primary-button" type="button">判定する</button>
+            <button id="judge-button" class="primary-button" type="button"><?= h($judgeButtonLabel) ?></button>
           </div>
 
           <section class="result-section" aria-live="polite">
             <div class="panel-heading">
-              <h2 id="result-panel-title">判定結果</h2>
+              <h2 id="result-panel-title"><?= h($resultPanelTitle) ?></h2>
               <div id="judge-loading" class="loading-indicator" hidden>
                 <span class="spinner" aria-hidden="true"></span>
-                <span id="judge-loading-label">判定中...</span>
+                <span id="judge-loading-label"><?= h($judgeLoadingLabel) ?></span>
               </div>
             </div>
             <div id="result-message" class="status-banner result-status-banner no-icon muted-banner">
-              <span class="result-status-text">まだ判定していません</span>
+              <span class="result-status-text"><?= h($resultIdle) ?></span>
             </div>
             <fieldset id="result-understanding-prompt" class="result-understanding-prompt" hidden>
-              <legend id="understanding-prompt-title">この問題の理解度はどうでしたか？</legend>
+              <legend id="understanding-prompt-title"><?= h($understandingPromptTitle) ?></legend>
               <div id="result-understanding-options" class="result-understanding-options"></div>
               <div class="result-understanding-actions">
-                <p id="understanding-prompt-lead" class="result-understanding-actions-label">理解度を記録したら、次の問題に進みましょう。</p>
-                <a id="problem-result-back-link" class="result-back-link" href="./">← 問題一覧へ戻る</a>
+                <p id="understanding-prompt-lead" class="result-understanding-actions-label"><?= h($understandingPromptLead) ?></p>
+                <a id="problem-result-back-link" class="result-back-link" href="./"><?= h($backToList) ?></a>
               </div>
             </fieldset>
             <div id="result-details" class="result-details"></div>
@@ -171,9 +210,9 @@ try {
   <footer class="site-footer">
     <div class="site-footer-inner">
       <p class="site-footer-line">
-        <span id="global-footer-copyright" class="site-footer-copy"></span>
-        <a id="global-footer-validation-link" class="site-footer-link" href="validate.php">問題ステータス</a>
-        <a id="global-footer-teacher-guide-link" class="site-footer-link" href="teacher-guide.php">教師用ガイド</a>
+        <span id="global-footer-copyright" class="site-footer-copy"><?= h($copyrightNotice) ?></span>
+        <a id="global-footer-validation-link" class="site-footer-link" href="validate.php"><?= h($validationLink) ?></a>
+        <a id="global-footer-teacher-guide-link" class="site-footer-link" href="teacher-guide.php"><?= h($teacherGuideLink) ?></a>
       </p>
     </div>
   </footer>
