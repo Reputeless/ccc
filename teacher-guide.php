@@ -38,6 +38,7 @@ try {
     $versionPath = __DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'version.json';
     $guideMarkdown = is_file($guidePath) ? (string) file_get_contents($guidePath) : '';
     $version = ccc_read_version_string($versionPath);
+    $assetVersionQuery = $version !== '' ? '?v=' . rawurlencode($version) : '';
     $guideMarkdown = ccc_append_teacher_guide_version_section($guideMarkdown, $version);
     $renderer = new CccMarkdownRenderer('', '');
     $guideHtml = trim($guideMarkdown) !== ''
@@ -67,24 +68,24 @@ try {
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#0d2e3a">
   <title><?= h($config['appName']) ?> | <?= h((string) ($config['uiText']['teacherGuideTitle'] ?? '教師用ガイド')) ?></title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
-  <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
-  <link rel="manifest" href="favicon/site.webmanifest">
-  <script src="assets/theme-init.js"></script>
-  <script src="assets/prism-init.js"></script>
+  <link rel="icon" href="favicon.ico<?= h($assetVersionQuery) ?>" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg<?= h($assetVersionQuery) ?>">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png<?= h($assetVersionQuery) ?>">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png<?= h($assetVersionQuery) ?>">
+  <link rel="manifest" href="favicon/site.webmanifest<?= h($assetVersionQuery) ?>">
+  <script src="assets/theme-init.js<?= h($assetVersionQuery) ?>"></script>
+  <script src="assets/prism-init.js<?= h($assetVersionQuery) ?>"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/app.css">
-  <link rel="stylesheet" href="assets/problem-page.css">
-  <script defer src="assets/vendor/prism/prism-core.min.js"></script>
-  <script defer src="assets/vendor/prism/prism-clike.min.js"></script>
-  <script defer src="assets/vendor/prism/prism-c.min.js"></script>
-  <script defer src="assets/vendor/prism/prism-cpp.min.js"></script>
-  <script defer src="assets/vendor/prism/prism-python.min.js"></script>
-  <script defer src="assets/teacher-guide.js"></script>
+  <link rel="stylesheet" href="assets/app.css<?= h($assetVersionQuery) ?>">
+  <link rel="stylesheet" href="assets/problem-page.css<?= h($assetVersionQuery) ?>">
+  <script defer src="assets/vendor/prism/prism-core.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-clike.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-c.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-cpp.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/vendor/prism/prism-python.min.js<?= h($assetVersionQuery) ?>"></script>
+  <script defer src="assets/teacher-guide.js<?= h($assetVersionQuery) ?>"></script>
 </head>
 <body class="page-shell">
   <main class="content-stack">

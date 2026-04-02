@@ -50,9 +50,25 @@ function render_validate_published_at(string $value): string
     }
 }
 
+function ccc_read_version_string(string $path): string
+{
+    if (!is_file($path)) {
+        return '';
+    }
+
+    $decoded = json_decode((string) file_get_contents($path), true);
+    if (!is_array($decoded)) {
+        return '';
+    }
+
+    return trim((string) ($decoded['version'] ?? ''));
+}
+
 try {
     $config = ccc_load_app_config();
     $report = ccc_validate_problem_set($config);
+    $version = ccc_read_version_string(__DIR__ . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'version.json');
+    $assetVersionQuery = $version !== '' ? '?v=' . rawurlencode($version) : '';
 } catch (Throwable $throwable) {
     http_response_code(500);
     ?><!doctype html>
@@ -80,18 +96,18 @@ $items = $report['items'];
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="theme-color" content="#0d2e3a">
   <title><?= h($config['appName']) ?> | <?= h((string) ($config['uiText']['validationLink'] ?? '問題ステータス')) ?></title>
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg">
-  <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
-  <link rel="manifest" href="favicon/site.webmanifest">
-  <script src="assets/theme-init.js"></script>
+  <link rel="icon" href="favicon.ico<?= h($assetVersionQuery) ?>" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg<?= h($assetVersionQuery) ?>">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon/favicon-96x96.png<?= h($assetVersionQuery) ?>">
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png<?= h($assetVersionQuery) ?>">
+  <link rel="manifest" href="favicon/site.webmanifest<?= h($assetVersionQuery) ?>">
+  <script src="assets/theme-init.js<?= h($assetVersionQuery) ?>"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/app.css">
-  <link rel="stylesheet" href="assets/validate.css">
-  <script defer src="assets/tooltip.js"></script>
+  <link rel="stylesheet" href="assets/app.css<?= h($assetVersionQuery) ?>">
+  <link rel="stylesheet" href="assets/validate.css<?= h($assetVersionQuery) ?>">
+  <script defer src="assets/tooltip.js<?= h($assetVersionQuery) ?>"></script>
 </head>
 <body>
   <div class="page-shell">
