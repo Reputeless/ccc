@@ -28,8 +28,7 @@ final class CccMarkdownRenderer
             if ($paragraph === []) {
                 return;
             }
-            $text = implode(' ', array_map('trim', $paragraph));
-            $html[] = '<p>' . $this->renderInline($text) . '</p>';
+            $html[] = '<p>' . $this->renderFlowLines($paragraph) . '</p>';
             $paragraph = [];
         };
 
@@ -45,8 +44,7 @@ final class CccMarkdownRenderer
             if ($quoteParagraph === []) {
                 return;
             }
-            $text = implode(' ', array_map('trim', $quoteParagraph));
-            $html[] = '<blockquote><p>' . $this->renderInline($text) . '</p></blockquote>';
+            $html[] = '<blockquote><p>' . $this->renderFlowLines($quoteParagraph) . '</p></blockquote>';
             $quoteParagraph = [];
         };
 
@@ -242,6 +240,27 @@ final class CccMarkdownRenderer
         }
 
         return $escaped;
+    }
+
+    /**
+     * @param list<string> $lines
+     */
+    private function renderFlowLines(array $lines): string
+    {
+        $html = '';
+        $lastIndex = count($lines) - 1;
+
+        foreach ($lines as $index => $line) {
+            $html .= $this->renderInline(trim($line));
+
+            if ($index >= $lastIndex) {
+                continue;
+            }
+
+            $html .= preg_match('/ {2,}$/', $line) === 1 ? '<br>' : ' ';
+        }
+
+        return $html;
     }
 
     private function renderList(array $items): string
