@@ -46,6 +46,7 @@ function ccc_default_app_config(): array
         'resultMessagePreviewMaxLines' => 40,
         'judgeTimeoutSeconds' => 10,
         'maxCodeBytes' => 65536,
+        'maxTextAnswerChars' => 100,
         'defaultProfileId' => ccc_default_profile_id(),
         'languageProfiles' => ccc_built_in_language_profiles(),
     ];
