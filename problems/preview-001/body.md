@@ -54,6 +54,19 @@
 | 長いコマンド | `` `php tools/create.php sample-001 --template default --profile c23` `` | 横幅が足りないときの挙動を確認します |
 | 長い URL | `https://github.com/Reputeless/ccc` | 折り返しやスクロールの挙動を確認します |
 
+### リンクと表の表示確認
+
+- アンダースコアを含む URL: [example](https://example.com/a_b)
+- 括弧を含む URL: [example](https://example.com/a_(b))
+- アンダースコアを含むリンク文字列: [a_b](https://example.com)
+- 安全でないスキームはリンク先を無効化します: [unsafe](javascript:alert(1))
+
+| ケース | 入力 | 備考 |
+| --- | --- | --- |
+| 空セル |  | 空のセルが消えずに残るかを確認します |
+| escaped pipe | a \| b | `\|` がセル区切りにならないかを確認します |
+| 括弧付き画像 | ![格子の図](./figure-grid.svg "title") | title 付き画像記法の URL 解釈を確認します |
+
 ### 画像
 
 下の図は、横 4 マス・縦 3 マスの格子を表しています。

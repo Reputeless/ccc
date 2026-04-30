@@ -48,19 +48,29 @@ final class CccMarkdownRenderer
             $quoteParagraph = [];
         };
 
-        $flushTable = function () use (&$tableRows, &$html): void {
+        $flushTable = function () use (&$tableRows, &$html, &$paragraph, $flushParagraph): void {
             if ($tableRows === []) {
                 return;
             }
-            $header = array_shift($tableRows);
+
+            if (count($tableRows) < 2 || !$this->isMarkdownTableSeparator($tableRows[1]['cells'])) {
+                foreach ($tableRows as $row) {
+                    $paragraph[] = $row['raw'];
+                }
+                $tableRows = [];
+                $flushParagraph();
+                return;
+            }
+
+            $header = $tableRows[0]['cells'];
             $html[] = '<div class="table-scroll"><table><thead><tr>' . implode('', array_map(
                 fn (string $cell): string => '<th>' . $this->renderInline(trim($cell)) . '</th>',
                 $header
             )) . '</tr></thead><tbody>';
-            foreach ($tableRows as $row) {
+            foreach (array_slice($tableRows, 2) as $row) {
                 $html[] = '<tr>' . implode('', array_map(
                     fn (string $cell): string => '<td>' . $this->renderInline(trim($cell)) . '</td>',
-                    $row
+                    $row['cells']
                 )) . '</tr>';
             }
             $html[] = '</tbody></table></div>';
@@ -173,8 +183,11 @@ final class CccMarkdownRenderer
                 $flushQuote();
                 $flushList();
                 $cells = $this->splitMarkdownTableRow($line);
-                if ($cells !== [] && !$this->isMarkdownTableSeparator($cells)) {
-                    $tableRows[] = $cells;
+                if ($cells !== []) {
+                    $tableRows[] = [
+                        'raw' => $line,
+                        'cells' => $cells,
+                    ];
                 }
                 continue;
             }
@@ -196,10 +209,10 @@ final class CccMarkdownRenderer
 
     private function renderInline(string $text): string
     {
-        $escaped = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
         $codePlaceholders = [];
+        $inlinePlaceholders = [];
 
-        $escaped = preg_replace_callback(
+        $text = preg_replace_callback(
             '/(`+)(.+?)\1/',
             function (array $matches) use (&$codePlaceholders): string {
                 $placeholder = '@@CCCCODE' . count($codePlaceholders) . '@@';
@@ -212,29 +225,19 @@ final class CccMarkdownRenderer
                     $codeText = substr($codeText, 1, -1);
                 }
 
-                $codePlaceholders[$placeholder] = '<code>' . $codeText . '</code>';
+                $codePlaceholders[$placeholder] = '<code>' . htmlspecialchars($codeText, ENT_QUOTES, 'UTF-8') . '</code>';
                 return $placeholder;
             },
-            $escaped
-        ) ?? $escaped;
+            $text
+        ) ?? $text;
 
-        $escaped = preg_replace_callback(
-            '/!\[([^\]]*)\]\(([^)]+)\)/',
-            fn (array $matches): string => '<img src="' . htmlspecialchars($this->resolveUrl($matches[2]), ENT_QUOTES, 'UTF-8') . '" alt="' . htmlspecialchars($matches[1], ENT_QUOTES, 'UTF-8') . '">',
-            $escaped
-        ) ?? $escaped;
+        $text = $this->replaceInlineLinksAndImages($text, $inlinePlaceholders, $codePlaceholders);
+        $escaped = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        $escaped = $this->renderEmphasis($escaped);
 
-        $escaped = preg_replace_callback(
-            '/\[([^\]]+)\]\(([^)]+)\)/',
-            fn (array $matches): string => '<a href="' . htmlspecialchars($this->resolveUrl($matches[2]), ENT_QUOTES, 'UTF-8') . '" target="_blank" rel="noopener noreferrer">' . $matches[1] . '</a>',
-            $escaped
-        ) ?? $escaped;
-
-        $escaped = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $escaped) ?? $escaped;
-        $escaped = preg_replace('/~~(.+?)~~/s', '<del>$1</del>', $escaped) ?? $escaped;
-        $escaped = preg_replace('/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/s', '<em>$1</em>', $escaped) ?? $escaped;
-        $escaped = preg_replace('/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/s', '<em>$1</em>', $escaped) ?? $escaped;
-
+        if ($inlinePlaceholders !== []) {
+            $escaped = strtr($escaped, $inlinePlaceholders);
+        }
         if ($codePlaceholders !== []) {
             $escaped = strtr($escaped, $codePlaceholders);
         }
@@ -318,7 +321,21 @@ final class CccMarkdownRenderer
 
     private function resolveUrl(string $url): string
     {
-        if (preg_match('/^https?:\/\//i', $url)) {
+        $url = trim(str_replace(["\r", "\n", "\t"], '', $url));
+        if ($url === '') {
+            return '#';
+        }
+
+        if (preg_match('/^[A-Za-z][A-Za-z0-9+.-]*:/', $url, $matches) === 1) {
+            $scheme = strtolower(rtrim($matches[0], ':'));
+            return in_array($scheme, ['http', 'https', 'mailto'], true) ? $url : '#';
+        }
+
+        if (str_starts_with($url, '//')) {
+            return 'https:' . $url;
+        }
+
+        if (str_starts_with($url, '#')) {
             return $url;
         }
 
@@ -331,8 +348,12 @@ final class CccMarkdownRenderer
 
     private function isMarkdownTableSeparator(array $cells): bool
     {
+        if ($cells === []) {
+            return false;
+        }
+
         foreach ($cells as $cell) {
-            if (!preg_match('/^:?-{3,}:?$/', $cell)) {
+            if (!preg_match('/^:?-{3,}:?$/', trim($cell))) {
                 return false;
             }
         }
@@ -352,19 +373,36 @@ final class CccMarkdownRenderer
         $content = substr($trimmed, 1, -1);
         $cells = [];
         $buffer = '';
-        $inCode = false;
+        $codeRunLength = 0;
         $length = strlen($content);
 
         for ($index = 0; $index < $length; $index++) {
             $char = $content[$index];
 
-            if ($char === '`') {
-                $inCode = !$inCode;
-                $buffer .= $char;
+            if ($char === '\\' && ($content[$index + 1] ?? '') === '|') {
+                $buffer .= '|';
+                $index++;
                 continue;
             }
 
-            if ($char === '|' && !$inCode) {
+            if ($char === '`') {
+                $runLength = 1;
+                while (($content[$index + $runLength] ?? '') === '`') {
+                    $runLength++;
+                }
+
+                if ($codeRunLength === 0) {
+                    $codeRunLength = $runLength;
+                } elseif ($runLength === $codeRunLength) {
+                    $codeRunLength = 0;
+                }
+
+                $buffer .= str_repeat('`', $runLength);
+                $index += $runLength - 1;
+                continue;
+            }
+
+            if ($char === '|' && $codeRunLength === 0) {
                 $cells[] = trim($buffer);
                 $buffer = '';
                 continue;
@@ -375,6 +413,143 @@ final class CccMarkdownRenderer
 
         $cells[] = trim($buffer);
 
-        return array_values(array_filter($cells, static fn(string $cell): bool => $cell !== ''));
+        return $cells;
+    }
+
+    private function renderEmphasis(string $text): string
+    {
+        $text = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $text) ?? $text;
+        $text = preg_replace('/~~(.+?)~~/s', '<del>$1</del>', $text) ?? $text;
+        $text = preg_replace('/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/s', '<em>$1</em>', $text) ?? $text;
+        return preg_replace('/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/s', '<em>$1</em>', $text) ?? $text;
+    }
+
+    private function replaceInlineLinksAndImages(string $text, array &$inlinePlaceholders, array $codePlaceholders): string
+    {
+        $result = '';
+        $offset = 0;
+        $length = strlen($text);
+
+        while ($offset < $length) {
+            $image = $text[$offset] === '!' && ($text[$offset + 1] ?? '') === '[';
+            $link = $text[$offset] === '[';
+            if (!$image && !$link) {
+                $result .= $text[$offset];
+                $offset++;
+                continue;
+            }
+
+            $labelStart = $offset + ($image ? 2 : 1);
+            $labelEnd = $this->findClosingBracket($text, $labelStart);
+            if ($labelEnd === null || ($text[$labelEnd + 1] ?? '') !== '(') {
+                $result .= $text[$offset];
+                $offset++;
+                continue;
+            }
+
+            $destinationStart = $labelEnd + 2;
+            $destinationEnd = $this->findClosingParenthesis($text, $destinationStart);
+            if ($destinationEnd === null) {
+                $result .= $text[$offset];
+                $offset++;
+                continue;
+            }
+
+            $label = substr($text, $labelStart, $labelEnd - $labelStart);
+            $destination = $this->parseLinkDestination(substr($text, $destinationStart, $destinationEnd - $destinationStart));
+            if ($destination === '') {
+                $result .= $text[$offset];
+                $offset++;
+                continue;
+            }
+
+            $placeholder = '@@CCCLINK' . count($inlinePlaceholders) . '@@';
+            $url = htmlspecialchars($this->resolveUrl($destination), ENT_QUOTES, 'UTF-8');
+
+            if ($image) {
+                $alt = htmlspecialchars($this->plainTextWithCodePlaceholders($label, $codePlaceholders), ENT_QUOTES, 'UTF-8');
+                $inlinePlaceholders[$placeholder] = '<img src="' . $url . '" alt="' . $alt . '">';
+            } else {
+                $labelHtml = $this->renderInlineText($label, $codePlaceholders);
+                $inlinePlaceholders[$placeholder] = '<a href="' . $url . '" target="_blank" rel="noopener noreferrer">' . $labelHtml . '</a>';
+            }
+
+            $result .= $placeholder;
+            $offset = $destinationEnd + 1;
+        }
+
+        return $result;
+    }
+
+    private function renderInlineText(string $text, array $codePlaceholders): string
+    {
+        $html = htmlspecialchars($text, ENT_QUOTES, 'UTF-8');
+        $html = $this->renderEmphasis($html);
+        return $codePlaceholders !== [] ? strtr($html, $codePlaceholders) : $html;
+    }
+
+    private function plainTextWithCodePlaceholders(string $text, array $codePlaceholders): string
+    {
+        foreach ($codePlaceholders as $placeholder => $html) {
+            $text = str_replace($placeholder, trim(strip_tags($html)), $text);
+        }
+        return $text;
+    }
+
+    private function findClosingBracket(string $text, int $offset): ?int
+    {
+        $length = strlen($text);
+        for ($index = $offset; $index < $length; $index++) {
+            if ($text[$index] === '\\') {
+                $index++;
+                continue;
+            }
+            if ($text[$index] === ']') {
+                return $index;
+            }
+        }
+        return null;
+    }
+
+    private function findClosingParenthesis(string $text, int $offset): ?int
+    {
+        $depth = 0;
+        $length = strlen($text);
+        for ($index = $offset; $index < $length; $index++) {
+            if ($text[$index] === '\\') {
+                $index++;
+                continue;
+            }
+            if ($text[$index] === '(') {
+                $depth++;
+                continue;
+            }
+            if ($text[$index] !== ')') {
+                continue;
+            }
+            if ($depth === 0) {
+                return $index;
+            }
+            $depth--;
+        }
+        return null;
+    }
+
+    private function parseLinkDestination(string $content): string
+    {
+        $trimmed = trim($content);
+        if ($trimmed === '') {
+            return '';
+        }
+
+        if ($trimmed[0] === '<') {
+            $end = strpos($trimmed, '>');
+            return $end === false ? '' : substr($trimmed, 1, $end - 1);
+        }
+
+        if (preg_match('/^(\S+)/', $trimmed, $matches) !== 1) {
+            return '';
+        }
+        return $matches[1];
     }
 }
