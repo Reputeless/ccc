@@ -262,6 +262,17 @@
   line-height: 1.5;
 }
 
+.problem-body pre {
+  max-width: 100%;
+  white-space: pre;
+  overflow-x: auto;
+  word-break: normal;
+}
+
+.problem-body pre code {
+  white-space: inherit;
+}
+
 .copyable-code-wrapper {
   position: relative;
   max-width: 100%;
@@ -918,17 +929,6 @@
   .example-block pre,
   .result-details pre {
     padding: 12px;
-  }
-
-  .problem-body pre {
-    max-width: 100%;
-    white-space: pre;
-    overflow-x: auto;
-    word-break: normal;
-  }
-
-  .problem-body pre code {
-    white-space: inherit;
   }
 
   .examples-section {
