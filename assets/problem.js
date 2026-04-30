@@ -518,6 +518,8 @@ function setupEditor() {
   editor.value = getStoredCode(currentProblem.id);
   window.CCCCodeEditor.attachCodeEditor(editor, {
     getIndentSettings: () => getEditorIndentSettings(),
+    getLineCommentMarker: () => getLineCommentMarker(),
+    getLanguage: () => getEditorLanguage(),
     onValueChange: (value) => {
       setStoredCode(currentProblem.id, value);
     },
@@ -536,6 +538,14 @@ function getEditorIndentSettings() {
     width,
     unit: style === "spaces" ? " ".repeat(width) : "\t",
   };
+}
+
+function getLineCommentMarker() {
+  return getEditorLanguage() === "python" ? "#" : "//";
+}
+
+function getEditorLanguage() {
+  return String(currentProblem?.languageProfile?.language ?? "").toLowerCase();
 }
 
 function setupMetaControls() {

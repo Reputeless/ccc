@@ -7,6 +7,12 @@
         unit: "\t",
       };
     },
+    getLineCommentMarker() {
+      return "//";
+    },
+    getLanguage() {
+      return "";
+    },
     onValueChange() {},
   };
 
@@ -54,14 +60,22 @@
 
       if ((event.ctrlKey || event.metaKey) && !event.altKey && event.code === "Slash") {
         event.preventDefault();
-        handleCommentToggle(textarea, history);
+        handleCommentToggle(textarea, history, settings.getLineCommentMarker());
         applyValueChange(textarea.value);
         return;
       }
 
+      if (event.key === "Backspace" && !event.altKey && !event.ctrlKey && !event.metaKey) {
+        if (handleIndentBackspace(textarea, history, settings.getIndentSettings())) {
+          event.preventDefault();
+          applyValueChange(textarea.value);
+          return;
+        }
+      }
+
       if (event.key === "Enter" && !event.altKey && !event.ctrlKey && !event.metaKey) {
         event.preventDefault();
-        handleEnterKey(textarea, history, settings.getIndentSettings());
+        handleEnterKey(textarea, history, settings.getIndentSettings(), settings.getLanguage());
         applyValueChange(textarea.value);
         return;
       }
@@ -153,14 +167,17 @@
     );
   }
 
-  function handleCommentToggle(editor, history) {
+  function handleCommentToggle(editor, history, marker) {
+    const commentMarker = typeof marker === "string" && marker !== "" ? marker : "//";
     const block = getSelectedLineBlock(editor.value, editor.selectionStart, editor.selectionEnd);
     const nonEmptyLines = block.lines.filter((line) => line.trim() !== "");
     if (nonEmptyLines.length === 0) {
       return;
     }
 
-    const shouldUncomment = nonEmptyLines.every((line) => /^(\s*)\/\//.test(line));
+    const markerPattern = escapeRegExp(commentMarker);
+    const uncommentPattern = new RegExp(`^(\\s*)${markerPattern}\\s?`);
+    const shouldUncomment = nonEmptyLines.every((line) => uncommentPattern.test(line));
     const edits = [];
 
     const transformedLines = block.lines.map((line, index) => {
@@ -171,20 +188,22 @@
       }
 
       if (shouldUncomment) {
-        const match = line.match(/^(\s*)\/\//);
+        const match = line.match(uncommentPattern);
         if (!match) {
           return line;
         }
 
         const removeStart = relativeLineStart + match[1].length;
-        edits.push({ type: "remove", start: removeStart, length: 2 });
-        return line.slice(0, match[1].length) + line.slice(match[1].length + 2);
+        const removeLength = match[0].length - match[1].length;
+        edits.push({ type: "remove", start: removeStart, length: removeLength });
+        return line.slice(0, match[1].length) + line.slice(match[1].length + removeLength);
       }
 
       const indentLength = line.match(/^\s*/)?.[0].length ?? 0;
       const insertStart = relativeLineStart + indentLength;
-      edits.push({ type: "insert", start: insertStart, length: 2 });
-      return line.slice(0, indentLength) + "//" + line.slice(indentLength);
+      const inserted = `${commentMarker} `;
+      edits.push({ type: "insert", start: insertStart, length: inserted.length });
+      return line.slice(0, indentLength) + inserted + line.slice(indentLength);
     });
 
     const replacement = transformedLines.join("\n");
@@ -203,13 +222,68 @@
     );
   }
 
-  function handleEnterKey(editor, history, indentSettings) {
+  function handleIndentBackspace(editor, history, indentSettings) {
+    const start = editor.selectionStart;
+    const end = editor.selectionEnd;
+
+    if (start !== end) {
+      return false;
+    }
+
+    const currentLineStart = lineStart(editor.value, start);
+    if (start === currentLineStart) {
+      return false;
+    }
+
+    const beforeCursor = editor.value.slice(currentLineStart, start);
+    if (beforeCursor.trim() !== "") {
+      return false;
+    }
+
+    const deleteStart = findIndentBackspaceStart(beforeCursor, indentSettings.width);
+    if (deleteStart === beforeCursor.length) {
+      return false;
+    }
+
+    const replaceStart = currentLineStart + deleteStart;
+    applyEdit(
+      editor,
+      history,
+      replaceStart,
+      start,
+      "",
+      replaceStart,
+      replaceStart,
+      "deleteIndentation"
+    );
+    return true;
+  }
+
+  function findIndentBackspaceStart(indentBeforeCursor, indentWidth) {
+    if (indentBeforeCursor.endsWith("\t")) {
+      return indentBeforeCursor.length - 1;
+    }
+
+    const trailingSpaces = indentBeforeCursor.match(/ +$/)?.[0].length ?? 0;
+    if (trailingSpaces === 0) {
+      return indentBeforeCursor.length;
+    }
+
+    const width = Math.max(1, Number(indentWidth) || 1);
+    const remainder = trailingSpaces % width;
+    const spacesToRemove = remainder === 0
+      ? Math.min(width, trailingSpaces)
+      : remainder;
+    return indentBeforeCursor.length - spacesToRemove;
+  }
+
+  function handleEnterKey(editor, history, indentSettings, language) {
     const start = editor.selectionStart;
     const end = editor.selectionEnd;
     const currentLineStart = lineStart(editor.value, start);
     const currentLine = editor.value.slice(currentLineStart, start);
     const indent = currentLine.match(/^[\t ]*/)?.[0] ?? "";
-    const nextIndent = shouldIncreaseIndentAfterEnter(currentLine)
+    const nextIndent = shouldIncreaseIndentAfterEnter(currentLine, language)
       ? `${indent}${indentSettings.unit}`
       : indent;
 
@@ -225,9 +299,59 @@
     );
   }
 
-  function shouldIncreaseIndentAfterEnter(currentLine) {
-    const codePortion = currentLine.replace(/\/\/.*$/, "").trimEnd();
+  function shouldIncreaseIndentAfterEnter(currentLine, language) {
+    const normalizedLanguage = String(language ?? "").toLowerCase();
+    const codePortion = stripLineComment(currentLine, normalizedLanguage).trimEnd();
+    if (normalizedLanguage === "python") {
+      return codePortion.endsWith(":");
+    }
+
     return codePortion.endsWith("{");
+  }
+
+  function stripLineComment(line, language) {
+    if (language === "python") {
+      return stripCommentOutsideQuotes(line, "#");
+    }
+
+    return stripCommentOutsideQuotes(line, "//");
+  }
+
+  function stripCommentOutsideQuotes(line, marker) {
+    let quote = "";
+    let escaped = false;
+
+    for (let index = 0; index < line.length; index++) {
+      const char = line[index];
+
+      if (escaped) {
+        escaped = false;
+        continue;
+      }
+
+      if (char === "\\") {
+        escaped = quote !== "";
+        continue;
+      }
+
+      if (quote !== "") {
+        if (char === quote) {
+          quote = "";
+        }
+        continue;
+      }
+
+      if (char === "\"" || char === "'") {
+        quote = char;
+        continue;
+      }
+
+      if (line.startsWith(marker, index)) {
+        return line.slice(0, index);
+      }
+    }
+
+    return line;
   }
 
   function handleClosingBraceKey(editor, history, indentSettings) {
@@ -501,6 +625,10 @@
       text: dedentedLines.join("\n"),
       removedCounts,
     };
+  }
+
+  function escapeRegExp(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
 
   windowObject.CCCCodeEditor = {
