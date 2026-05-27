@@ -4,7 +4,6 @@ const SIDEBAR_STICKY_TOP = 18;
 
 const {
   DEFAULT_CONFIG,
-  FILTER_STORAGE_KEY,
   fetchConfig,
   getConfigText,
   getUiText,
@@ -20,6 +19,8 @@ const {
   setVisualEffectsPreference,
   applyVisualEffectsPreference,
   visualEffectsReduced,
+  readListFilters,
+  writeListFilters,
   getLastOpenedProblemId,
   getDifficultyLabel,
   formatLectureLabel,
@@ -907,17 +908,16 @@ function getFilterState() {
 }
 
 function saveFilterState() {
-  localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(getFilterState()));
+  writeListFilters(getFilterState());
 }
 
 function restoreFilterState() {
-  const raw = localStorage.getItem(FILTER_STORAGE_KEY);
-  if (!raw) {
+  const filters = readListFilters();
+  if (Object.keys(filters).length === 0) {
     return;
   }
 
   try {
-    const filters = JSON.parse(raw);
     document.getElementById("lecture-min").value = filters.lectureMin ?? "";
     document.getElementById("lecture-max").value = filters.lectureMax ?? "";
     document.getElementById("solved-filter").value = filters.solved ?? "all";
@@ -929,7 +929,7 @@ function restoreFilterState() {
       checkbox.checked = selectedDifficulties.has(checkbox.value);
     });
   } catch {
-    localStorage.removeItem(FILTER_STORAGE_KEY);
+    writeListFilters({});
   }
 }
 

@@ -17,10 +17,12 @@
     maxCodeBytes: 65536,
     maxTextAnswerChars: 100,
   };
-  const FILTER_STORAGE_KEY = "ccc:v1:listFilters";
-  const LAST_OPENED_PROBLEM_KEY = "ccc:v1:lastOpenedProblem";
+  const STORAGE_PREFIX = "ccc:v1";
+  const LEGACY_FILTER_STORAGE_KEY = `${STORAGE_PREFIX}:listFilters`;
+  const LEGACY_LAST_OPENED_PROBLEM_KEY = `${STORAGE_PREFIX}:lastOpenedProblem`;
   const THEME_STORAGE_KEY = "ccc:v1:theme";
   const VISUAL_EFFECTS_STORAGE_KEY = "ccc:v1:visualEffects";
+  let storageNamespace = buildStorageNamespace(DEFAULT_CONFIG);
   let themeMediaQuery = null;
   let themeMediaQueryListenerBound = false;
 
@@ -40,8 +42,64 @@
     return isPresentString(config?.uiText?.[key]) ? config.uiText[key] : fallback;
   }
 
+  function sanitizeStoragePart(value, fallback) {
+    const normalized = String(value ?? "").trim();
+    if (normalized === "") {
+      return fallback;
+    }
+    return encodeURIComponent(normalized).replace(/%/g, "_").replace(/[^a-zA-Z0-9_.~-]+/g, "-");
+  }
+
+  function getInstallPath() {
+    try {
+      return new URL(".", global.location?.href ?? "").pathname || "/";
+    } catch {
+      return "/";
+    }
+  }
+
+  function buildStorageNamespace(config) {
+    const courseId = sanitizeStoragePart(config?.courseId, "course");
+    const installPath = sanitizeStoragePart(getInstallPath(), "root");
+    return `site:${installPath}:course:${courseId}`;
+  }
+
+  function setStorageNamespaceFromConfig(config) {
+    storageNamespace = buildStorageNamespace(config);
+  }
+
+  function namespacedStorageKey(kind, suffix = "") {
+    return `${STORAGE_PREFIX}:${storageNamespace}:${kind}${suffix}`;
+  }
+
+  function legacyProblemStorageKey(kind, problemId) {
+    return `${STORAGE_PREFIX}:${kind}:${problemId}`;
+  }
+
   function storageKey(kind, problemId) {
-    return `ccc:v1:${kind}:${problemId}`;
+    return namespacedStorageKey(kind, `:${problemId}`);
+  }
+
+  function getFilterStorageKey() {
+    return namespacedStorageKey("listFilters");
+  }
+
+  function getLastOpenedProblemStorageKey() {
+    return namespacedStorageKey("lastOpenedProblem");
+  }
+
+  function setLocalStorageItem(primaryKey, value, legacyKey = null) {
+    localStorage.setItem(primaryKey, value);
+    if (legacyKey !== null) {
+      localStorage.removeItem(legacyKey);
+    }
+  }
+
+  function removeLocalStorageItem(primaryKey, legacyKey = null) {
+    localStorage.removeItem(primaryKey);
+    if (legacyKey !== null) {
+      localStorage.removeItem(legacyKey);
+    }
   }
 
   async function fetchConfig() {
@@ -49,7 +107,9 @@
     if (!response.ok) {
       throw new Error("config fetch failed");
     }
-    return { ...DEFAULT_CONFIG, ...(await response.json()) };
+    const config = { ...DEFAULT_CONFIG, ...(await response.json()) };
+    setStorageNamespaceFromConfig(config);
+    return config;
   }
 
   function populateLabelSelect(select, labels, options = {}) {
@@ -94,7 +154,7 @@
   }
 
   function readListFilters() {
-    const raw = localStorage.getItem(FILTER_STORAGE_KEY);
+    const raw = localStorage.getItem(getFilterStorageKey());
     if (!raw) {
       return {};
     }
@@ -107,7 +167,7 @@
   }
 
   function writeListFilters(filters) {
-    localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
+    setLocalStorageItem(getFilterStorageKey(), JSON.stringify(filters), LEGACY_FILTER_STORAGE_KEY);
   }
 
   function normalizeThemePreference(value) {
@@ -176,15 +236,15 @@
   }
 
   function getLastOpenedProblemId() {
-    return localStorage.getItem(LAST_OPENED_PROBLEM_KEY) ?? "";
+    return localStorage.getItem(getLastOpenedProblemStorageKey()) ?? "";
   }
 
   function setLastOpenedProblemId(problemId) {
     if (!problemId) {
-      localStorage.removeItem(LAST_OPENED_PROBLEM_KEY);
+      removeLocalStorageItem(getLastOpenedProblemStorageKey(), LEGACY_LAST_OPENED_PROBLEM_KEY);
       return;
     }
-    localStorage.setItem(LAST_OPENED_PROBLEM_KEY, problemId);
+    setLocalStorageItem(getLastOpenedProblemStorageKey(), problemId, LEGACY_LAST_OPENED_PROBLEM_KEY);
   }
 
   function applyListQuickFilter(filterType, filterValue) {
@@ -269,12 +329,12 @@
   }
 
   function setManualSolved(problemId, solved) {
-    localStorage.setItem(storageKey("manualSolved", problemId), solved ? "solved" : "unsolved");
+    setLocalStorageItem(storageKey("manualSolved", problemId), solved ? "solved" : "unsolved", legacyProblemStorageKey("manualSolved", problemId));
   }
 
   function markAccepted(problemId) {
-    localStorage.setItem(storageKey("accepted", problemId), "true");
-    localStorage.removeItem(storageKey("manualSolved", problemId));
+    setLocalStorageItem(storageKey("accepted", problemId), "true", legacyProblemStorageKey("accepted", problemId));
+    removeLocalStorageItem(storageKey("manualSolved", problemId), legacyProblemStorageKey("manualSolved", problemId));
   }
 
   function getUnderstanding(problemId) {
@@ -283,10 +343,10 @@
 
   function setUnderstanding(problemId, value) {
     if (value === "") {
-      localStorage.removeItem(storageKey("understanding", problemId));
+      removeLocalStorageItem(storageKey("understanding", problemId), legacyProblemStorageKey("understanding", problemId));
       return;
     }
-    localStorage.setItem(storageKey("understanding", problemId), value);
+    setLocalStorageItem(storageKey("understanding", problemId), value, legacyProblemStorageKey("understanding", problemId));
   }
 
   function getStoredCode(problemId) {
@@ -294,7 +354,7 @@
   }
 
   function setStoredCode(problemId, value) {
-    localStorage.setItem(storageKey("code", problemId), value);
+    setLocalStorageItem(storageKey("code", problemId), value, legacyProblemStorageKey("code", problemId));
   }
 
   function getStoredTextAnswers(problemId) {
@@ -318,26 +378,26 @@
     } else {
       current[itemName] = value;
     }
-    localStorage.setItem(storageKey("textAnswers", problemId), JSON.stringify(current));
+    setLocalStorageItem(storageKey("textAnswers", problemId), JSON.stringify(current), legacyProblemStorageKey("textAnswers", problemId));
   }
 
   function clearStoredInputs(problemIds) {
     problemIds.forEach((problemId) => {
-      localStorage.removeItem(storageKey("code", problemId));
-      localStorage.removeItem(storageKey("textAnswers", problemId));
+      removeLocalStorageItem(storageKey("code", problemId), legacyProblemStorageKey("code", problemId));
+      removeLocalStorageItem(storageKey("textAnswers", problemId), legacyProblemStorageKey("textAnswers", problemId));
     });
   }
 
   function clearLearningProgress(problemIds) {
     problemIds.forEach((problemId) => {
-      localStorage.removeItem(storageKey("accepted", problemId));
-      localStorage.removeItem(storageKey("manualSolved", problemId));
-      localStorage.removeItem(storageKey("understanding", problemId));
+      removeLocalStorageItem(storageKey("accepted", problemId), legacyProblemStorageKey("accepted", problemId));
+      removeLocalStorageItem(storageKey("manualSolved", problemId), legacyProblemStorageKey("manualSolved", problemId));
+      removeLocalStorageItem(storageKey("understanding", problemId), legacyProblemStorageKey("understanding", problemId));
     });
   }
 
   function clearLearningRecord(problemIds) {
-    localStorage.removeItem(LAST_OPENED_PROBLEM_KEY);
+    removeLocalStorageItem(getLastOpenedProblemStorageKey(), LEGACY_LAST_OPENED_PROBLEM_KEY);
     clearLearningProgress(problemIds);
     clearStoredInputs(problemIds);
   }
@@ -369,10 +429,11 @@
 
   global.CCC = {
     DEFAULT_CONFIG,
-    FILTER_STORAGE_KEY,
-    LAST_OPENED_PROBLEM_KEY,
+    getFilterStorageKey,
+    getLastOpenedProblemStorageKey,
     THEME_STORAGE_KEY,
     VISUAL_EFFECTS_STORAGE_KEY,
+    setStorageNamespaceFromConfig,
     fetchConfig,
     populateLabelSelect,
     populateOrderedLabelSelect,
