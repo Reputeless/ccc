@@ -238,11 +238,13 @@ function populateSolvedFilter() {
 }
 
 function populateUnderstandingFilter() {
-  populateLabelSelect(document.getElementById("understanding-filter"), appConfig.understandingLabels, {
+  const select = document.getElementById("understanding-filter");
+  populateLabelSelect(select, appConfig.understandingLabels, {
     emptyLabel: uiText("unsetLabel"),
     emptyValue: "unset",
   });
-  document.getElementById("understanding-filter").insertAdjacentHTML("afterbegin", `<option value="all">${escapeHtml(uiText("understandingFilterAll"))}</option>`);
+  select.insertAdjacentHTML("afterbegin", `<option value="all">${escapeHtml(uiText("understandingFilterAll"))}</option>`);
+  select.value = "all";
 }
 
 function populateSortOrderSelect() {
